@@ -2,7 +2,7 @@
 
 AI security agents, an iOS app, sales-engineering tools, interactive explainers and games.
 
-**Live gallery:** https://iautomatecontracts-lang.github.io/built-with-claude/
+**Live gallery:** https://iautomatecontracts-lang.github.io/portfolio/
 
 ## Security & identity
 
