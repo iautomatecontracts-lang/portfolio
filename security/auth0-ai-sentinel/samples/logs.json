@@ -1,0 +1,80 @@
+[
+  {
+    "log_id": "90020261110140211000000000000001",
+    "data": {
+      "date": "2026-11-10T14:02:11.000Z",
+      "type": "s",
+      "description": "Successful login",
+      "connection": "Username-Password-Authentication",
+      "client_id": "aBcWebApp",
+      "client_name": "Customer Portal",
+      "ip": "198.51.100.23",
+      "user_agent": "Safari 17.5.0 / Mac OS X 14.5.0",
+      "user_id": "auth0|alice",
+      "user_name": "alice@example.com",
+      "log_id": "90020261110140211000000000000001"
+    }
+  },
+  {
+    "log_id": "90020261110140540000000000000002",
+    "data": {
+      "date": "2026-11-10T14:05:40.000Z",
+      "type": "seccft",
+      "description": "Client Credentials for Access Token",
+      "client_id": "mcpClient123",
+      "client_name": "Internal MCP Server",
+      "ip": "3.91.22.10",
+      "user_agent": "Other 0.0.0 / Other 0.0.0",
+      "audience": "https://api.example.com/",
+      "scope": "read:orders read:customers",
+      "details": {"request": {"method": "POST", "path": "/oauth/token", "userAgent": "mcp-python-sdk/1.9 python-httpx/0.28.1"}},
+      "log_id": "90020261110140540000000000000002"
+    }
+  },
+  {
+    "log_id": "90020261110140903000000000000003",
+    "data": {
+      "date": "2026-11-10T14:09:03.000Z",
+      "type": "s",
+      "description": "Successful login",
+      "connection": "Username-Password-Authentication",
+      "client_id": "aBcWebApp",
+      "client_name": "Customer Portal",
+      "ip": "34.120.8.77",
+      "user_agent": "HeadlessChrome 131.0.0 / Linux 0.0.0",
+      "user_id": "auth0|bob",
+      "user_name": "bob@example.com",
+      "log_id": "90020261110140903000000000000003"
+    }
+  },
+  {
+    "log_id": "90020261110141000000000000000004",
+    "data": {
+      "date": "2026-11-10T14:10:00.000Z",
+      "type": "sertft",
+      "description": "Successful Refresh Token exchange",
+      "client_id": "agentApp789",
+      "client_name": "Support AI Agent",
+      "ip": "52.14.7.200",
+      "user_agent": "Other 0.0.0 / Other 0.0.0",
+      "user_id": "auth0|carol",
+      "user_name": "carol@example.com",
+      "details": {"grant_type": "urn:auth0:params:oauth:grant-type:token-exchange:federated-connection-access-token"},
+      "log_id": "90020261110141000000000000000004"
+    }
+  },
+  {
+    "log_id": "90020261110141500000000000000005",
+    "data": {
+      "date": "2026-11-10T14:15:00.000Z",
+      "type": "sapi",
+      "description": "Update a user",
+      "client_id": "tfDeployClient",
+      "client_name": "Terraform Deploy",
+      "ip": "10.0.4.12",
+      "user_agent": "Other 0.0.0 / Other 0.0.0",
+      "details": {"request": {"method": "patch", "path": "/api/v2/users/auth0|dave", "userAgent": "terraform-provider-auth0/1.7.0 go-auth0/1.10"}},
+      "log_id": "90020261110141500000000000000005"
+    }
+  }
+]

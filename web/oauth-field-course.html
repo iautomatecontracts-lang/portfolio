@@ -1,0 +1,745 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>OAuth 2.0 Field Course</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,750&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: course shell — module rail on the left, lesson column (~68ch) on the right; rail becomes a top strip on phones */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --sunk:#e8ecf0; --ink:#17212b; --muted:#5a6876; --line:#d3dae1;
+  --accent:#0f6e74; --accent-ink:#ffffff; --accent-soft:#d6ecec;
+  --key:#b7791f; --key-soft:#f7ead2;
+  --ok:#227a3f; --ok-soft:#dcf0e2; --bad:#b4372f; --bad-soft:#f7dcd9;
+  --jwt-h:#c2410c; --jwt-p:#6d28d9; --jwt-s:#0f6e74;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f151b; --surface:#16202a; --sunk:#1d2935; --ink:#e4eaf0; --muted:#97a6b4; --line:#2b3a48;
+  --accent:#4fb8bd; --accent-ink:#06191b; --accent-soft:#163a3d;
+  --key:#e2a94b; --key-soft:#3a2e17;
+  --ok:#5cc47e; --ok-soft:#173523; --bad:#ef7d74; --bad-soft:#3d1d1b;
+  --jwt-h:#fb923c; --jwt-p:#b794f6; --jwt-s:#4fb8bd; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f151b; --surface:#16202a; --sunk:#1d2935; --ink:#e4eaf0; --muted:#97a6b4; --line:#2b3a48;
+  --accent:#4fb8bd; --accent-ink:#06191b; --accent-soft:#163a3d;
+  --key:#e2a94b; --key-soft:#3a2e17;
+  --ok:#5cc47e; --ok-soft:#173523; --bad:#ef7d74; --bad-soft:#3d1d1b;
+  --jwt-h:#fb923c; --jwt-p:#b794f6; --jwt-s:#4fb8bd; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6}
+a{color:var(--accent)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--sunk);padding:.1em .35em;border-radius:4px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:2.1rem;font-weight:750;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:750}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+.shell{display:grid;grid-template-columns:270px minmax(0,1fr);min-height:100%}
+.rail{position:sticky;top:env(safe-area-inset-top,0px);height:100vh;overflow-y:auto;border-right:1px solid var(--line);background:var(--surface);
+  padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;display:flex;flex-direction:column;gap:20px}
+.brand{display:flex;gap:10px;align-items:center}
+.brand-mark{width:34px;height:34px;border-radius:8px;background:var(--key);color:#1b1206;display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:.8rem}
+.brand b{font-family:var(--f-display);font-size:1.05rem;display:block;line-height:1.1}
+.brand span{font-size:.78rem;color:var(--muted)}
+.progress{display:flex;flex-direction:column;gap:6px}
+.bar{height:6px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
+.progress small{color:var(--muted);font-size:.8rem;font-variant-numeric:tabular-nums}
+nav.mods{display:flex;flex-direction:column;gap:2px}
+nav.mods a{display:grid;grid-template-columns:26px 1fr auto;gap:10px;align-items:center;padding:9px 10px;border-radius:8px;text-decoration:none;color:var(--ink);font-size:.92rem}
+nav.mods a:hover{background:var(--sunk)}
+nav.mods a.active{background:var(--accent-soft)}
+.mnum{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);text-align:center}
+.mstate{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:.7rem}
+.mstate.done{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.rail-foot{margin-top:auto;font-size:.78rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.linkbtn{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;text-align:left;font-size:.78rem}
+
+main{padding-block:40px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));min-width:0}
+.col{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.lede{font-size:1.1rem;color:var(--muted);max-width:62ch}
+.prose{display:flex;flex-direction:column;gap:14px;max-width:68ch}
+.prose ul,.prose ol{margin:0;padding-left:1.25em;display:flex;flex-direction:column;gap:6px}
+.objectives{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.objectives ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+.callout{border-left:3px solid var(--key);background:var(--key-soft);padding:12px 16px;border-radius:0 8px 8px 0;font-size:.95rem}
+.callout b{font-family:var(--f-display)}
+section.block{display:flex;flex-direction:column;gap:14px}
+.lab{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:20px;display:flex;flex-direction:column;gap:16px}
+.lab-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.tag{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--key-soft);color:var(--key)}
+
+/* roles grid */
+.roles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.role{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:4px;background:var(--surface)}
+.role b{font-family:var(--f-display)}
+.role small{color:var(--muted);font-size:.85rem}
+
+/* flow stepper */
+.actors{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.actor{border:1.5px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center;font-size:.8rem;font-weight:600;transition:all .25s;color:var(--muted)}
+.actor.from{border-color:var(--key);background:var(--key-soft);color:var(--ink)}
+.actor.to{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.hop{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);text-align:center}
+.hop b{color:var(--key)} .hop em{color:var(--accent);font-style:normal;font-weight:600}
+.step-title{font-family:var(--f-display);font-size:1.15rem}
+pre.http{margin:0;font-family:var(--f-mono);font-size:.8rem;line-height:1.55;background:var(--sunk);border-radius:8px;padding:14px;overflow-x:auto;white-space:pre}
+.hl{color:var(--key);font-weight:600}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dots button{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font-family:var(--f-mono);font-size:.75rem}
+.dots button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;font-weight:600;font-size:.9rem}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* jwt */
+.jwt{font-family:var(--f-mono);font-size:.8rem;word-break:break-all;background:var(--sunk);padding:14px;border-radius:8px;line-height:1.6}
+.jh{color:var(--jwt-h)} .jp{color:var(--jwt-p)} .js{color:var(--jwt-s)}
+.claims{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.claim{border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface);text-align:left;display:flex;flex-direction:column;gap:2px}
+.claim code{background:none;padding:0;color:var(--jwt-p);font-weight:600}
+.claim small{color:var(--muted);font-size:.75rem;font-family:var(--f-mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.claim.on{border-color:var(--jwt-p)}
+.explain{min-height:3.2em;font-size:.95rem;border-top:1px dashed var(--line);padding-top:12px}
+
+/* token compare */
+.tokens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tok{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.tok dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:.85rem}
+.tok dt{color:var(--muted)} .tok dd{margin:0}
+
+/* consent mock */
+.consent{border:1px solid var(--line);border-radius:12px;max-width:420px;overflow:hidden;background:var(--bg)}
+.consent header{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
+.app-ico{width:32px;height:32px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-family:var(--f-display)}
+.consent .body{padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.scope{display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:6px;cursor:pointer}
+.scope:hover{background:var(--sunk)}
+.scope input{margin-top:4px;accent-color:var(--accent)}
+.scope code{font-size:.8rem}
+.scope span{display:block;font-size:.82rem;color:var(--muted)}
+
+/* sort */
+.sort-item{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}
+.sort-item:last-child{border-bottom:0}
+.choices{display:flex;gap:6px;flex-wrap:wrap}
+.choices button{border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 12px;font-size:.82rem;font-weight:600}
+.choices button.right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.choices button.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.why{font-size:.85rem;color:var(--muted)}
+
+/* table */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:.88rem}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-display);font-weight:600;background:var(--sunk)}
+tr:last-child td{border-bottom:0}
+td:first-child{color:var(--muted);font-weight:600;white-space:nowrap}
+
+/* quiz */
+.quiz{border:1.5px solid var(--accent);border-radius:12px;padding:20px;background:var(--surface);display:flex;flex-direction:column;gap:18px}
+.q{display:flex;flex-direction:column;gap:10px}
+.q-prompt{font-weight:600}
+.q-prompt small{font-family:var(--f-mono);color:var(--muted);font-weight:400;margin-right:6px}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);border-radius:8px;padding:9px 12px;background:var(--surface);text-align:left;font-size:.93rem}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .k{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);padding-top:2px}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default;color:var(--ink)}
+.fb{font-size:.9rem;padding:10px 12px;border-radius:8px;background:var(--sunk)}
+.fb b{font-family:var(--f-display)}
+.score{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+.score strong{font-family:var(--f-display);font-size:1.2rem;font-variant-numeric:tabular-nums}
+.pass{color:var(--ok)} .fail{color:var(--bad)}
+
+/* overview cards */
+.modlist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.modcard{border:1px solid var(--line);border-radius:10px;padding:16px;background:var(--surface);text-decoration:none;color:var(--ink);display:flex;flex-direction:column;gap:6px}
+.modcard:hover{border-color:var(--accent)}
+.modcard .meta{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.modcard p{font-size:.88rem;color:var(--muted)}
+.hero-key{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;white-space:pre}
+
+/* flashcards */
+.cards{display:flex;flex-direction:column;gap:10px}
+details.card{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:14px 16px}
+details.card summary{cursor:pointer;font-weight:600}
+details.card[open] summary{margin-bottom:10px}
+details.card div{font-size:.93rem;display:flex;flex-direction:column;gap:8px}
+.selfrate{display:flex;gap:6px;flex-wrap:wrap}
+
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:20px}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding-right:max(16px,env(safe-area-inset-right,0px));gap:14px}
+  nav.mods{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}
+  nav.mods a{grid-template-columns:auto auto;white-space:nowrap}
+  nav.mods a .mlabel{display:none}
+  .rail-foot{display:none}
+  main{padding-block:24px 60px}
+  h1{font-size:1.7rem}
+  .tokens{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .roles,.modlist{grid-template-columns:1fr}
+  .actors{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="shell">
+  <aside class="rail">
+    <div class="brand"><div class="brand-mark">2.0</div><div><b>OAuth Field Course</b><span>Self-paced · ~60 min</span></div></div>
+    <div class="progress"><div class="bar"><i id="pbar"></i></div><small id="ptext">0 of 6 checkpoints passed</small></div>
+    <nav class="mods" id="nav"></nav>
+    <div class="rail-foot">
+      <span>Progress is saved in this browser.</span>
+      <button class="linkbtn" id="reset">Reset progress</button>
+    </div>
+  </aside>
+  <main><div class="col" id="view"></div></main>
+</div>
+
+<script>
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+/* ---------------- storage ---------------- */
+const KEY = "oauth-course-v1";
+let state = {scores:{}, cards:{}};
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) state = Object.assign(state, s); } catch(e){}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){} };
+
+/* ---------------- flow steps ---------------- */
+const ACTORS = ["You (browser)","Client app","Authorization server","Resource server (API)"];
+const FLOW = [
+ {t:"User clicks “Connect calendar”", from:0, to:1,
+  d:"The client app wants to call your calendar API on your behalf. Before redirecting, it generates three secrets for this login attempt: a random <code>state</code> (CSRF protection), a <code>code_verifier</code> (PKCE), and its hash, the <code>code_challenge</code>.",
+  h:`code_verifier  = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+code_challenge = BASE64URL(SHA256(code_verifier))
+               = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+state          = "af0ifjsldkj"`},
+ {t:"Redirect to the authorization endpoint", from:1, to:2,
+  d:"The client sends your browser to the authorization server's <code>/authorize</code> endpoint. Everything travels in the URL, so nothing secret goes here. Only the <em>hash</em> of the verifier is sent.",
+  h:`GET /authorize?
+    <span class="hl">response_type=code</span>
+    &client_id=calendar-sync
+    &redirect_uri=https://app.example.com/callback
+    &<span class="hl">scope=calendar.read</span>
+    &state=af0ifjsldkj
+    &code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+    &code_challenge_method=S256
+Host: auth.example.com`},
+ {t:"User signs in and consents", from:0, to:2,
+  d:"You authenticate <strong>directly with the authorization server</strong>, never with the client app. The client never sees your password. The server then shows a consent screen listing the requested scopes.",
+  h:`┌──────────────────────────────────────────┐
+│  auth.example.com                        │
+│  Calendar Sync wants to:                 │
+│   ✓ View your calendar events            │
+│                                          │
+│          [ Cancel ]   [ Allow ]          │
+└──────────────────────────────────────────┘`},
+ {t:"Redirect back with an authorization code", from:2, to:1,
+  d:"The server redirects your browser to the pre-registered <code>redirect_uri</code> with a short-lived, single-use <code>code</code>. The client checks that <code>state</code> matches the value it stored in step 1. A mismatch means the response wasn't triggered by this user's login, so it's rejected.",
+  h:`HTTP/1.1 302 Found
+Location: https://app.example.com/callback?
+    <span class="hl">code=SplxlOBeZQQYbYS6WxSbIA</span>
+    &state=af0ifjsldkj`},
+ {t:"Exchange the code for tokens", from:1, to:2,
+  d:"Now the client talks to the <code>/token</code> endpoint <strong>back-channel</strong> (server to server, not through the browser). It sends the code plus the original <code>code_verifier</code>. The server hashes the verifier and checks it against the challenge from step 2, proving the same client started and finished the flow. A confidential client also authenticates itself here.",
+  h:`POST /token
+Host: auth.example.com
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic Y2FsZW5kYXItc3luYzpzM2NyM3Q=
+
+<span class="hl">grant_type=authorization_code</span>
+&code=SplxlOBeZQQYbYS6WxSbIA
+&redirect_uri=https://app.example.com/callback
+&<span class="hl">code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk</span>`},
+ {t:"Tokens are issued", from:2, to:1,
+  d:"The response carries an <strong>access token</strong> (short-lived key for the API), usually a <strong>refresh token</strong> (to get new access tokens later), and the granted <code>scope</code>, which may be narrower than requested. If the client asked for the <code>openid</code> scope, an <strong>ID token</strong> appears too: that's OpenID Connect layered on top.",
+  h:`HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+
+{
+  <span class="hl">"access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6ImF0K2p3dCJ9…"</span>,
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "refresh_token": "tGzv3JOkF0XG5Qx2TlKWIA",
+  "scope": "calendar.read"
+}`},
+ {t:"Call the API with the access token", from:1, to:3,
+  d:"The client presents the access token as a <strong>bearer token</strong>: whoever holds it can use it, so it must only travel over TLS. The resource server validates it (signature and expiry for a JWT, or by asking the auth server via <em>introspection</em> for an opaque token) and checks the scope covers the request.",
+  h:`GET /v1/calendars/primary/events
+Host: api.example.com
+<span class="hl">Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6ImF0K2p3dCJ9…</span>
+
+HTTP/1.1 200 OK
+{ "items": [ { "summary": "Design review", "start": "2026-11-12T10:00" } ] }`}
+];
+
+/* ---------------- JWT claims ---------------- */
+const CLAIMS = [
+ ["iss","https://auth.example.com","Issuer. Who minted the token. The API rejects tokens from any issuer it doesn't trust."],
+ ["sub","user_8812","Subject. The user (or client) the token is about. A stable identifier, not an email address."],
+ ["aud","https://api.example.com","Audience. Which API the token is meant for. An API must reject tokens addressed to someone else, or a token for service A could be replayed against service B."],
+ ["client_id","calendar-sync","The client application that requested the token."],
+ ["scope","calendar.read","The permissions granted. The API checks this on every request: a token with calendar.read can't create events."],
+ ["exp","1762805400","Expiry as a Unix timestamp. Access tokens are short-lived (minutes to an hour) to limit damage if one leaks."],
+ ["iat","1762801800","Issued-at time."],
+ ["jti","b7c1-44e0-9a2d","Unique token ID. Lets a server detect replays or revoke a specific token."]
+];
+
+/* ---------------- scopes lab ---------------- */
+const SCOPES = [
+ {s:"calendar.read", d:"View events on all your calendars", need:true},
+ {s:"calendar.write", d:"Create, change and delete events", need:false},
+ {s:"contacts.read", d:"See your contacts list", need:false},
+ {s:"offline_access", d:"Keep access when you're not using the app (refresh token)", need:true},
+ {s:"mail.send", d:"Send email as you", need:false},
+ {s:"admin.directory", d:"Manage users in your organization", need:false}
+];
+
+/* ---------------- sort lab ---------------- */
+const SORT = [
+ ["Issues an XML assertion signed by the identity provider, posted through the browser to the service provider.","SAML","SAML assertions are XML documents, typically delivered by an auto-submitting HTML form (HTTP-POST binding)."],
+ ["Lets a photo-printing site read your cloud photos without ever knowing your password.","OAuth 2.0","Pure delegated authorization: the printing site gets an access token scoped to photos. No login to the printing site is implied."],
+ ["Returns an ID token, a JWT that tells the app who the user is and when they authenticated.","OpenID Connect","The ID token is OIDC's addition. Plain OAuth has no standard way to say who the user is."],
+ ["Triggered by adding the scope “openid” to an authorization request.","OpenID Connect","The openid scope is what turns an OAuth authorization request into an OIDC authentication request."],
+ ["A 2005-era standard that dominates enterprise SSO into older web apps like HR and expense systems.","SAML","SAML 2.0 was ratified in 2005 and remains common for workforce SSO into SaaS."],
+ ["A backend batch job gets a token to call another service using only its own client ID and secret.","OAuth 2.0","The client credentials grant: machine-to-machine, no user involved, so there's no identity to assert."],
+ ["Offers a discovery document at /.well-known/openid-configuration and a UserInfo endpoint.","OpenID Connect","Discovery and UserInfo are both defined by OIDC specs."],
+ ["Has no tokens for calling APIs; its job ends once the user is logged into the app.","SAML","SAML is about getting a user signed in to a web app. It wasn't designed to authorize API calls, which is a big reason OAuth/OIDC took over for mobile and API-heavy apps."]
+];
+
+/* ---------------- modules ---------------- */
+const MODS = [
+ {id:"m1", n:"01", title:"Why OAuth exists", mins:8,
+  sum:"Delegated authorization, the password anti-pattern, and the four roles.",
+  obj:["Explain the problem OAuth solves in one sentence","Name the four roles and who plays each in a real example","Distinguish authentication from authorization"],
+  body:()=>`
+  <div class="prose">
+   <p>Before OAuth, if a printing service wanted your photos from another site, it asked for your username and password for that site. That's the <strong>password anti-pattern</strong>. The third party gets full access to everything, forever, and the only way to revoke it is to change your password, which breaks every other app you've shared it with.</p>
+   <p><strong>OAuth 2.0</strong> (RFC 6749, 2012) replaces this with <strong>delegated authorization</strong>: you tell a trusted server “let this app do <em>these specific things</em> on my behalf”, and the server hands the app a limited, revocable <strong>access token</strong> instead of your password.</p>
+  </div>
+  <div class="callout"><b>Key distinction.</b> <em>Authentication</em> answers “who are you?” <em>Authorization</em> answers “what may you do?” OAuth 2.0 is an authorization framework. It was never designed to tell an app who the user is. That gap is what OpenID Connect fills (Module 5).</div>
+  <section class="block">
+   <h2>The four roles</h2>
+   <p class="prose">Every OAuth conversation has these four parties. Example: <em>Calendar Sync</em>, a scheduling app, wants to read your Google-style calendar.</p>
+   <div class="roles">
+    <div class="role"><span class="eyebrow">Resource owner</span><b>You</b><small>The person who owns the data and can grant access to it.</small></div>
+    <div class="role"><span class="eyebrow">Client</span><b>Calendar Sync</b><small>The application that wants access. “Client” means the app, not the browser.</small></div>
+    <div class="role"><span class="eyebrow">Authorization server</span><b>auth.example.com</b><small>Authenticates you, asks for consent, issues tokens.</small></div>
+    <div class="role"><span class="eyebrow">Resource server</span><b>api.example.com</b><small>The API holding your calendar. Accepts and validates access tokens.</small></div>
+   </div>
+  </section>
+  <section class="block">
+   <h2>Client types</h2>
+   <div class="prose"><ul>
+    <li><strong>Confidential clients</strong> run on a server and can keep a <code>client_secret</code> safe (a traditional web backend).</li>
+    <li><strong>Public clients</strong> can't keep a secret, because their code ships to the user's device (single-page apps, mobile and desktop apps). Anyone can extract an embedded “secret” from them. This is why PKCE (Module 2) matters.</li>
+   </ul></div>
+  </section>`,
+  quiz:[
+   {q:"What is the core problem OAuth 2.0 was designed to solve?",o:["Letting users log in once across many websites","Letting an app access a user's resources on another service without receiving the user's password","Encrypting traffic between a browser and a server","Storing passwords securely in a database"],a:1,e:"OAuth is about delegated authorization. Single sign-on (option A) is closer to what SAML and OpenID Connect do."},
+   {q:"In the OAuth roles, the “client” is…",o:["The user's web browser","The application requesting access to protected resources","The server that issues tokens","The API that holds the data"],a:1,e:"The client is the app. The browser is just the user agent that carries redirects."},
+   {q:"Why can't a single-page JavaScript app safely use a client_secret?",o:["Browsers block the Authorization header","Secrets expire after one hour","The code runs on the user's device, so anyone can read the secret","OAuth forbids secrets for web apps"],a:2,e:"Anything shipped to the browser or a phone can be extracted. These are public clients and rely on PKCE instead of a secret."},
+   {q:"“Can this token create calendar events?” is a question of…",o:["Authentication","Authorization","Federation","Encryption"],a:1,e:"What you're allowed to do is authorization. Who you are is authentication."}
+  ]},
+ {id:"m2", n:"02", title:"Authorization code flow", mins:15,
+  sum:"Step through the most important flow, message by message, including PKCE.",
+  obj:["Walk through each step of the authorization code flow","Explain front-channel vs back-channel","Explain what state and PKCE each protect against","Know which grant types are current and which are deprecated"],
+  body:()=>`
+  <div class="prose">
+   <p>The <strong>authorization code flow</strong> is the one to know cold. It splits the work into two channels:</p>
+   <ul>
+    <li><strong>Front channel</strong>: browser redirects. Visible in URLs, history, and logs. Only non-secret things travel here.</li>
+    <li><strong>Back channel</strong>: a direct HTTPS call from the client to the token endpoint. Tokens are delivered here, away from the browser's address bar.</li>
+   </ul>
+   <p>The authorization <em>code</em> is a one-time voucher that crosses the front channel; it's useless without the back-channel exchange.</p>
+  </div>
+  <div class="lab" id="flowlab">
+   <div class="lab-head"><h3>Lab: step through the flow</h3><span class="tag">Interactive</span></div>
+   <div class="actors" id="actors"></div>
+   <div class="hop" id="hop"></div>
+   <div class="step-title" id="stitle"></div>
+   <p id="sdesc"></p>
+   <pre class="http" id="shttp"></pre>
+   <div class="row" style="justify-content:space-between">
+    <div class="dots" id="dots"></div>
+    <div class="row"><button class="btn" id="prev">Back</button><button class="btn primary" id="next">Next step</button></div>
+   </div>
+  </div>
+  <section class="block">
+   <h2>The two defenses: state and PKCE</h2>
+   <div class="prose"><ul>
+    <li><strong><code>state</code></strong> stops <em>CSRF on the callback</em>: an attacker tricking your browser into completing a login with <em>their</em> code, so your app links to the attacker's account.</li>
+    <li><strong>PKCE</strong> (“pixy”, RFC 7636) stops <em>authorization code interception</em>. If malware or a malicious app grabs the code from the redirect, it still can't redeem it without the original <code>code_verifier</code>, which never left the legitimate client.</li>
+   </ul></div>
+   <div class="callout"><b>Current best practice.</b> The OAuth 2.0 Security Best Current Practice (RFC 9700) and the OAuth 2.1 draft require PKCE for <em>every</em> client using the code flow, confidential ones included, along with exact matching of redirect URIs.</div>
+  </section>
+  <section class="block">
+   <h2>Other grant types, briefly</h2>
+   <div class="tablewrap"><table>
+    <tr><th>Grant</th><th>Use it for</th><th>Status</th></tr>
+    <tr><td>Authorization code + PKCE</td><td>Any app acting for a user: web, SPA, mobile, desktop</td><td>The default</td></tr>
+    <tr><td>Client credentials</td><td>Machine-to-machine; no user involved</td><td>Current</td></tr>
+    <tr><td>Device authorization</td><td>TVs, CLIs, devices with no browser or keyboard (RFC 8628)</td><td>Current</td></tr>
+    <tr><td>Refresh token</td><td>Getting a new access token without the user</td><td>Current</td></tr>
+    <tr><td>Implicit</td><td>Old SPAs; token returned directly in the URL fragment</td><td>Deprecated, removed in 2.1</td></tr>
+    <tr><td>Resource owner password</td><td>App collects the user's password itself</td><td>Deprecated, removed in 2.1</td></tr>
+   </table></div>
+  </section>`,
+  quiz:[
+   {q:"Why does the authorization server return a code instead of the access token directly in the redirect?",o:["Codes are shorter, so URLs stay under length limits","Front-channel URLs leak through history, logs and referrers; the code is swapped for tokens over the back channel","Access tokens can't be base64-encoded","Browsers refuse to follow redirects containing tokens"],a:1,e:"The code is short-lived, single-use and (with PKCE) bound to the client. Tokens are delivered server-to-server instead."},
+   {q:"An attacker on the same phone intercepts the authorization code from the redirect. What stops them from redeeming it?",o:["The state parameter","The redirect_uri","PKCE: they don't have the code_verifier","The access token's expiry"],a:2,e:"The token endpoint hashes the presented code_verifier and compares it to the code_challenge from the original request. The attacker only saw the hash."},
+   {q:"What does the state parameter primarily protect against?",o:["Token theft from local storage","CSRF on the redirect: a response the client never initiated","Brute-forcing the client secret","Expired access tokens"],a:1,e:"The client stores state before redirecting and rejects a callback whose state doesn't match."},
+   {q:"Which grant would you use for a nightly job that syncs data between two of your own backend services?",o:["Authorization code + PKCE","Implicit","Client credentials","Device authorization"],a:2,e:"No user is involved, so the service authenticates as itself."},
+   {q:"In step 5, which parameter proves the client that started the flow is the one finishing it?",o:["code_challenge","code_verifier","response_type","scope"],a:1,e:"The verifier is the secret pre-image. The challenge (its hash) was sent earlier in the front channel."}
+  ]},
+ {id:"m3", n:"03", title:"Tokens", mins:12,
+  sum:"Access, refresh and ID tokens; bearer semantics; JWT vs opaque; lifetimes and storage.",
+  obj:["Tell access, refresh, and ID tokens apart by purpose and audience","Read the claims in a JWT access token","Explain bearer tokens, and why lifetimes and rotation matter"],
+  body:()=>`
+  <div class="tokens">
+   <div class="tok"><span class="eyebrow">For the API</span><h3>Access token</h3><dl><dt>Purpose</dt><dd>Call protected APIs</dd><dt>Audience</dt><dd>Resource server</dd><dt>Lifetime</dt><dd>Minutes to ~1 hour</dd><dt>Format</dt><dd>JWT or opaque</dd></dl></div>
+   <div class="tok"><span class="eyebrow">For the auth server</span><h3>Refresh token</h3><dl><dt>Purpose</dt><dd>Get new access tokens</dd><dt>Audience</dt><dd>Authorization server only</dd><dt>Lifetime</dt><dd>Hours to months</dd><dt>Format</dt><dd>Usually opaque</dd></dl></div>
+   <div class="tok"><span class="eyebrow">For the client · OIDC</span><h3>ID token</h3><dl><dt>Purpose</dt><dd>Tell the app who logged in</dd><dt>Audience</dt><dd>The client app</dd><dt>Lifetime</dt><dd>Short; read once</dd><dt>Format</dt><dd>Always a JWT</dd></dl></div>
+  </div>
+  <div class="callout"><b>Rule of thumb.</b> Never send an ID token to an API as proof of access, and never parse an access token in the client to learn who the user is. Each token has one audience.</div>
+  <section class="block">
+   <h2>Bearer tokens</h2>
+   <div class="prose"><p>Most access tokens are <strong>bearer tokens</strong> (RFC 6750): possession is enough. Like cash, whoever holds one can spend it. That's why they must only travel over TLS, should be short-lived, and shouldn't sit in places scripts can read if you can avoid it. <em>Sender-constrained</em> tokens (DPoP or mutual-TLS) bind a token to a key the client holds, so a stolen token alone is useless.</p></div>
+  </section>
+  <section class="block">
+   <h2>JWT vs opaque</h2>
+   <div class="prose"><p>An <strong>opaque</strong> token is a random string; the API must ask the authorization server what it means (<em>token introspection</em>, RFC 7662). A <strong>JWT</strong> is self-contained: three base64url parts (header, payload, signature) that the API verifies locally with the issuer's public key. JWTs are fast to check but hard to revoke before they expire, which is one more reason to keep them short-lived.</p></div>
+  </section>
+  <div class="lab">
+   <div class="lab-head"><h3>Lab: read a JWT access token</h3><span class="tag">Click a claim</span></div>
+   <div class="jwt"><span class="jh">eyJhbGciOiJSUzI1NiIsInR5cCI6ImF0K2p3dCIsImtpZCI6IjIwMjYtMTEifQ</span>.<span class="jp">eyJpc3MiOiJodHRwczovL2F1dGguZXhhbXBsZS5jb20iLCJzdWIiOiJ1c2VyXzg4MTIiLCJhdWQiOiJodHRwczovL2FwaS5leGFtcGxlLmNvbSIsImNsaWVudF9pZCI6ImNhbGVuZGFyLXN5bmMiLCJzY29wZSI6ImNhbGVuZGFyLnJlYWQiLCJleHAiOjE3NjI4MDU0MDB9</span>.<span class="js">NHVaYe26MbtOYhSKkoKYdFVomg4i8ZJd8_-RU8VNbftc4TSMb4bXP3l3YlNWACwyXPGffz5aXHc6lty1Y2t4SWRqGteragsVdZufDn5BlnJl9pdR_kdVFUsra2rWKEofkZeIC4yWytE58sMIihvo9H1ScmmVwBcQP6XETqYd0aSHp1gOa9RdUPDvoXQ5oqygTqVtxaDr6wUFKrKItgBMzWIdNZ6y7O9E0DhEPTbE9rfBo6KTFsHAZnMg4k68CDp2woYIaXbmYTWcvbzIuHO7_37GT79XdIwkm95QJ7hYC9RiwrV7mesbY4PAahERJawntho0my942XheVLmGwLMBkQ</span></div>
+   <div class="row" style="gap:16px;font-size:.82rem;font-family:var(--f-mono)"><span class="jh">■ header: alg RS256, typ at+jwt, kid</span><span class="jp">■ payload: claims</span><span class="js">■ signature</span></div>
+   <div class="claims" id="claims"></div>
+   <div class="explain" id="cexplain">Pick a claim to see what it means and why the API checks it.</div>
+  </div>
+  <section class="block">
+   <h2>Refresh tokens and rotation</h2>
+   <div class="prose"><p>When the access token expires, the client posts <code>grant_type=refresh_token</code> to the token endpoint and gets a fresh one, with no user interaction. For public clients, servers use <strong>refresh token rotation</strong>: each use returns a new refresh token and invalidates the old one. If an old one is ever presented again, someone stole it, and the server revokes the whole chain.</p></div>
+<pre class="http">POST /token
+grant_type=refresh_token&amp;refresh_token=tGzv3JOkF0XG5Qx2TlKWIA&amp;client_id=calendar-sync</pre>
+  </section>`,
+  quiz:[
+   {q:"Which token should the resource server (API) receive?",o:["ID token","Access token","Refresh token","Authorization code"],a:1,e:"The API's audience is the access token. Refresh tokens go only to the authorization server; ID tokens are for the client."},
+   {q:"What does “bearer” mean in “bearer token”?",o:["The token is encrypted with the bearer's public key","Anyone in possession of the token can use it","The token is carried in a cookie","It can only be used once"],a:1,e:"No proof of identity is required beyond holding the token, hence TLS and short lifetimes."},
+   {q:"An API receives a valid, unexpired JWT whose aud is https://billing.example.com. The API is https://api.example.com. It should…",o:["Accept it; the signature is valid","Accept it if the scope matches","Reject it; the token was issued for a different audience","Call the userinfo endpoint"],a:2,e:"Audience checks stop a token minted for one service from being replayed against another."},
+   {q:"Why are JWT access tokens usually kept short-lived?",o:["JWTs grow in size over time","They're verified locally, so they're hard to revoke before they expire","Clocks drift after an hour","Base64 encoding weakens over time"],a:1,e:"Self-contained tokens don't require a lookup, which also means the server can't easily kill one early. Short expiry limits exposure."},
+   {q:"With refresh token rotation, an old, already-used refresh token is presented again. The server should…",o:["Issue a new access token as normal","Ignore the request","Treat it as theft and revoke the token family","Ask the user to consent again"],a:2,e:"Reuse detection is the point of rotation: a replayed refresh token signals compromise."}
+  ]},
+ {id:"m4", n:"04", title:"Scopes & consent", mins:8,
+  sum:"How apps ask for specific permissions, and how least privilege shows up on a consent screen.",
+  obj:["Explain what a scope is and who defines it","Apply least privilege to a scope request","Know that granted scopes can differ from requested ones"],
+  body:()=>`
+  <div class="prose">
+   <p>A <strong>scope</strong> is a string naming a permission, like <code>calendar.read</code> or <code>repo:status</code>. The OAuth spec doesn't define any; each API provider defines its own. The client lists the scopes it wants (space-separated) in the authorization request, the user sees them on a consent screen, and the granted set ends up inside the access token.</p>
+   <ul>
+    <li><strong>Least privilege:</strong> request only what the feature needs, and ask for more later (incremental authorization) when the user reaches a feature that requires it.</li>
+    <li><strong>Granted can be narrower than requested.</strong> The user or server policy can drop scopes. Always read the <code>scope</code> in the token response.</li>
+    <li><strong>Scopes limit the app, not the user.</strong> A token with <code>files.write</code> still can't touch files the user themselves can't access. Effective access is the intersection of the two.</li>
+   </ul>
+  </div>
+  <div class="lab">
+   <div class="lab-head"><h3>Lab: request the right scopes</h3><span class="tag">Exercise</span></div>
+   <p><strong>Scenario:</strong> Calendar Sync shows your upcoming meetings in a widget and refreshes them every 15 minutes in the background, even when you haven't opened the app. It never creates events. Tick exactly the scopes it should request.</p>
+   <div class="consent">
+    <header><div class="app-ico">C</div><div><b>Calendar Sync</b><br><small style="color:var(--muted)">wants access to your account</small></div></header>
+    <div class="body" id="scopes"></div>
+   </div>
+   <div class="row"><button class="btn primary" id="checkScopes">Check my request</button></div>
+   <div class="fb" id="scopefb" hidden></div>
+  </div>`,
+  quiz:[
+   {q:"Who defines the set of available scopes like calendar.read?",o:["The OAuth 2.0 RFC","The API / authorization server provider","The user","The client application"],a:1,e:"OAuth only defines the scope parameter's syntax. Providers decide their own scope names. (OIDC does standardize a few: openid, profile, email, address, phone.)"},
+   {q:"The client requested calendar.read calendar.write, but the token response says scope: calendar.read. What happened?",o:["An error; the client should retry","The user or server granted fewer permissions than requested, which is allowed","The token is forged","The refresh token expired"],a:1,e:"Clients must handle a narrower grant and degrade gracefully."},
+   {q:"A user with read-only access to a shared folder authorizes an app with files.write. Can the app write to that folder?",o:["Yes, the scope grants write","No, effective access can't exceed the user's own permissions","Only if the app is a confidential client","Only with a refresh token"],a:1,e:"Scopes cap what the app can do on the user's behalf; they never add permissions the user lacks."},
+   {q:"What's the best practice for an app that needs write access only for a rarely used feature?",o:["Request all scopes at first login to avoid prompting twice","Request write access when the user first uses that feature","Use the client credentials grant","Embed an admin token in the app"],a:1,e:"Incremental authorization keeps the initial consent minimal and makes each ask understandable."}
+  ]},
+ {id:"m5", n:"05", title:"OAuth vs OIDC vs SAML", mins:12,
+  sum:"Where authorization ends and authentication begins, and when SAML is still the answer.",
+  obj:["Explain how OpenID Connect extends OAuth 2.0","Contrast SAML with OAuth/OIDC on format, transport, and use case","Pick the right protocol for a given scenario"],
+  body:()=>`
+  <div class="prose">
+   <p>These three get lumped together because all of them involve browser redirects and a trusted third party. They answer different questions.</p>
+   <ul>
+    <li><strong>OAuth 2.0</strong>: “May this app call this API on the user's behalf?” Authorization only.</li>
+    <li><strong>OpenID Connect</strong> (2014): “Who is this user?” A thin identity layer <em>on top of</em> OAuth 2.0. Same flows, plus the <code>openid</code> scope, an <strong>ID token</strong>, a <strong>UserInfo</strong> endpoint, and discovery metadata.</li>
+    <li><strong>SAML 2.0</strong> (2005): “Who is this user?” for web single sign-on, using signed XML assertions. Older, separate lineage, and still the workhorse of enterprise SSO.</li>
+   </ul>
+  </div>
+  <div class="callout"><b>Why “log in with OAuth” was a problem.</b> Before OIDC, apps would get an access token and call some profile API to learn who the user was. An access token says nothing about <em>which app</em> it was issued to, so a malicious app could pass a token it obtained for itself to your app and log in as that user. OIDC's ID token fixes this with an <code>aud</code> claim naming your client and a <code>nonce</code> tying it to your request.</div>
+  <section class="block">
+   <h2>Side by side</h2>
+   <div class="tablewrap"><table>
+    <tr><th></th><th>OAuth 2.0</th><th>OpenID Connect</th><th>SAML 2.0</th></tr>
+    <tr><td>Answers</td><td>What can the app access?</td><td>Who is the user?</td><td>Who is the user?</td></tr>
+    <tr><td>Main artifact</td><td>Access token</td><td>ID token (JWT) + access token</td><td>Assertion (XML)</td></tr>
+    <tr><td>Data format</td><td>JSON; token format unspecified</td><td>JSON / JWT</td><td>XML with XML Signature</td></tr>
+    <tr><td>Parties</td><td>Client, authorization server, resource server</td><td>Relying party, OpenID provider</td><td>Service provider (SP), identity provider (IdP)</td></tr>
+    <tr><td>Transport</td><td>Redirects + back-channel token call</td><td>Same as OAuth</td><td>Browser redirect / auto-POST forms</td></tr>
+    <tr><td>Calls APIs?</td><td>Yes, that's its purpose</td><td>Yes, via the access token</td><td>No</td></tr>
+    <tr><td>Mobile & SPA fit</td><td>Good</td><td>Good</td><td>Poor</td></tr>
+    <tr><td>Typical use</td><td>Third-party API access, M2M</td><td>“Sign in with…”, modern SSO</td><td>Workforce SSO into SaaS</td></tr>
+   </table></div>
+  </section>
+  <section class="block">
+   <h2>What an ID token adds</h2>
+<pre class="http">{
+  "iss": "https://auth.example.com",
+  "sub": "user_8812",
+  <span class="hl">"aud": "calendar-sync"</span>,        ← the client, not an API
+  "exp": 1762802400,
+  "iat": 1762801800,
+  "auth_time": 1762801790,
+  <span class="hl">"nonce": "n-0S6_WzA2Mj"</span>,       ← must match the request
+  "email": "sam@example.com"
+}</pre>
+   <p class="prose">The client validates the signature, <code>iss</code>, <code>aud</code>, <code>exp</code>, and <code>nonce</code>, then treats <code>iss</code> + <code>sub</code> as the user's stable identity.</p>
+  </section>
+  <div class="lab">
+   <div class="lab-head"><h3>Lab: which protocol is this?</h3><span class="tag">Classify</span></div>
+   <div id="sort"></div>
+   <div class="fb" id="sortfb" hidden></div>
+  </div>`,
+  quiz:[
+   {q:"OpenID Connect is best described as…",o:["A replacement for OAuth 2.0","An identity layer built on top of OAuth 2.0","A JSON version of SAML","A token encryption standard"],a:1,e:"OIDC reuses OAuth's flows and adds authentication: the openid scope, the ID token, UserInfo, and discovery."},
+   {q:"What turns an OAuth authorization request into an OIDC authentication request?",o:["response_type=id_token only","Including openid in the scope","Using the client credentials grant","Adding a client_secret"],a:1,e:"The openid scope is the switch."},
+   {q:"Your company needs employees to sign in to a 15-year-old HR web app that only supports XML-based federation. Which protocol?",o:["OAuth 2.0","OpenID Connect","SAML 2.0","Client credentials"],a:2,e:"Workforce SSO into older apps is SAML's home ground."},
+   {q:"Why shouldn't an app treat “I received a valid access token” as proof the user logged into this app?",o:["Access tokens are always encrypted","An access token isn't addressed to the client and may have been obtained by a different app","Access tokens don't contain a sub claim","Access tokens expire too quickly"],a:1,e:"That's the token-substitution problem. ID tokens carry aud = your client_id and a nonce."},
+   {q:"Which of these can SAML do that's comparable to OAuth's main purpose?",o:["Issue access tokens for REST APIs","Nothing. SAML is for sign-on, not delegated API access","Refresh tokens","Scopes"],a:1,e:"SAML establishes a session with a web app. Delegated API authorization is OAuth territory."}
+  ]}
+];
+
+const EXAM = [
+ {q:"In one sentence, OAuth 2.0 is…",o:["An authentication protocol for single sign-on","A framework for delegated authorization using tokens","An encryption algorithm for passwords","A user directory format"],a:1,e:"Delegated authorization. Authentication is OIDC's job."},
+ {q:"Which travels over the back channel in the authorization code flow?",o:["The authorization request with scope","The authorization code redirect","The code-for-token exchange","The consent screen"],a:2,e:"The token request is a direct server-to-server POST."},
+ {q:"A mobile app uses the code flow without PKCE. Which attack is it most exposed to?",o:["Authorization code interception by another app","SQL injection","Clickjacking on the API","Replay of the ID token to the API"],a:0,e:"Custom URL schemes can be claimed by malicious apps; PKCE makes a stolen code useless."},
+ {q:"Which token should never be sent to a resource server?",o:["Access token","ID token","Both","Neither"],a:1,e:"The ID token's audience is the client. APIs take access tokens."},
+ {q:"The aud claim in an access token identifies…",o:["The user","The issuer","The API the token is intended for","The scopes"],a:2,e:"The resource server checks that it is the intended audience."},
+ {q:"Which grant type has been removed in OAuth 2.1?",o:["Client credentials","Device authorization","Implicit","Refresh token"],a:2,e:"Implicit (and resource owner password) are gone; use code + PKCE."},
+ {q:"Scopes are best thought of as…",o:["Roles assigned to the user","Limits on what the client may do on the user's behalf","Encryption keys","Session cookies"],a:1,e:"They constrain the app. They never grant the user more than they already have."},
+ {q:"SAML assertions are formatted as…",o:["JWT","XML","YAML","Protocol Buffers"],a:1,e:"SAML is XML with XML Digital Signatures."},
+ {q:"An SPA wants users to “Sign in with Example” and then call Example's calendar API. The best fit is…",o:["SAML only","OAuth implicit flow","OpenID Connect with the authorization code flow + PKCE","Client credentials"],a:2,e:"OIDC gives identity (ID token) and OAuth gives API access (access token) in one flow."},
+ {q:"What does refresh token rotation detect?",o:["Clock skew","A stolen refresh token being reused","Expired scopes","An invalid redirect URI"],a:1,e:"Each refresh token is single-use; seeing an old one again signals theft."}
+];
+
+const CARDS = [
+ ["Explain OAuth 2.0 to a non-technical colleague in 30 seconds.","It's like a valet key. Instead of handing an app your master key (your password), you ask the building's front desk (the authorization server) to give the app a key that only opens certain doors (scopes), works for a limited time, and that you can cancel without changing your own key."],
+ ["Walk through the authorization code flow.","1) App redirects the browser to /authorize with client_id, redirect_uri, scope, state and a PKCE code_challenge. 2) User authenticates with the authorization server and consents. 3) Server redirects back with a one-time code; app verifies state. 4) App's backend POSTs the code plus code_verifier to /token. 5) Server returns an access token (and usually a refresh token). 6) App calls the API with Authorization: Bearer."],
+ ["Access token vs refresh token vs ID token?","Access token: short-lived, sent to the API. Refresh token: longer-lived, sent only to the authorization server to get new access tokens. ID token: an OIDC JWT for the client that describes who authenticated; never sent to APIs."],
+ ["What is a scope?","A provider-defined string naming a permission the client asks for (e.g. calendar.read). The user consents, granted scopes go into the token, and the API enforces them. Request the minimum; the grant can come back narrower."],
+ ["How is OAuth different from OpenID Connect?","OAuth is authorization: what an app can access. OIDC is authentication on top of OAuth: adding the openid scope returns an ID token stating who the user is, with aud and nonce so the client can trust it was issued for it."],
+ ["How is OAuth/OIDC different from SAML?","SAML (2005) is XML-based web SSO between an identity provider and a service provider, delivered via browser POSTs; it doesn't issue tokens for APIs. OIDC does the same SSO job with JSON/JWT and works well for mobile and SPAs, and OAuth adds delegated API access. Enterprises often run both."]
+];
+
+/* ---------------- rendering ---------------- */
+const view = document.getElementById("view");
+const passed = id => (state.scores[id]||0) >= 0.75;
+const CHECKPOINTS = [...MODS.map(m=>m.id), "exam"];
+
+function renderNav(active){
+  const items = [{id:"overview",n:"··",title:"Course overview"}, ...MODS, {id:"exam",n:"✓",title:"Final assessment"}, {id:"review",n:"↺",title:"Explain it back"}];
+  document.getElementById("nav").innerHTML = items.map(m=>{
+    const done = CHECKPOINTS.includes(m.id) && passed(m.id);
+    return `<a href="#${m.id}" class="${m.id===active?'active':''}"><span class="mnum">${m.n}</span><span class="mlabel">${m.title}</span>${CHECKPOINTS.includes(m.id)?`<span class="mstate ${done?'done':''}">${done?'✓':''}</span>`:'<span></span>'}</a>`;
+  }).join("");
+  const n = CHECKPOINTS.filter(passed).length;
+  document.getElementById("pbar").style.width = (n/CHECKPOINTS.length*100)+"%";
+  document.getElementById("ptext").textContent = `${n} of ${CHECKPOINTS.length} checkpoints passed`;
+}
+
+function quizHTML(id, qs, title){
+  return `<div class="quiz" id="quiz-${id}">
+   <div class="lab-head"><h2>${title}</h2><span class="eyebrow">Pass mark 75%</span></div>
+   ${qs.map((q,i)=>`<div class="q" data-i="${i}">
+     <div class="q-prompt"><small>Q${i+1}</small>${q.q}</div>
+     <div class="opts">${q.o.map((o,j)=>`<button class="opt" data-j="${j}"><span class="k">${"ABCD"[j]}</span><span>${o}</span></button>`).join("")}</div>
+     <div class="fb" hidden></div></div>`).join("")}
+   <div class="score"><span><strong id="sc-${id}">0 / ${qs.length}</strong> <span class="eyebrow">answered correctly</span></span><button class="btn" id="retry-${id}">Retry quiz</button></div>
+  </div>`;
+}
+function wireQuiz(id, qs){
+  const root = document.getElementById("quiz-"+id);
+  let answered = 0, right = 0;
+  const sc = document.getElementById("sc-"+id);
+  const update = () => {
+    sc.textContent = `${right} / ${qs.length}`;
+    if (answered === qs.length){
+      const pct = right/qs.length;
+      state.scores[id] = Math.max(state.scores[id]||0, pct); save(); renderNav(id);
+      sc.className = pct>=.75 ? "pass" : "fail";
+      sc.textContent += pct>=.75 ? " · passed" : " · not yet, review and retry";
+    }
+  };
+  root.querySelectorAll(".q").forEach(qel=>{
+    const q = qs[+qel.dataset.i];
+    qel.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>{
+      const j = +b.dataset.j;
+      qel.querySelectorAll(".opt").forEach(x=>{x.disabled=true; if(+x.dataset.j===q.a) x.classList.add("right");});
+      if (j!==q.a) b.classList.add("wrong"); else right++;
+      answered++;
+      const fb = qel.querySelector(".fb"); fb.hidden=false;
+      fb.innerHTML = `<b>${j===q.a?"Correct.":"Not quite."}</b> ${q.e}`;
+      update();
+    }));
+  });
+  document.getElementById("retry-"+id).addEventListener("click",()=>route(true));
+}
+
+function pager(idx){
+  const order = ["overview",...MODS.map(m=>m.id),"exam","review"];
+  const names = {overview:"Overview",exam:"Final assessment",review:"Explain it back"}; MODS.forEach(m=>names[m.id]=m.title);
+  const p = order[idx-1], n = order[idx+1];
+  return `<div class="pager">${p?`<a class="btn" href="#${p}">← ${names[p]}</a>`:'<span></span>'}${n?`<a class="btn primary" href="#${n}">${names[n]} →</a>`:''}</div>`;
+}
+
+function overview(){
+  const n = CHECKPOINTS.filter(passed).length;
+  view.innerHTML = `
+   <div style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">Identity & access fundamentals</span>
+    <h1>OAuth 2.0, from redirect to Bearer</h1>
+    <p class="lede">Five short modules with hands-on labs and a checkpoint quiz each, then a final assessment. Finish able to explain the authorization code flow, tokens and scopes, and how OAuth differs from OpenID Connect and SAML.</p>
+    <div class="row"><a class="btn primary" href="#${MODS.find(m=>!passed(m.id))?.id || 'exam'}">${n?'Continue':'Start module 01'}</a><a class="btn" href="#review">Jump to self-check cards</a></div>
+   </div>
+<div class="hero-key">Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJzY29wZSI6ImNhbGVuZGFyLnJlYWQifQ.sig
+              └──┬──┘ └─────────────────────── access token ───────────────────────┘
+              anyone holding it may use it, within its scope, until it expires</div>
+   <div class="modlist">${MODS.map(m=>`<a class="modcard" href="#${m.id}"><div class="meta"><span>Module ${m.n}</span><span>${passed(m.id)?'✓ passed':m.mins+' min'}</span></div><h3>${m.title}</h3><p>${m.sum}</p></a>`).join("")}
+    <a class="modcard" href="#exam"><div class="meta"><span>Checkpoint</span><span>${passed('exam')?'✓ passed':'10 questions'}</span></div><h3>Final assessment</h3><p>Mixed questions across all modules. Pass at 75%.</p></a>
+   </div>
+   <div class="objectives"><span class="eyebrow">By the end you can</span><ul>
+    <li>Explain why OAuth replaced password sharing and name the four roles</li>
+    <li>Walk through the authorization code flow with PKCE, step by step</li>
+    <li>Distinguish access, refresh and ID tokens and read a JWT's claims</li>
+    <li>Request scopes using least privilege</li>
+    <li>Explain how OAuth 2.0 differs from OpenID Connect and from SAML</li>
+   </ul></div>`;
+}
+
+function moduleView(m){
+  const idx = MODS.indexOf(m)+1;
+  view.innerHTML = `
+   <div style="display:flex;flex-direction:column;gap:10px"><span class="eyebrow">Module ${m.n} · ${m.mins} min</span><h1>${m.title}</h1><p class="lede">${m.sum}</p></div>
+   <div class="objectives"><span class="eyebrow">Objectives</span><ul>${m.obj.map(o=>`<li>${o}</li>`).join("")}</ul></div>
+   ${m.body()}
+   ${quizHTML(m.id, m.quiz, "Checkpoint quiz")}
+   ${pager(idx)}`;
+  wireQuiz(m.id, m.quiz);
+  if (m.id==="m2") wireFlow();
+  if (m.id==="m3") wireClaims();
+  if (m.id==="m4") wireScopes();
+  if (m.id==="m5") wireSort();
+}
+
+function wireFlow(){
+  let i = 0;
+  const actors = document.getElementById("actors");
+  const draw = () => {
+    const s = FLOW[i];
+    actors.innerHTML = ACTORS.map((a,k)=>`<div class="actor ${k===s.from?'from':''} ${k===s.to?'to':''}">${a}</div>`).join("");
+    document.getElementById("hop").innerHTML = `<b>${ACTORS[s.from]}</b> ──► <em>${ACTORS[s.to]}</em>`;
+    document.getElementById("stitle").textContent = `Step ${i+1}. ${s.t}`;
+    document.getElementById("sdesc").innerHTML = s.d;
+    document.getElementById("shttp").innerHTML = s.h;
+    document.getElementById("dots").innerHTML = FLOW.map((_,k)=>`<button class="${k===i?'on':''}" data-k="${k}" aria-label="Step ${k+1}">${k+1}</button>`).join("");
+    document.querySelectorAll("#dots button").forEach(b=>b.onclick=()=>{i=+b.dataset.k;draw();});
+    document.getElementById("prev").disabled = i===0;
+    document.getElementById("next").disabled = i===FLOW.length-1;
+  };
+  document.getElementById("prev").onclick=()=>{if(i>0){i--;draw();}};
+  document.getElementById("next").onclick=()=>{if(i<FLOW.length-1){i++;draw();}};
+  draw();
+}
+function wireClaims(){
+  const box = document.getElementById("claims");
+  box.innerHTML = CLAIMS.map((c,k)=>`<button class="claim" data-k="${k}"><code>${c[0]}</code><small>${esc(c[1])}</small></button>`).join("");
+  box.querySelectorAll(".claim").forEach(b=>b.onclick=()=>{
+    box.querySelectorAll(".claim").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+    const c = CLAIMS[+b.dataset.k];
+    document.getElementById("cexplain").innerHTML = `<code>${c[0]}</code>: ${c[2]}`;
+  });
+}
+function wireScopes(){
+  const box = document.getElementById("scopes");
+  box.innerHTML = SCOPES.map((s,k)=>`<label class="scope" for="sc${k}"><input type="checkbox" id="sc${k}" data-k="${k}"><div><code>${s.s}</code><span>${s.d}</span></div></label>`).join("");
+  document.getElementById("checkScopes").onclick=()=>{
+    const picked = [...box.querySelectorAll("input")].map(x=>x.checked);
+    const extra = SCOPES.filter((s,k)=>picked[k]&&!s.need).map(s=>s.s);
+    const missing = SCOPES.filter((s,k)=>!picked[k]&&s.need).map(s=>s.s);
+    const fb = document.getElementById("scopefb"); fb.hidden=false;
+    if(!extra.length && !missing.length) fb.innerHTML = `<b class="pass">Least privilege achieved.</b> <code>calendar.read</code> covers the widget, and <code>offline_access</code> gets a refresh token so the 15-minute background sync works while you're away. The app never writes, so no write scope.`;
+    else fb.innerHTML = `<b class="fail">Not quite.</b> ${missing.length?`Missing: ${missing.map(s=>`<code>${s}</code>`).join(", ")}. ${missing.includes("offline_access")?"Background refresh with no user present needs a refresh token. ":""}`:""}${extra.length?`Over-requested: ${extra.map(s=>`<code>${s}</code>`).join(", ")}. The feature doesn't need them, and every extra scope makes the consent screen scarier and a leaked token more dangerous.`:""}`;
+  };
+}
+function wireSort(){
+  const box = document.getElementById("sort");
+  let done = 0, right = 0;
+  box.innerHTML = SORT.map((s,k)=>`<div class="sort-item" data-k="${k}"><div>${s[0]}</div><div class="choices">${["OAuth 2.0","OpenID Connect","SAML"].map(c=>`<button data-c="${c}">${c}</button>`).join("")}</div><div class="why" hidden></div></div>`).join("");
+  box.querySelectorAll(".sort-item").forEach(it=>{
+    const s = SORT[+it.dataset.k];
+    it.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+      if (it.dataset.done) return; it.dataset.done=1; done++;
+      it.querySelectorAll("button").forEach(x=>{ if(x.dataset.c===s[1]) x.classList.add("right"); });
+      if (b.dataset.c!==s[1]) b.classList.add("wrong"); else right++;
+      const w = it.querySelector(".why"); w.hidden=false; w.textContent = s[2];
+      if (done===SORT.length){ const fb=document.getElementById("sortfb"); fb.hidden=false; fb.innerHTML=`<b>${right} of ${SORT.length} correct.</b> ${right>=7?"You can tell the three apart.":"Re-read the comparison table, then retry the module's quiz."}`;}
+    });
+  });
+}
+
+function examView(){
+  view.innerHTML = `
+   <div style="display:flex;flex-direction:column;gap:10px"><span class="eyebrow">Checkpoint · 10 questions</span><h1>Final assessment</h1><p class="lede">Questions draw on every module. Score 75% or better to pass. Your best score is kept.</p></div>
+   ${quizHTML("exam", EXAM, "Assessment")}
+   ${pager(MODS.length+1)}`;
+  wireQuiz("exam", EXAM);
+}
+
+function reviewView(){
+  view.innerHTML = `
+   <div style="display:flex;flex-direction:column;gap:10px"><span class="eyebrow">Self-check</span><h1>Explain it back</h1><p class="lede">These are the questions you'd get in an interview or a design review. Answer each out loud first, then open the card to compare, and rate yourself.</p></div>
+   <div class="cards">${CARDS.map((c,k)=>`<details class="card"><summary>${c[0]}</summary><div><p>${c[1]}</p>
+     <div class="selfrate"><span class="eyebrow" style="align-self:center">How did you do?</span>${["Nailed it","Partly","Missed it"].map(r=>`<button class="btn ${state.cards[k]===r?'primary':''}" data-k="${k}" data-r="${r}">${r}</button>`).join("")}</div></div></details>`).join("")}</div>
+   ${pager(MODS.length+2)}`;
+  view.querySelectorAll(".selfrate button").forEach(b=>b.onclick=()=>{
+    state.cards[b.dataset.k]=b.dataset.r; save();
+    b.parentElement.querySelectorAll("button").forEach(x=>x.classList.toggle("primary",x===b));
+  });
+}
+
+function route(keepScroll){
+  const id = (location.hash||"#overview").slice(1);
+  const m = MODS.find(x=>x.id===id);
+  renderNav(m?id:(["exam","review"].includes(id)?id:"overview"));
+  if (m) moduleView(m); else if (id==="exam") examView(); else if (id==="review") reviewView(); else overview();
+  if (!keepScroll) window.scrollTo(0,0);
+  else { const q=document.querySelector(".quiz"); q&&q.scrollIntoView({block:"start"}); }
+}
+window.addEventListener("hashchange",()=>route());
+document.getElementById("reset").onclick=()=>{state={scores:{},cards:{}};save();route();};
+route();
+</script>
+
+</body></html>

@@ -1,0 +1,733 @@
+<title>Contract Desk for Anthropic</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+/* Layout: short product intro, then the working app in one framed window: tabs on top, repository table / contract workspace (document + side rail) / request form. */
+:root {
+  --bg: #F2F5F3;
+  --surface: #FFFFFF;
+  --sunk: #E8EEEA;
+  --ink: #13201A;
+  --muted: #55665D;
+  --line: #D5DFD9;
+  --accent: #17573F;        /* deep forest green */
+  --accent-soft: #DCEEE4;
+  --on-accent: #FFFFFF;
+  --ok: #1D7443;  --ok-soft: #DDF1E4;
+  --warn: #965400; --warn-soft: #FBEBD3;
+  --crit: #AE2A21; --crit-soft: #F8DEDB;
+  --ins: #1D7443; --del: #AE2A21;
+  --f-doc: "Newsreader", Georgia, "Times New Roman", serif;
+  --f-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0D1411; --surface: #141D19; --sunk: #101814; --ink: #E4EDE8; --muted: #94A59C; --line: #25332C;
+  --accent: #6CCF9E; --accent-soft: #1A3A2B; --on-accent: #0D1411;
+  --ok: #67C98F; --ok-soft: #173426; --warn: #E5A752; --warn-soft: #3A2A12; --crit: #F18A80; --crit-soft: #3D1C1A;
+  --ins: #67C98F; --del: #F18A80; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0D1411; --surface: #141D19; --sunk: #101814; --ink: #E4EDE8; --muted: #94A59C; --line: #25332C;
+  --accent: #6CCF9E; --accent-soft: #1A3A2B; --on-accent: #0D1411;
+  --ok: #67C98F; --ok-soft: #173426; --warn: #E5A752; --warn-soft: #3A2A12; --crit: #F18A80; --crit-soft: #3D1C1A;
+  --ins: #67C98F; --del: #F18A80; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-ui); font-size: 14px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 48px; }
+.wrap { max-width: 1180px; margin: 0 auto; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--f-mono); font-size: 12.5px; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* Intro */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 20px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
+.brand svg { width: 26px; height: 26px; }
+.demo-tag { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); border: 1px solid var(--line); padding: 3px 8px; border-radius: 99px; }
+.intro { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 40px; align-items: end; padding-block: 28px 32px; }
+.intro h1 { font-family: var(--f-doc); font-weight: 500; font-size: clamp(32px, 5vw, 52px); line-height: 1.05; letter-spacing: -0.015em; }
+.intro h1 em { color: var(--accent); }
+.intro p { color: var(--muted); font-size: 16px; max-width: 58ch; margin: 14px 0 0; }
+.lifecycle { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; counter-reset: s; }
+.lifecycle li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: baseline; padding: 8px 0; border-top: 1px solid var(--line); counter-increment: s; }
+.lifecycle li::before { content: counter(s); font-family: var(--f-mono); font-size: 12px; color: var(--accent); }
+.lifecycle b { font-weight: 600; }
+.lifecycle span { color: var(--muted); }
+
+/* App frame */
+.app { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 0 var(--line), 0 18px 40px -28px rgba(14,40,28,.35); }
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--line); background: var(--sunk); }
+.tab { border: 0; background: transparent; padding: 7px 12px; border-radius: 6px; color: var(--muted); font-weight: 500; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+.bar .spacer { flex: 1; }
+.who { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+.avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-size: 11px; font-weight: 600; }
+.view { padding: 20px; }
+
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 7px 12px; border-radius: 6px; font-weight: 500; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: .45; cursor: not-allowed; filter: none; }
+.btn.sm { padding: 4px 9px; font-size: 12.5px; }
+
+/* Pipeline */
+.pipeline { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 18px; }
+.stage-card { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 10px 12px; display: grid; gap: 2px; }
+.stage-card .n { font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.stage-card .l { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.stage-card .v { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.stage-card[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
+.filters input { flex: 1 1 220px; min-width: 0; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 7px 10px; }
+.filters .count { color: var(--muted); font-size: 13px; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; min-width: 760px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 500; background: var(--sunk); }
+tbody tr { cursor: pointer; }
+tbody tr:hover td { background: var(--sunk); }
+tbody tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.party { font-weight: 500; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 2px 9px; border-radius: 99px; font-weight: 500; background: var(--sunk); color: var(--muted); }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pill.Draft { color: var(--muted); }
+.pill.Review { background: var(--warn-soft); color: var(--warn); }
+.pill.Approval { background: var(--accent-soft); color: var(--accent); }
+.pill.Signature { background: var(--accent-soft); color: var(--accent); }
+.pill.Executed { background: var(--ok-soft); color: var(--ok); }
+.soon { color: var(--warn); font-weight: 500; }
+
+/* Workspace */
+.ws-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 20px; align-items: flex-start; margin-bottom: 16px; }
+.ws-head h2 { font-family: var(--f-doc); font-weight: 500; font-size: 26px; line-height: 1.15; }
+.ws-head .meta { color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 4px; font-size: 13px; }
+.steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-bottom: 20px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.step { padding: 9px 10px; font-size: 12.5px; color: var(--muted); border-right: 1px solid var(--line); display: flex; gap: 8px; align-items: center; min-width: 0; }
+.step:last-child { border-right: 0; }
+.step i { font-style: normal; font-family: var(--f-mono); font-size: 11px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--line); flex: none; }
+.step.done { color: var(--ink); }
+.step.done i { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.step.now { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.step.now i { border-color: var(--accent); }
+.step span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+.doc { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 32px clamp(18px, 4vw, 48px); font-family: var(--f-doc); font-size: 16.5px; line-height: 1.65; }
+.doc .doc-title { text-align: center; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; font-family: var(--f-ui); color: var(--muted); margin-bottom: 4px; }
+.doc .doc-sub { text-align: center; font-size: 22px; margin-bottom: 24px; }
+.clause { padding: 10px 12px; margin: 0 -12px; border-radius: 6px; border-left: 3px solid transparent; }
+.clause h4 { margin: 0 0 2px; font-family: var(--f-ui); font-size: 13px; font-weight: 600; letter-spacing: 0.01em; }
+.clause h4 .no { font-family: var(--f-mono); color: var(--muted); font-weight: 400; margin-right: 6px; }
+.clause p { margin: 0; max-width: 68ch; }
+.clause.has-red { background: var(--accent-soft); border-left-color: var(--accent); }
+.clause.has-warn { border-left-color: var(--warn); }
+.clause.has-crit { border-left-color: var(--crit); }
+.clause.flash { animation: flash 1.2s ease; }
+@keyframes flash { 0% { background: var(--ok-soft); } 100% { background: transparent; } }
+.val { font-weight: 600; }
+del { color: var(--del); text-decoration-thickness: 1.5px; }
+ins { color: var(--ins); text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
+.sigblock { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); font-family: var(--f-ui); font-size: 12.5px; color: var(--muted); }
+.sigline { border-bottom: 1px solid var(--ink); height: 40px; display: flex; align-items: flex-end; padding-bottom: 4px; font-family: var(--f-doc); font-style: italic; font-size: 22px; color: var(--accent); }
+
+.rail { display: grid; gap: 14px; }
+.ask .dates { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: 12.5px; padding: 8px 10px; background: var(--sunk); border-radius: 6px; }
+.ask .dates dt { color: var(--muted); }
+.ask .dates dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 500; }
+.ask .dates .late { color: var(--crit); }
+.ask .dates .soon { color: var(--warn); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 4px 10px; font-size: 12.5px; text-align: left; color: var(--accent); }
+.chip:hover { border-color: var(--accent); }
+.chip:disabled { opacity: .5; cursor: not-allowed; }
+.thread { display: grid; gap: 10px; max-height: 420px; overflow-y: auto; }
+.msg { font-size: 13.5px; line-height: 1.55; }
+.msg.q { justify-self: end; background: var(--accent); color: var(--on-accent); padding: 6px 10px; border-radius: 10px 10px 2px 10px; max-width: 90%; }
+.msg.a { background: var(--sunk); padding: 8px 11px; border-radius: 10px 10px 10px 2px; }
+.msg.a p { margin: 0 0 6px; } .msg.a p:last-child { margin: 0; }
+.msg.a ul { margin: 0 0 6px; padding-left: 18px; } .msg.a ul:last-child { margin: 0; }
+.msg.a .thinking { color: var(--muted); font-style: italic; }
+.msg.a .note { display: block; color: var(--muted); font-size: 12px; margin-top: 4px; }
+.askform { display: flex; gap: 6px; }
+.askform input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 7px 10px; }
+.ask .off { font-size: 12.5px; color: var(--muted); }
+.panel { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.panel > h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 500; padding: 10px 12px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; }
+.panel .body { padding: 10px 12px; display: grid; gap: 10px; }
+.empty { color: var(--muted); font-size: 13px; }
+.item { display: grid; gap: 6px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+.item:last-child { border-bottom: 0; padding-bottom: 0; }
+.item .t { font-size: 13px; }
+.item .s { font-size: 12px; color: var(--muted); }
+.item .acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.sev { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.crit { color: var(--crit); } .sev.warn { color: var(--warn); } .sev.ok { color: var(--ok); }
+.approver { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.approver .s { display: block; }
+.state-ok { color: var(--ok); font-size: 12.5px; font-weight: 500; }
+.advance { display: grid; gap: 8px; }
+.advance .why { font-size: 12.5px; color: var(--muted); }
+.advance input { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 7px 10px; width: 100%; }
+.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 12.5px; max-height: 180px; overflow: auto; }
+.log li { display: grid; grid-template-columns: 52px 1fr; gap: 8px; }
+.log time { color: var(--muted); font-family: var(--f-mono); font-size: 11.5px; }
+
+/* Form */
+.form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-content: start; }
+.field { display: grid; gap: 5px; }
+.field.full { grid-column: 1 / -1; }
+.field label { font-size: 12.5px; font-weight: 500; }
+.field input, .field select { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 8px 10px; width: 100%; }
+.field .hint { font-size: 12px; color: var(--muted); }
+.field .err { font-size: 12px; color: var(--crit); }
+.preview { background: var(--sunk); border-radius: 8px; padding: 18px; display: grid; gap: 10px; align-content: start; }
+.preview h3 { font-size: 13px; font-weight: 600; }
+.preview .doc { font-size: 14.5px; padding: 20px; }
+
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px); background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 8px; font-size: 13px; opacity: 0; transition: .25s; pointer-events: none; max-width: calc(100% - 32px); }
+.toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+.foot { color: var(--muted); font-size: 12.5px; margin-top: 18px; }
+
+@media (max-width: 900px) {
+  .intro { grid-template-columns: 1fr; gap: 20px; }
+  .ws { grid-template-columns: 1fr; }
+  .rail { position: static; }
+  .form { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .pipeline { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .steps { grid-template-columns: 1fr; }
+  .step { border-right: 0; border-bottom: 1px solid var(--line); }
+  .step:last-child { border-bottom: 0; }
+  .fields { grid-template-columns: 1fr; }
+  .view { padding: 14px; }
+  .who span { display: none; }
+  .sigblock { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 26 26" aria-hidden="true"><rect x="3" y="2" width="16" height="21" rx="2" fill="none" stroke="var(--accent)" stroke-width="1.8"/><path d="M7 8h8M7 12h8M7 16h4" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round"/><circle cx="19" cy="19" r="4.5" fill="var(--accent)"/><path d="M17 19l1.4 1.4 2.6-2.8" stroke="var(--on-accent)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Contract Desk <span style="font-weight:400;color:var(--muted)">for Anthropic</span>
+    </div>
+    <span class="demo-tag">Interactive demo</span>
+  </header>
+
+  <section class="intro">
+    <div>
+      <h1>Every contract, from first draft to <em>signed</em>, in one desk.</h1>
+      <p>Contract Desk keeps your agreements in one searchable repository, checks every redline against your legal playbook, routes approvals to the right people, and collects signatures. Open any contract and ask Claude about its renewal dates, notice deadlines and risks. Try it below with sample contracts.</p>
+    </div>
+    <ol class="lifecycle" aria-label="Contract lifecycle">
+      <li><div><b>Draft</b> <span>from approved templates</span></div></li>
+      <li><div><b>Review</b> <span>redlines checked against playbook</span></div></li>
+      <li><div><b>Approval</b> <span>Finance and Legal sign off</span></div></li>
+      <li><div><b>Signature</b> <span>both parties sign</span></div></li>
+      <li><div><b>Executed</b> <span>stored, tracked for renewal</span></div></li>
+    </ol>
+  </section>
+
+  <main class="app" aria-label="Contract Desk demo app">
+    <nav class="bar" role="tablist">
+      <button class="tab" role="tab" id="tab-repository" data-view="repository">Repository</button>
+      <button class="tab" role="tab" id="tab-workspace" data-view="workspace">Workspace</button>
+      <button class="tab" role="tab" id="tab-new" data-view="new">New request</button>
+      <div class="spacer"></div>
+      <div class="who"><div class="avatar">DR</div><span>Dana Reyes, Legal Ops</span></div>
+    </nav>
+    <div class="view" id="view"></div>
+  </main>
+  <p class="foot">Contract Desk is a demo built for Anthropic. All companies, people and contracts on this page are sample data, and changes reset when you reload.</p>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const STAGES = ['Draft', 'Review', 'Approval', 'Signature', 'Executed'];
+const TODAY = new Date('2026-11-06T12:00:00');
+const OUR_CO = 'Meridian Robotics, Inc.';
+const LAWS = ['Delaware', 'New York', 'England and Wales'];
+
+const TYPES = {
+  MSA: { name: 'Master Services Agreement', purpose: p => `${OUR_CO} ("Provider") will provide automation services to ${p} ("Customer") as described in Statements of Work issued under this Agreement.` },
+  NDA: { name: 'Mutual Non-Disclosure Agreement', purpose: p => `${OUR_CO} and ${p} wish to share confidential information to evaluate a potential business relationship, and agree to protect it as set out below.` },
+  SOW: { name: 'Statement of Work', purpose: p => `This Statement of Work describes the warehouse robotics deployment ${OUR_CO} will deliver for ${p}, including milestones and acceptance criteria.` },
+  DPA: { name: 'Data Processing Addendum', purpose: p => `This Addendum governs how ${OUR_CO} processes personal data on behalf of ${p} in connection with the services.` },
+  Vendor: { name: 'Vendor Supply Agreement', purpose: p => `${p} ("Supplier") will supply components to ${OUR_CO} ("Buyer") under purchase orders issued under this Agreement.` },
+};
+
+// Clause templates. v(key) renders a parameter, with a redline if one is open.
+const CLAUSES = [
+  { key: 'purpose', h: 'Parties and Purpose', text: (c, v) => TYPES[c.type].purpose(esc(c.party)) },
+  { key: 'term', h: 'Term and Renewal', text: (c, v) => `This Agreement begins on the Effective Date and continues for ${v('term')} months. It renews automatically for successive 12-month terms unless either party gives written notice of non-renewal at least ${v('notice')} days before the renewal date.` },
+  { key: 'fees', h: 'Fees and Payment', text: (c, v) => `Customer will pay each undisputed invoice within ${v('net')} days of receipt. Late amounts accrue interest at 1% per month or the maximum rate permitted by law, whichever is lower.` },
+  { key: 'conf', h: 'Confidentiality', text: (c, v) => `Each party will protect the other's Confidential Information with at least reasonable care and use it only to perform this Agreement. These obligations survive for ${v('conf')} years after termination.` },
+  { key: 'cap', h: 'Limitation of Liability', text: (c, v) => `Except for breaches of confidentiality or indemnification obligations, each party's total liability under this Agreement will not exceed ${v('cap')} the fees paid or payable in the 12 months before the event giving rise to the claim.` },
+  { key: 'termination', h: 'Termination for Convenience', text: (c, v) => `Either party may terminate this Agreement for convenience on ${v('conv')} days' written notice. Fees for services performed before the termination date remain payable.` },
+  { key: 'law', h: 'Governing Law', text: (c, v) => `This Agreement is governed by the laws of ${v('law')}, without regard to conflict-of-law rules. The parties submit to the exclusive jurisdiction of the courts located there.` },
+];
+
+const FMT = {
+  cap: x => `${x}×`, law: x => esc(x), default: x => String(x),
+};
+const fmt = (k, x) => (FMT[k] || FMT.default)(x);
+
+// Playbook: returns null when compliant, otherwise {sev, msg, fallback}
+const PLAYBOOK = {
+  net:    x => x <= 45 ? null : { sev: 'warn', msg: `Payment term of ${x} days exceeds the 45-day standard.`, fallback: 45 },
+  cap:    x => x <= 1 ? null : x <= 2 ? { sev: 'warn', msg: `Liability cap of ${x}× fees is above the 1× standard. Allowed up to 2× with Finance approval.`, fallback: 1 } : { sev: 'crit', msg: `Liability cap of ${x}× fees is outside the playbook. Maximum is 2×.`, fallback: 2 },
+  notice: x => x >= 30 ? null : { sev: 'warn', msg: `Non-renewal notice of ${x} days is under the 30-day minimum.`, fallback: 30 },
+  law:    x => LAWS.includes(x) ? null : { sev: 'warn', msg: `${x} law is not a pre-approved jurisdiction (Delaware, New York, England and Wales).`, fallback: 'Delaware' },
+  conf:   x => x >= 2 ? null : { sev: 'warn', msg: `Confidentiality survives ${x} year${x === 1 ? '' : 's'}. Playbook minimum is 2 years.`, fallback: 3 },
+  conv:   x => x >= 30 ? null : { sev: 'crit', msg: `Termination on ${x} days' notice leaves no wind-down period. Playbook minimum is 30 days.`, fallback: 60 },
+};
+const PARAM_CLAUSE = { term: 'term', notice: 'term', net: 'fees', conf: 'conf', cap: 'cap', conv: 'termination', law: 'law' };
+const PARAM_LABEL = { term: 'Initial term', notice: 'Renewal notice', net: 'Payment term', conf: 'Confidentiality period', cap: 'Liability cap', conv: 'Convenience notice', law: 'Governing law' };
+const DEFAULTS = { term: 24, notice: 60, net: 30, conf: 3, cap: 1, conv: 60, law: 'Delaware' };
+
+const PEOPLE = { 'Dana Reyes': 'Legal Ops', 'Priya Natarajan': 'Finance', 'Marcus Holt': 'General Counsel', 'Jo Whitfield': 'Procurement', 'Sam Okafor': 'Sales' };
+
+function approvalsFor(value) {
+  const a = [{ name: 'Marcus Holt', role: 'General Counsel', state: 'pending' }];
+  if (value >= 100000) a.unshift({ name: 'Priya Natarajan', role: 'Finance', state: 'pending' });
+  return a;
+}
+
+function mk(o) {
+  const c = Object.assign({ params: { ...DEFAULTS }, redlines: [], waived: [], activity: [], signed: null }, o);
+  Object.assign(c.params, o.params || {});
+  c.approvals = o.approvals || approvalsFor(c.value);
+  if (!c.activity.length) c.activity = [{ t: c.updated, msg: `Created from ${TYPES[c.type].name} template` }];
+  return c;
+}
+
+let seq = 422;
+const S = {
+  view: 'repository', openId: 'CW-0417', stage: 'all', q: '',
+  contracts: [
+    mk({ id: 'CW-0417', party: 'Kestrel Labs', type: 'MSA', owner: 'Sam Okafor', value: 486000, stage: 'Review', renewal: '2028-12-01', updated: 'Nov 5',
+      redlines: [
+        { param: 'cap', to: 3, by: 'Kestrel Labs counsel', note: 'Our board requires a 3× cap on all automation vendors.' },
+        { param: 'net', to: 60, by: 'Kestrel Labs AP', note: 'Standard AP cycle is net 60.' },
+        { param: 'law', to: 'California', by: 'Kestrel Labs counsel', note: 'We are headquartered in San Jose.' },
+      ],
+      activity: [{ t: 'Nov 2', msg: 'Created from Master Services Agreement template' }, { t: 'Nov 3', msg: 'Sent to Kestrel Labs for review' }, { t: 'Nov 5', msg: 'Kestrel Labs returned 3 redlines' }] }),
+    mk({ id: 'CW-0419', party: 'Halvorsen Marine Supply', type: 'Vendor', owner: 'Jo Whitfield', value: 212500, stage: 'Approval', renewal: '2027-11-30', updated: 'Nov 4',
+      params: { cap: 2, net: 45 }, approvals: [{ name: 'Priya Natarajan', role: 'Finance', state: 'approved' }, { name: 'Marcus Holt', role: 'General Counsel', state: 'pending' }],
+      activity: [{ t: 'Oct 28', msg: 'Created from Vendor Supply Agreement template' }, { t: 'Nov 1', msg: 'All redlines resolved' }, { t: 'Nov 4', msg: 'Priya Natarajan approved' }] }),
+    mk({ id: 'CW-0420', party: 'Brightwater Analytics', type: 'NDA', owner: 'Sam Okafor', value: 0, stage: 'Signature', renewal: '2028-11-10', updated: 'Nov 5',
+      approvals: [{ name: 'Marcus Holt', role: 'General Counsel', state: 'approved' }] }),
+    mk({ id: 'CW-0421', party: 'Tamarind Health', type: 'DPA', owner: 'Dana Reyes', value: 0, stage: 'Draft', renewal: '2028-11-06', updated: 'Nov 6', params: { conf: 1 } }),
+    mk({ id: 'CW-0398', party: 'Oakline Facilities', type: 'SOW', owner: 'Jo Whitfield', value: 74800, stage: 'Executed', renewal: '2026-12-15', updated: 'Sep 12', signed: 'Rowan Pike',
+      approvals: [{ name: 'Marcus Holt', role: 'General Counsel', state: 'approved' }] }),
+    mk({ id: 'CW-0371', party: 'Ferro & Pike LLP', type: 'MSA', owner: 'Dana Reyes', value: 138000, stage: 'Executed', renewal: '2026-11-28', updated: 'Jun 3', signed: 'Elena Ferro', params: { notice: 30 },
+      approvals: [{ name: 'Priya Natarajan', role: 'Finance', state: 'approved' }, { name: 'Marcus Holt', role: 'General Counsel', state: 'approved' }] }),
+    mk({ id: 'CW-0412', party: 'Northgate Cold Storage', type: 'SOW', owner: 'Sam Okafor', value: 352000, stage: 'Review', renewal: '2028-03-01', updated: 'Oct 30',
+      redlines: [{ param: 'conv', to: 10, by: 'Northgate procurement', note: 'Need flexibility if the pilot site closes.' }] }),
+    mk({ id: 'CW-0355', party: 'Lumen Grid Energy', type: 'Vendor', owner: 'Jo Whitfield', value: 96000, stage: 'Executed', renewal: '2027-04-18', updated: 'Apr 18', signed: 'Ines Carvalho',
+      approvals: [{ name: 'Marcus Holt', role: 'General Counsel', state: 'approved' }] }),
+  ],
+};
+
+// ---------- helpers ----------
+function esc(s) { return String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch])); }
+const money = n => n ? '$' + n.toLocaleString('en-US') : '—';
+const initials = n => n.split(' ').map(w => w[0]).join('').slice(0, 2);
+const cur = () => S.contracts.find(c => c.id === S.openId);
+const nowStamp = () => 'Nov 6';
+function daysUntil(d) { return Math.round((new Date(d + 'T12:00:00') - TODAY) / 864e5); }
+function fmtDate(d) { return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+function log(c, msg) { c.activity.push({ t: nowStamp(), msg }); c.updated = nowStamp(); }
+let toastT;
+function toast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2400); }
+
+function issues(c) {
+  const out = [];
+  for (const k of Object.keys(PLAYBOOK)) {
+    if (c.redlines.some(r => r.param === k)) continue; // judged after the redline is resolved
+    const r = PLAYBOOK[k](c.params[k]);
+    if (r && !c.waived.includes(k)) out.push({ param: k, ...r });
+  }
+  return out;
+}
+function blockers(c) {
+  const st = c.stage;
+  if (st === 'Draft') return [];
+  if (st === 'Review') {
+    const b = [];
+    if (c.redlines.length) b.push(`${c.redlines.length} open redline${c.redlines.length > 1 ? 's' : ''}`);
+    const crit = issues(c).filter(i => i.sev === 'crit').length;
+    if (crit) b.push(`${crit} critical playbook issue${crit > 1 ? 's' : ''}`);
+    return b;
+  }
+  if (st === 'Approval') { const p = c.approvals.filter(a => a.state !== 'approved').length; return p ? [`${p} approval${p > 1 ? 's' : ''} pending`] : []; }
+  return [];
+}
+
+// ---------- rendering ----------
+function setView(v, push = true) {
+  S.view = v;
+  document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.view === v));
+  const hash = v === 'workspace' ? 'contract-' + S.openId.toLowerCase() : v;
+  if (push && location.hash.slice(1) !== hash) history.replaceState(null, '', '#' + hash);
+  render();
+}
+
+function render() {
+  const el = document.getElementById('view');
+  el.innerHTML = S.view === 'repository' ? viewRepo() : S.view === 'workspace' ? viewWorkspace() : viewNew();
+  if (S.view === 'new') updatePreview();
+}
+
+function viewRepo() {
+  const counts = STAGES.map(s => S.contracts.filter(c => c.stage === s));
+  const q = S.q.trim().toLowerCase();
+  const rows = S.contracts
+    .filter(c => S.stage === 'all' || c.stage === S.stage)
+    .filter(c => !q || [c.id, c.party, TYPES[c.type].name, c.owner].join(' ').toLowerCase().includes(q))
+    .sort((a, b) => STAGES.indexOf(a.stage) - STAGES.indexOf(b.stage) || b.id.localeCompare(a.id));
+  return `
+  <div class="pipeline">
+    ${STAGES.map((s, i) => `<button class="stage-card" data-stage="${s}" aria-pressed="${S.stage === s}">
+      <span class="l">${s}</span><span class="n">${counts[i].length}</span>
+      <span class="v">${money(counts[i].reduce((a, c) => a + c.value, 0)) === '—' ? 'No value' : money(counts[i].reduce((a, c) => a + c.value, 0))}</span></button>`).join('')}
+  </div>
+  <div class="filters">
+    <input id="q" type="search" placeholder="Search counterparty, ID, type or owner" value="${esc(S.q)}" aria-label="Search contracts">
+    ${S.stage !== 'all' ? `<button class="btn sm" data-stage="all">Clear ${S.stage} filter</button>` : ''}
+    <span class="count">${rows.length} of ${S.contracts.length} contracts</span>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>ID</th><th>Counterparty</th><th>Type</th><th>Stage</th><th class="num">Value</th><th>Owner</th><th>Renews</th></tr></thead>
+    <tbody>${rows.map(c => {
+      const d = daysUntil(c.renewal);
+      return `<tr data-open="${c.id}" tabindex="0">
+        <td class="mono">${c.id}</td><td class="party">${esc(c.party)}</td><td>${TYPES[c.type].name}</td>
+        <td><span class="pill ${c.stage}">${c.stage}</span></td><td class="num">${money(c.value)}</td>
+        <td>${esc(c.owner)}</td><td class="tnum ${c.stage === 'Executed' && d <= 45 ? 'soon' : ''}">${fmtDate(c.renewal)}${c.stage === 'Executed' && d <= 45 ? ` · in ${d} days` : ''}</td></tr>`;
+    }).join('') || `<tr><td colspan="7" class="empty">No contracts match. Clear the search or the stage filter.</td></tr>`}</tbody>
+  </table></div>`;
+}
+
+function docHTML(c, interactive = true) {
+  const v = k => {
+    const r = interactive && c.redlines.find(x => x.param === k);
+    if (r) return `<del>${fmt(k, c.params[k])}</del> <ins>${fmt(k, r.to)}</ins>`;
+    return `<span class="val">${fmt(k, c.params[k])}</span>`;
+  };
+  const iss = interactive ? issues(c) : [];
+  return `<div class="doc-title">${TYPES[c.type].name}</div>
+    <div class="doc-sub">${OUR_CO.replace(', Inc.', '')} &amp; ${esc(c.party)}</div>
+    ${CLAUSES.map((cl, i) => {
+      const params = Object.keys(PARAM_CLAUSE).filter(p => PARAM_CLAUSE[p] === cl.key);
+      const red = c.redlines.some(r => params.includes(r.param));
+      const sev = iss.filter(x => params.includes(x.param)).map(x => x.sev);
+      const cls = red ? 'has-red' : sev.includes('crit') ? 'has-crit' : sev.includes('warn') ? 'has-warn' : '';
+      return `<div class="clause ${interactive ? cls : ''}" id="cl-${cl.key}"><h4><span class="no">${i + 1}.</span>${cl.h}</h4><p>${cl.text(c, v)}</p></div>`;
+    }).join('')}
+    ${interactive ? `<div class="sigblock">
+      <div><div class="sigline">${c.stage === 'Executed' || c.signedUs ? 'Dana Reyes' : ''}</div>${OUR_CO}</div>
+      <div><div class="sigline">${c.signed ? esc(c.signed) : ''}</div>${esc(c.party)}</div>
+    </div>` : ''}`;
+}
+
+function viewWorkspace() {
+  const c = cur();
+  const si = STAGES.indexOf(c.stage);
+  const iss = issues(c);
+  const blk = blockers(c);
+  const next = STAGES[si + 1];
+  let advance = '';
+  if (c.stage === 'Signature') {
+    advance = `<div class="advance"><label class="why" for="signer">Counterparty signer types their full name to sign</label>
+      <input id="signer" placeholder="e.g. Avery Lin" autocomplete="off">
+      <button class="btn primary" data-act="sign">Sign and execute</button></div>`;
+  } else if (next) {
+    advance = `<div class="advance"><button class="btn primary" data-act="advance" ${blk.length ? 'disabled' : ''}>Move to ${next}</button>
+      <span class="why">${blk.length ? 'Resolve first: ' + blk.join(', ') + '.' : c.stage === 'Draft' ? 'Sends the draft to ' + esc(c.party) + ' for review.' : 'All checks passed.'}</span></div>`;
+  } else {
+    advance = `<div class="advance"><span class="state-ok">Executed and stored.</span><span class="why">Renewal reminder set ${Math.max(0, c.params.notice + 14)} days before ${fmtDate(c.renewal)}.</span></div>`;
+  }
+
+  return `
+  <div class="ws-head">
+    <div>
+      <div class="mono" style="color:var(--muted)">${c.id}</div>
+      <h2>${esc(c.party)}</h2>
+      <div class="meta"><span>${TYPES[c.type].name}</span><span>${money(c.value)}</span><span>Owner: ${esc(c.owner)}</span><span>Updated ${c.updated}</span></div>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap">
+      <label class="mono" for="pick" style="align-self:center;color:var(--muted)">Open</label>
+      <select id="pick" class="btn">${S.contracts.map(x => `<option value="${x.id}" ${x.id === c.id ? 'selected' : ''}>${x.id} · ${esc(x.party)}</option>`).join('')}</select>
+    </div>
+  </div>
+  <div class="steps" aria-label="Lifecycle stage">
+    ${STAGES.map((s, i) => `<div class="step ${i < si || c.stage === 'Executed' ? 'done' : i === si ? 'now' : ''}"><i>${i < si || c.stage === 'Executed' ? '✓' : i + 1}</i><span>${s}</span></div>`).join('')}
+  </div>
+  <div class="ws">
+    <article class="doc">${docHTML(c)}</article>
+    <aside class="rail">
+      <section class="panel"><h3>Next step <span>${c.stage}</span></h3><div class="body">${advance}</div></section>
+
+      ${askPanel(c)}
+
+      <section class="panel"><h3>Redlines <span class="tnum">${c.redlines.length}</span></h3><div class="body">
+        ${c.redlines.length ? c.redlines.map(r => {
+          const verdict = PLAYBOOK[r.param](r.to);
+          return `<div class="item">
+            <div class="t"><b>${PARAM_LABEL[r.param]}:</b> ${fmt(r.param, c.params[r.param])} → ${fmt(r.param, r.to)}</div>
+            <div class="s">${esc(r.by)}: “${esc(r.note)}”</div>
+            <div class="sev ${verdict ? verdict.sev : 'ok'}">${verdict ? (verdict.sev === 'crit' ? 'Outside playbook' : 'Needs approval') : 'Within playbook'}</div>
+            <div class="acts"><button class="btn sm" data-act="accept" data-p="${r.param}">Accept</button><button class="btn sm" data-act="reject" data-p="${r.param}">Reject</button>
+            ${verdict && verdict.sev === 'crit' ? `<button class="btn sm" data-act="counter" data-p="${r.param}">Counter at ${fmt(r.param, verdict.fallback)}</button>` : ''}</div>
+          </div>`;
+        }).join('') : `<p class="empty">${c.stage === 'Draft' ? 'No redlines yet. The counterparty can redline once this is sent for review.' : 'No open redlines.'}</p>`}
+      </div></section>
+
+      <section class="panel"><h3>Playbook check <span class="tnum">${iss.length ? iss.length + ' issue' + (iss.length > 1 ? 's' : '') : 'Clear'}</span></h3><div class="body">
+        ${iss.length ? iss.map(i => `<div class="item">
+          <div class="sev ${i.sev}">${i.sev === 'crit' ? 'Critical' : 'Warning'} · ${PARAM_LABEL[i.param]}</div>
+          <div class="t">${i.msg}</div>
+          <div class="acts">${c.stage !== 'Executed' ? `<button class="btn sm" data-act="fallback" data-p="${i.param}">Use standard: ${fmt(i.param, i.fallback)}</button>
+          ${i.sev === 'warn' ? `<button class="btn sm" data-act="waive" data-p="${i.param}">Accept risk</button>` : ''}` : '<span class="s">Executed. Flag kept for renewal.</span>'}</div>
+        </div>`).join('') : `<p class="empty">All clauses match the Meridian legal playbook.</p>`}
+      </div></section>
+
+      <section class="panel"><h3>Approvals</h3><div class="body">
+        ${c.approvals.map((a, idx) => `<div class="approver"><div style="display:flex;gap:8px;align-items:center"><div class="avatar">${initials(a.name)}</div><div><div class="t">${a.name}</div><span class="s">${a.role}</span></div></div>
+          ${a.state === 'approved' ? '<span class="state-ok">Approved</span>' : c.stage === 'Approval' ? `<button class="btn sm" data-act="approve" data-i="${idx}">Approve</button>` : '<span class="s">Waiting</span>'}</div>`).join('')}
+        ${c.stage !== 'Approval' && c.approvals.some(a => a.state !== 'approved') ? '<p class="empty">Approvers are notified when the contract reaches Approval.</p>' : ''}
+      </div></section>
+
+      <section class="panel"><h3>Activity</h3><div class="body"><ul class="log">
+        ${c.activity.slice().reverse().map(a => `<li><time>${a.t}</time><span>${esc(a.msg)}</span></li>`).join('')}
+      </ul></div></section>
+    </aside>
+  </div>`;
+}
+
+// ---------- Ask Claude about a contract ----------
+S.sample = undefined;   // undefined: still connecting, null: unavailable
+S.askOff = '';          // set when this view can no longer ask
+S.askDraft = '';
+S.asking = null;        // {id, ctl} while an answer is coming in
+if (window.claude && claude.use) {
+  claude.use('sample').then(fn => { S.sample = fn; if (!fn) S.askOff = 'Questions work when this page is opened on claude.ai.'; if (S.view === 'workspace') render(); })
+    .catch(() => { S.sample = null; S.askOff = 'Questions work when this page is opened on claude.ai.'; if (S.view === 'workspace') render(); });
+} else { S.sample = null; S.askOff = 'Questions work when this page is opened on claude.ai.'; }
+
+function plain(html) { const d = document.createElement('div'); d.innerHTML = html; return d.textContent; }
+function addDays(iso, n) { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); }
+function keyDates(c) {
+  const deadline = addDays(c.renewal, -c.params.notice);
+  return { renewal: c.renewal, deadline, toRenewal: daysUntil(c.renewal), toDeadline: daysUntil(deadline) };
+}
+const rel = n => n === 0 ? 'today' : n > 0 ? `in ${n} day${n === 1 ? '' : 's'}` : `${-n} day${n === -1 ? '' : 's'} ago`;
+
+function contractBrief(c) {
+  const k = keyDates(c);
+  const iss = issues(c);
+  const lines = [
+    `Today: ${fmtDate('2026-11-06')}. Our company: ${OUR_CO}.`,
+    `Contract ${c.id}: ${TYPES[c.type].name} with ${c.party}. Value ${money(c.value)}. Owner ${c.owner}. Lifecycle stage: ${c.stage}.`,
+    c.stage === 'Executed'
+      ? `Executed. Signed by ${c.signed || 'the counterparty'}.`
+      : `Not yet executed, so the renewal date below is the projected date if signed now.`,
+    `Renewal date: ${fmtDate(k.renewal)} (${rel(k.toRenewal)}). Initial term ${c.params.term} months; auto-renews for 12-month terms.`,
+    `Non-renewal notice required: ${c.params.notice} days before renewal, so the notice deadline is ${fmtDate(k.deadline)} (${rel(k.toDeadline)}).`,
+    '',
+    'Current clause text:',
+    ...CLAUSES.map((cl, i) => `${i + 1}. ${cl.h}: ${plain(cl.text(c, p => fmt(p, c.params[p])))}`),
+    '',
+    'Open redlines from the counterparty (not yet accepted):',
+    ...(c.redlines.length ? c.redlines.map(r => { const v = PLAYBOOK[r.param](r.to); return `- ${PARAM_LABEL[r.param]}: ${plain(fmt(r.param, c.params[r.param]))} → ${plain(fmt(r.param, r.to))}, proposed by ${r.by} ("${r.note}"). Playbook verdict if accepted: ${v ? v.msg : 'within playbook'}`; }) : ['- None']),
+    '',
+    'Playbook issues on current terms:',
+    ...(iss.length ? iss.map(i => `- ${i.sev === 'crit' ? 'Critical' : 'Warning'}: ${i.msg} Standard fallback: ${plain(fmt(i.param, i.fallback))}.`) : ['- None']),
+    ...(c.waived.length ? [`Risks accepted by Legal Ops: ${c.waived.map(p => PARAM_LABEL[p]).join(', ')}.`] : []),
+    '',
+    'Playbook standards: payment within 45 days; liability cap 1× annual fees (up to 2× with Finance approval, never above 2×); non-renewal notice at least 30 days; governing law Delaware, New York, or England and Wales; confidentiality at least 2 years; termination for convenience at least 30 days notice.',
+    `Approvals: ${c.approvals.map(a => `${a.name} (${a.role}): ${a.state}`).join('; ')}.`,
+  ];
+  return lines.join('\n');
+}
+const ASK_RULES = `You are the contract analyst built into Contract Desk, a contract management app. Answer the question about the contract described below using only that data. Be specific: give exact dates, day counts and amounts, and name the clause each point comes from. When asked about risk, rank the risks and say what to do about each (accept, counter at the playbook standard, or escalate). If the data does not answer the question, say so plainly. Keep answers under 170 words. Format: short paragraphs or lines starting with "- ", **bold** for key dates and figures, no headings, no disclaimers.\n\nCONTRACT DATA\n`;
+
+function suggestions(c) {
+  const s = ['When does this renew, and when is our notice deadline?', 'What are the biggest risks in this contract?'];
+  s.push(c.redlines.length ? 'What changes if we accept all the open redlines?' : c.stage === 'Executed' ? 'Should we renew or renegotiate before the deadline?' : 'What should we watch for before signing?');
+  return s;
+}
+
+function mdLite(t) {
+  let out = '', list = [];
+  const flush = () => { if (list.length) { out += '<ul>' + list.map(l => `<li>${l}</li>`).join('') + '</ul>'; list = []; } };
+  for (const raw of t.length ? esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').split('\n') : []) {
+    const line = raw.trim();
+    if (/^[-•*] /.test(line)) list.push(line.slice(2));
+    else { flush(); if (line) out += `<p>${line}</p>`; }
+  }
+  flush();
+  return out;
+}
+
+function askPanel(c) {
+  const k = keyDates(c);
+  const chat = c.chat || [];
+  const busy = !!S.asking;
+  const canAsk = S.sample && !S.askOff;
+  const dl = k.toDeadline < 0 ? 'late' : k.toDeadline <= 45 ? 'soon' : '';
+  return `<section class="panel ask"><h3>Ask about this contract <span>Claude</span></h3><div class="body">
+    <dl class="dates">
+      <dt>Renews</dt><dd>${fmtDate(k.renewal)} · ${rel(k.toRenewal)}</dd>
+      <dt>Notice by</dt><dd class="${dl}">${fmtDate(k.deadline)} · ${k.toDeadline < 0 ? 'passed ' : ''}${rel(k.toDeadline)}</dd>
+    </dl>
+    ${chat.length ? `<div class="thread" id="thread">${chat.map((m, i) => m.role === 'user'
+      ? `<div class="msg q">${esc(m.content)}</div>`
+      : `<div class="msg a" id="ans-${i}">${m.content ? mdLite(m.content) : '<span class="thinking">Reading the contract…</span>'}${m.note ? `<span class="note">${esc(m.note)}</span>` : ''}</div>`).join('')}</div>` : ''}
+    ${S.askOff ? `<p class="off">${esc(S.askOff)}</p>` : `
+      ${chat.length ? '' : `<div class="chips">${suggestions(c).map(q => `<button class="chip" data-ask="${esc(q)}" ${canAsk && !busy ? '' : 'disabled'}>${esc(q)}</button>`).join('')}</div>`}
+      <form class="askform" id="askform">
+        <input id="askq" placeholder="${S.sample === undefined ? 'Connecting to Claude…' : 'Ask about dates, risks, obligations…'}" value="${esc(S.askDraft)}" autocomplete="off" aria-label="Ask a question about this contract" ${canAsk ? '' : 'disabled'}>
+        ${busy ? '<button type="button" class="btn" data-act="stopask">Stop</button>' : `<button class="btn primary" type="submit" ${canAsk ? '' : 'disabled'}>Ask</button>`}
+      </form>
+      ${chat.length && !busy ? '<button class="chip" data-act="clearask" style="justify-self:start">Start over</button>' : ''}`}
+  </div></section>`;
+}
+
+function scrollThread() { const t = document.getElementById('thread'); if (t) t.scrollTop = t.scrollHeight; }
+
+async function ask(c, q) {
+  q = q.trim();
+  if (!q || S.asking || !S.sample) return;
+  c.chat = c.chat || [];
+  const history = c.chat.filter(m => m.content && !m.failed).slice(-8).map(m => ({ role: m.role, content: m.content }));
+  c.chat.push({ role: 'user', content: q });
+  const ans = { role: 'assistant', content: '' };
+  c.chat.push(ans);
+  const idx = c.chat.length - 1;
+  const ctl = new AbortController();
+  S.asking = { id: c.id, ctl };
+  S.askDraft = '';
+  render(); scrollThread();
+  const paint = () => { const el = document.getElementById('ans-' + idx); if (el && S.openId === c.id) { el.innerHTML = mdLite(ans.content) + (ans.note ? `<span class="note">${esc(ans.note)}</span>` : ''); scrollThread(); } };
+  try {
+    const input = [{ role: 'user', content: ASK_RULES + contractBrief(c) }];
+    if (history.length) input.push({ role: 'assistant', content: 'Understood. I will answer from this contract data.' }, ...history);
+    input.push({ role: 'user', content: q });
+    const { text, truncated } = await S.sample(input, { cache: false, signal: ctl.signal, onText: ({ text }) => { ans.content = text; paint(); } });
+    ans.content = text;
+    if (truncated) ans.note = 'The answer was cut short. Ask a narrower question.';
+  } catch (e) {
+    ans.content = e && e.text || '';
+    const code = e && e.code;
+    if (code === 'cancelled') ans.note = 'Stopped.';
+    else if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'].includes(code)) { S.askOff = code === 'not_granted' ? 'Claude access was declined for this page. Reload the page to be asked again.' : 'Claude is not available for this account.'; ans.note = 'Could not ask Claude.'; }
+    else if (code === 'rate_limited') ans.note = 'Too many questions right now. Wait a minute and try again.';
+    else if (code === 'session_expired') ans.note = 'Your claude.ai session expired. Sign in again, then ask.';
+    else if (code === 'refused') ans.note = 'Claude declined that question. Try rephrasing it.';
+    else ans.note = 'The answer was interrupted. Try asking again.';
+    if (!ans.content) ans.failed = true;
+  } finally {
+    S.asking = null;
+    if (S.view === 'workspace') { render(); scrollThread(); }
+  }
+}
+
+const FORM = { party: 'Avalon Parcel Network', type: 'MSA', value: '180000', owner: 'Sam Okafor', term: '24' };
+function viewNew() {
+  return `<form class="form" id="reqform" novalidate>
+    <div>
+      <h3 style="font-size:16px;margin-bottom:4px">Request a new contract</h3>
+      <p class="empty" style="margin:0 0 16px">Contract Desk drafts it from the approved template, with playbook-standard terms, and picks the approvers from the value.</p>
+      <div class="fields">
+        <div class="field full"><label for="f-party">Counterparty</label><input id="f-party" name="party" value="${esc(FORM.party)}" required><span class="err" id="e-party" hidden>Enter the counterparty's legal name.</span></div>
+        <div class="field"><label for="f-type">Agreement type</label><select id="f-type" name="type">${Object.entries(TYPES).map(([k, t]) => `<option value="${k}" ${FORM.type === k ? 'selected' : ''}>${t.name}</option>`).join('')}</select></div>
+        <div class="field"><label for="f-value">Contract value (USD)</label><input id="f-value" name="value" inputmode="numeric" value="${esc(FORM.value)}"><span class="hint" id="h-value"></span></div>
+        <div class="field"><label for="f-owner">Business owner</label><select id="f-owner" name="owner">${Object.keys(PEOPLE).map(p => `<option ${FORM.owner === p ? 'selected' : ''}>${p}</option>`).join('')}</select></div>
+        <div class="field"><label for="f-term">Initial term (months)</label><select id="f-term" name="term">${[12, 24, 36].map(t => `<option ${String(t) === FORM.term ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+        <div class="field full"><button class="btn primary" type="submit">Create draft</button></div>
+      </div>
+    </div>
+    <div class="preview"><h3>Draft preview</h3><div class="doc" id="pv"></div></div>
+  </form>`;
+}
+function updatePreview() {
+  const f = document.getElementById('reqform'); if (!f) return;
+  const d = Object.fromEntries(new FormData(f)); Object.assign(FORM, d);
+  const val = parseInt(String(d.value).replace(/[^\d]/g, ''), 10) || 0;
+  const c = { party: d.party.trim() || 'Counterparty', type: d.type, params: { ...DEFAULTS, term: +d.term }, redlines: [] };
+  document.getElementById('pv').innerHTML = docHTML(c, false);
+  document.getElementById('h-value').textContent = val >= 100000 ? 'Over $100,000: Finance and General Counsel approve.' : 'General Counsel approves.';
+}
+
+// ---------- actions ----------
+document.addEventListener('click', e => {
+  const tab = e.target.closest('.tab'); if (tab) return setView(tab.dataset.view);
+  const chip = e.target.closest('[data-ask]'); if (chip) return ask(cur(), chip.dataset.ask);
+  const sa = e.target.closest('[data-act="stopask"]'); if (sa) { S.asking && S.asking.ctl.abort(); return; }
+  const ca = e.target.closest('[data-act="clearask"]'); if (ca) { cur().chat = []; return render(); }
+  const st = e.target.closest('[data-stage]'); if (st) { S.stage = S.stage === st.dataset.stage ? 'all' : st.dataset.stage; return render(); }
+  const row = e.target.closest('[data-open]'); if (row) { S.openId = row.dataset.open; return setView('workspace'); }
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const c = cur(), p = b.dataset.p, act = b.dataset.act;
+  const flash = key => requestAnimationFrame(() => { const el = document.getElementById('cl-' + PARAM_CLAUSE[key]); if (el) { el.classList.add('flash'); } });
+  if (act === 'accept') { const r = c.redlines.find(x => x.param === p); c.params[p] = r.to; c.redlines = c.redlines.filter(x => x !== r); log(c, `Accepted ${PARAM_LABEL[p].toLowerCase()} change to ${stripTags(fmt(p, r.to))}`); toast(`Redline accepted`); render(); flash(p); }
+  if (act === 'reject') { c.redlines = c.redlines.filter(x => x.param !== p); log(c, `Rejected ${PARAM_LABEL[p].toLowerCase()} change`); toast('Redline rejected. Original wording kept.'); render(); flash(p); }
+  if (act === 'counter') { const fb = PLAYBOOK[p](c.redlines.find(x => x.param === p).to).fallback; c.params[p] = fb; c.redlines = c.redlines.filter(x => x.param !== p); log(c, `Countered ${PARAM_LABEL[p].toLowerCase()} at ${stripTags(fmt(p, fb))}`); toast(`Countered at ${stripTags(fmt(p, fb))}`); render(); flash(p); }
+  if (act === 'fallback') { const fb = PLAYBOOK[p](c.params[p]).fallback; c.params[p] = fb; log(c, `Set ${PARAM_LABEL[p].toLowerCase()} to playbook standard (${stripTags(fmt(p, fb))})`); toast('Clause updated to playbook standard'); render(); flash(p); }
+  if (act === 'waive') { c.waived.push(p); log(c, `Accepted risk on ${PARAM_LABEL[p].toLowerCase()}`); toast('Risk accepted and logged'); render(); }
+  if (act === 'approve') { const a = c.approvals[+b.dataset.i]; a.state = 'approved'; log(c, `${a.name} approved`); toast(`${a.name} approved`); render(); }
+  if (act === 'advance') { const n = STAGES[STAGES.indexOf(c.stage) + 1]; c.stage = n; log(c, n === 'Review' ? `Sent to ${c.party} for review` : n === 'Approval' ? 'Routed for approval' : 'Sent for signature'); toast(`Moved to ${n}`); render(); }
+  if (act === 'sign') {
+    const inp = document.getElementById('signer'); const name = inp.value.trim();
+    if (name.split(/\s+/).length < 2) { inp.focus(); inp.placeholder = 'Type a first and last name'; toast('Enter the signer\'s full name to sign.'); return; }
+    c.signed = name; c.signedUs = true; c.stage = 'Executed'; log(c, `Signed by ${name} and Dana Reyes`); log(c, 'Executed and stored'); toast('Signed. Contract executed.'); render();
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('tr[data-open]')) { S.openId = e.target.dataset.open; setView('workspace'); } });
+document.addEventListener('input', e => {
+  if (e.target.id === 'q') { S.q = e.target.value; const pos = e.target.selectionStart; render(); const q = document.getElementById('q'); q.focus(); q.setSelectionRange(pos, pos); }
+  if (e.target.id === 'askq') { S.askDraft = e.target.value; return; }
+  if (e.target.closest('#reqform')) { updatePreview(); document.getElementById('e-party').hidden = true; }
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'pick') { S.openId = e.target.value; setView('workspace'); }
+  else if (e.target.closest('#reqform')) updatePreview();
+});
+document.addEventListener('submit', e => {
+  if (e.target.id === 'askform') { e.preventDefault(); const q = document.getElementById('askq').value; return ask(cur(), q); }
+  if (e.target.id !== 'reqform') return;
+  e.preventDefault();
+  const d = Object.fromEntries(new FormData(e.target));
+  if (!d.party.trim()) { document.getElementById('e-party').hidden = false; document.getElementById('f-party').focus(); return; }
+  const value = parseInt(String(d.value).replace(/[^\d]/g, ''), 10) || 0;
+  const end = new Date(TODAY); end.setMonth(end.getMonth() + +d.term);
+  const c = mk({ id: 'CW-0' + (seq++), party: d.party.trim(), type: d.type, owner: d.owner, value, stage: 'Draft', renewal: end.toISOString().slice(0, 10), updated: nowStamp(), params: { term: +d.term } });
+  c.activity = [{ t: nowStamp(), msg: `Requested by Dana Reyes from ${TYPES[c.type].name} template` }];
+  S.contracts.unshift(c); S.openId = c.id;
+  Object.assign(FORM, { party: '', value: '' });
+  toast(`Draft ${c.id} created`);
+  setView('workspace');
+});
+function stripTags(s) { return String(s).replace(/<[^>]+>/g, ''); }
+
+function fromHash() {
+  const h = location.hash.slice(1);
+  if (h.startsWith('contract-')) { const id = h.slice(9).toUpperCase(); if (S.contracts.some(c => c.id === id)) { S.openId = id; return setView('workspace', false); } }
+  setView(['repository', 'workspace', 'new'].includes(h) ? h : 'repository', false);
+}
+window.addEventListener('hashchange', fromHash);
+fromHash();
+</script>

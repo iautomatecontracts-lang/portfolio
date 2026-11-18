@@ -1,0 +1,64 @@
+{
+  "eventType": "com.okta.event_hook",
+  "eventTypeVersion": "1.0",
+  "source": "https://example.okta.com/api/v1/eventHooks/who8example",
+  "data": {
+    "events": [
+      {
+        "uuid": "human-browser-login",
+        "published": "2026-11-10T14:02:11.000Z",
+        "eventType": "user.session.start",
+        "displayMessage": "User login to Okta",
+        "actor": {"id": "00u1alice", "type": "User", "alternateId": "alice@example.com", "displayName": "Alice Doe"},
+        "client": {
+          "userAgent": {"rawUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15"},
+          "ipAddress": "198.51.100.23"
+        },
+        "securityContext": {"asOrg": "Comcast Cable", "isp": "Comcast", "isProxy": false},
+        "authenticationContext": {"credentialType": "PASSWORD"},
+        "outcome": {"result": "SUCCESS"}
+      },
+      {
+        "uuid": "mcp-server-token",
+        "published": "2026-11-10T14:05:40.000Z",
+        "eventType": "app.oauth2.as.token.grant.access_token",
+        "displayMessage": "OAuth2 access token is granted",
+        "actor": {"id": "0oa9mcpclient", "type": "PublicClientApp", "alternateId": "0oa9mcpclient", "displayName": "Internal MCP Server"},
+        "client": {
+          "userAgent": {"rawUserAgent": "mcp-python-sdk/1.9 python-httpx/0.28.1"},
+          "ipAddress": "3.91.22.10"
+        },
+        "securityContext": {"asOrg": "Amazon.com, Inc.", "isp": "Amazon Technologies", "isProxy": false},
+        "debugContext": {"debugData": {"grantType": "client_credentials", "clientId": "0oa9mcpclient", "requestedScopes": "okta.users.read okta.groups.read"}},
+        "outcome": {"result": "SUCCESS"}
+      },
+      {
+        "uuid": "headless-browser-agent",
+        "published": "2026-11-10T14:09:03.000Z",
+        "eventType": "user.session.start",
+        "displayMessage": "User login to Okta",
+        "actor": {"id": "00u2bob", "type": "User", "alternateId": "bob@example.com", "displayName": "Bob Roe"},
+        "client": {
+          "userAgent": {"rawUserAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/131.0.0.0 Safari/537.36 Playwright/1.49"},
+          "ipAddress": "34.120.8.77"
+        },
+        "securityContext": {"asOrg": "Google LLC", "isp": "Google Cloud", "isProxy": false},
+        "authenticationContext": {"credentialType": "PASSWORD"},
+        "outcome": {"result": "SUCCESS"}
+      },
+      {
+        "uuid": "okta-terraform",
+        "published": "2026-11-10T14:15:00.000Z",
+        "eventType": "group.user_membership.add",
+        "displayMessage": "Add user to group membership",
+        "actor": {"id": "00u3svc", "type": "User", "alternateId": "terraform@example.com", "displayName": "Terraform Service"},
+        "client": {
+          "userAgent": {"rawUserAgent": "okta-sdk-golang/2.20.0 golang/go1.23 okta-terraform/4.11"},
+          "ipAddress": "10.0.4.12"
+        },
+        "authenticationContext": {"credentialType": "API_TOKEN"},
+        "outcome": {"result": "SUCCESS"}
+      }
+    ]
+  }
+}

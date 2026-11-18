@@ -1,0 +1,745 @@
+<title>Demo Deck Generator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: two-pane workbench. Call-prep intake on the left, the live deck it produces on the right; tabs on phones. */
+:root{
+  --bg:#F2F4F1; --surface:#FFFFFF; --sunken:#E8ECE8; --ink:#17201C; --muted:#5A6660; --line:#D4DAD5;
+  --accent:#0E6B5C; --accent-soft:#DCEDE8; --on-accent:#FFFFFF;
+  --signal:#9C5410; --signal-soft:#F6E8D8; --danger:#B3261E;
+  --f-display:"Bricolage Grotesque","Avenir Next",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:8px;
+  /* deck tokens: set from the deck options by script; these are the light defaults */
+  --s-bg:#FFFFFF; --s-fg:#15181D; --s-muted:#5B616E; --s-panel:#F1F3F5; --s-line:#E0E4E9;
+  --s-accent:#0E6B5C; --s-accent-ink:#0E6B5C; --s-on-accent:#FFFFFF; --s-warn:#8A4A0E; --s-warn-bg:#FBE9D4;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1311; --surface:#161B19; --sunken:#1D2421; --ink:#E4EAE7; --muted:#97A39D; --line:#2A3330;
+  --accent:#4DB6A0; --accent-soft:#163731; --on-accent:#06201B;
+  --signal:#E3A062; --signal-soft:#3A2817; --danger:#F2867E; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1311; --surface:#161B19; --sunken:#1D2421; --ink:#E4EAE7; --muted:#97A39D; --line:#2A3330;
+  --accent:#4DB6A0; --accent-soft:#163731; --on-accent:#06201B;
+  --signal:#E3A062; --signal-soft:#3A2817; --danger:#F2867E; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between;
+  padding-block:18px 16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;flex-direction:column;gap:2px;min-width:0}
+.brand h1{font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:-.01em;margin:0}
+.brand p{margin:0;color:var(--muted);font-size:13px}
+.ready{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted)}
+.ready .bar{width:120px;height:6px;border-radius:3px;background:var(--sunken);overflow:hidden}
+.ready .bar i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.ready b{font-family:var(--f-mono);color:var(--ink);font-weight:500}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font-size:13px;font-weight:500;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 12px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.warn{border-color:var(--danger);color:var(--danger)}
+.btn.sm{padding:5px 9px;font-size:12px}
+.btn[disabled]{opacity:.45;cursor:default}
+
+.banner{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;background:var(--signal-soft);color:var(--signal);
+  padding-block:9px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));font-size:13px}
+.banner button{background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;color:inherit;font-weight:600}
+
+.tabs{display:none}
+.app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:28px;max-width:1640px;margin:0 auto;
+  padding-block:0 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.formpane{min-width:0;display:flex;flex-direction:column;gap:16px}
+
+.secnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:6px;overflow-x:auto;padding-block:14px 10px;scrollbar-width:thin}
+.chip{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.chip .n{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.chip.done{background:var(--accent-soft);border-color:transparent}
+.chip.done .n{color:var(--accent)}
+
+.sec{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:18px 18px 20px;margin:0;min-width:0;display:flex;flex-direction:column;gap:14px;scroll-margin-top:64px}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.sec-h h2{font-family:var(--f-display);font-weight:700;font-size:19px;margin:0;letter-spacing:-.005em}
+.sec-h p{margin:2px 0 0;color:var(--muted);font-size:13px;max-width:60ch}
+.sec-h .n{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px 14px}
+.f{display:flex;flex-direction:column;gap:5px;min-width:0}
+.w1{grid-column:span 1}.w2{grid-column:span 2}.w3{grid-column:span 3}.w4{grid-column:span 4}.w6{grid-column:1/-1}
+.f>label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+.f .hint{font-size:11.5px;color:var(--muted);font-weight:400}
+.subh{grid-column:1/-1;font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-top:6px;border-top:1px solid var(--line);margin-top:4px;padding-block:10px 0}
+input,select,textarea{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%;min-width:0}
+input[type=color]{padding:3px;height:38px;cursor:pointer}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+textarea{resize:vertical;line-height:1.45}
+.check{display:flex;align-items:center;gap:8px;font-size:13.5px;padding-top:22px;cursor:pointer}
+.check input{width:16px;height:16px;accent-color:var(--accent)}
+.rep{grid-column:1/-1;display:flex;flex-direction:column;gap:10px}
+.rep>label{font-size:12px;font-weight:600;color:var(--muted)}
+.rep-item{border:1px solid var(--line);border-radius:6px;padding:12px;background:var(--bg);display:flex;flex-direction:column;gap:10px}
+.rep-item .grid{gap:10px 12px}
+.rep-item input,.rep-item select,.rep-item textarea{background:var(--surface)}
+.rep-head{display:flex;justify-content:space-between;align-items:center;font-family:var(--f-mono);font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.rep-head button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;font-family:var(--f-body)}
+.rep-head button:hover{color:var(--danger)}
+.addbtn{align-self:flex-start}
+
+.roi-live{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.roi-live div{background:var(--accent-soft);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.roi-live span{font-size:11.5px;color:var(--muted)}
+.roi-live b{font-family:var(--f-mono);font-weight:500;font-size:17px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+
+/* deck pane */
+.deckpane{position:sticky;top:calc(env(safe-area-inset-top,0px) + 14px);align-self:start;display:flex;flex-direction:column;gap:12px;min-width:0;padding-top:14px}
+.deck-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.deck-h h2{font-family:var(--f-display);font-size:17px;margin:0;font-weight:700}
+.deck-h h2 small{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-weight:500;margin-left:6px}
+.deck-h .nav{display:flex;gap:6px;align-items:center}
+.deck-h .pos{font-family:var(--f-mono);font-size:12px;color:var(--muted);min-width:44px;text-align:center}
+.viewer{border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 8px 28px rgba(20,40,34,.12);border:1px solid var(--line);overflow:hidden}
+.thumbs{display:grid;grid-auto-flow:column;grid-auto-columns:148px;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin}
+.thumb{display:flex;flex-direction:column;gap:5px;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.thumb .slide{border:1px solid var(--line);border-radius:3px;pointer-events:none}
+.thumb.on .slide{outline:2px solid var(--accent);outline-offset:1px}
+.thumb span{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thumb.on span{color:var(--ink);font-weight:500}
+.deck-note{font-size:12px;color:var(--muted);margin:0}
+
+/* slides: everything in cqw so the same markup scales from thumbnail to fullscreen */
+.slide{position:relative;width:100%;aspect-ratio:16/9;container-type:inline-size;overflow:hidden;background:var(--s-bg);color:var(--s-fg);font-family:var(--f-body)}
+.sl{position:absolute;inset:0;padding:4.4cqw 5.4cqw 6cqw;display:flex;flex-direction:column;gap:1.8cqw}
+.sl .eb{font-family:var(--f-mono);font-size:1.1cqw;letter-spacing:.14em;text-transform:uppercase;color:var(--s-accent-ink)}
+.sl h2{font-family:var(--f-display);font-weight:700;font-size:3.2cqw;line-height:1.08;margin:0;letter-spacing:-.012em;text-wrap:balance;max-width:85%}
+.sl h3{font-size:1.6cqw;font-weight:600;margin:0;line-height:1.25}
+.sl p,.sl li{font-size:1.5cqw;line-height:1.42;margin:0}
+.sl .lead{font-size:1.75cqw;color:var(--s-muted);max-width:78%;line-height:1.4}
+.sl .muted{color:var(--s-muted)}
+.sl ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1cqw}
+.sl ul.b li{padding-left:1.9cqw;position:relative}
+.sl ul.b li::before{content:"";position:absolute;left:0;top:.6em;width:.65cqw;height:.65cqw;background:var(--s-accent)}
+.sl ul.chk li{padding-left:2.6cqw;position:relative}
+.sl ul.chk li::before{content:"";position:absolute;left:0;top:.28em;width:1.5cqw;height:1.5cqw;border-radius:.3cqw;background:var(--s-accent)}
+.sl ul.chk li::after{content:"";position:absolute;left:.48cqw;top:.48em;width:.5cqw;height:.85cqw;border:solid var(--s-on-accent);border-width:0 .22cqw .22cqw 0;transform:rotate(45deg)}
+.sl .cols{display:grid;grid-template-columns:1fr 1fr;gap:3.6cqw;flex:1;min-height:0}
+.sl .cols.w{grid-template-columns:1.25fr 1fr}
+.sl .col{display:flex;flex-direction:column;gap:1.4cqw;min-width:0;min-height:0}
+.sl .colh{font-family:var(--f-mono);font-size:1.05cqw;letter-spacing:.12em;text-transform:uppercase;color:var(--s-muted);border-bottom:.12cqw solid var(--s-line);padding-bottom:.8cqw}
+.sl .panel{background:var(--s-panel);border-radius:.7cqw;padding:1.8cqw 2cqw;display:flex;flex-direction:column;gap:.7cqw}
+.sl .panel .k{font-family:var(--f-mono);font-size:1cqw;letter-spacing:.12em;text-transform:uppercase;color:var(--s-accent-ink)}
+.sl .cards{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:1.4cqw}
+.sl .card{background:var(--s-panel);border-radius:.7cqw;padding:1.7cqw;display:flex;flex-direction:column;gap:.8cqw;min-width:0}
+.sl .card .num{font-family:var(--f-mono);font-size:1.1cqw;color:var(--s-accent-ink)}
+.sl .card p{font-size:1.3cqw}
+.sl .card .val{color:var(--s-accent-ink);font-weight:600}
+.sl .chips{display:flex;flex-wrap:wrap;gap:.7cqw}
+.sl .chips span{font-size:1.15cqw;border:.12cqw solid var(--s-line);border-radius:99px;padding:.35cqw 1.1cqw}
+.sl .kpis{display:grid;grid-template-columns:1fr 1fr;gap:1.2cqw}
+.sl .kpi{background:var(--s-panel);border-radius:.7cqw;padding:1.5cqw 1.7cqw}
+.sl .kpi .v{font-family:var(--f-display);font-weight:700;font-size:3.1cqw;line-height:1.05;color:var(--s-accent-ink);font-variant-numeric:tabular-nums}
+.sl .kpi .l{font-size:1.1cqw;color:var(--s-muted);margin-top:.4cqw}
+.sl .fine{font-size:1.05cqw;color:var(--s-muted);line-height:1.4}
+.sl table{width:100%;border-collapse:collapse}
+.sl th,.sl td{text-align:left;vertical-align:top;padding:.75cqw .9cqw;border-bottom:.1cqw solid var(--s-line);font-size:1.22cqw;line-height:1.35}
+.sl th{font-family:var(--f-mono);font-weight:500;font-size:.95cqw;letter-spacing:.1em;text-transform:uppercase;color:var(--s-muted)}
+.sl .pill{display:inline-block;font-size:1cqw;padding:.15cqw .8cqw;border-radius:99px;background:var(--s-panel);border:.1cqw solid var(--s-line);white-space:nowrap}
+.sl .pill.good{background:var(--s-accent);color:var(--s-on-accent);border-color:transparent}
+.sl .pill.bad{background:var(--s-warn-bg);color:var(--s-warn);border-color:transparent}
+.sl svg{width:100%;height:auto;display:block;overflow:visible}
+.ch-grid{stroke:var(--s-line);stroke-width:1}
+.ch-lab{fill:var(--s-muted);font-family:var(--f-mono);font-size:11px}
+.ch-b{fill:var(--s-accent)}
+.ch-c{fill:var(--s-muted);fill-opacity:.38}
+.ch-val{fill:var(--s-fg);font-family:var(--f-mono);font-size:11px}
+.ch-leg{fill:var(--s-fg);font-family:var(--f-body);font-size:12px}
+.foot{position:absolute;left:5.4cqw;right:5.4cqw;bottom:2.3cqw;display:flex;justify-content:space-between;gap:2cqw;font-family:var(--f-mono);font-size:.95cqw;color:var(--s-muted)}
+.int{position:absolute;top:2.2cqw;right:2.4cqw;font-family:var(--f-mono);font-size:1cqw;letter-spacing:.1em;text-transform:uppercase;background:var(--s-warn-bg);color:var(--s-warn);padding:.4cqw 1cqw;border-radius:.4cqw}
+.sl.cover{background:var(--s-accent);color:var(--s-on-accent);justify-content:space-between;padding:5cqw 6cqw}
+.cover .pair{display:flex;align-items:center;gap:1.4cqw;font-family:var(--f-display);font-weight:700;font-size:2cqw}
+.cover .pair i{font-style:normal;opacity:.6;font-weight:500}
+.cover .eb{color:inherit;opacity:.8}
+.cover h1{font-family:var(--f-display);font-weight:700;font-size:5.4cqw;line-height:1.02;letter-spacing:-.02em;margin:1.2cqw 0 1.4cqw;max-width:88%;text-wrap:balance}
+.cover .lead{color:inherit;opacity:.85;font-size:2cqw}
+.cover .who{display:flex;gap:4cqw;font-size:1.35cqw}
+.cover .who b{display:block;font-weight:600}
+.cover .who span{opacity:.75}
+
+/* present mode */
+.present{position:fixed;inset:0;z-index:100;background:#000;display:grid;place-items:center;cursor:pointer}
+.present .stage{width:min(100vw,calc(100vh * 16 / 9))}
+.present .pc{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));font-family:var(--f-mono);font-size:12px;color:#bbb;background:rgba(0,0,0,.55);padding:4px 8px;border-radius:4px}
+.present .px{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px));background:rgba(0,0,0,.55);color:#ddd;border:1px solid #444;border-radius:4px;padding:5px 10px;font-size:12px;cursor:pointer}
+
+/* modal + toast */
+.modal{position:fixed;inset:0;z-index:90;background:rgba(10,16,14,.5);display:grid;place-items:center;padding:16px}
+.modal .box{background:var(--surface);color:var(--ink);border-radius:10px;border:1px solid var(--line);width:min(720px,100%);max-height:88vh;display:flex;flex-direction:column;gap:12px;padding:18px}
+.modal h3{margin:0;font-family:var(--f-display);font-size:18px}
+.modal p{margin:0;color:var(--muted);font-size:13px}
+.modal textarea{flex:1;min-height:280px;font-family:var(--f-mono);font-size:12px}
+.modal .row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:13px;z-index:120}
+
+@media (max-width:1040px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .tabs{display:flex;gap:4px;padding-block:12px 0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .tabs button{flex:1;border:1px solid var(--line);background:var(--surface);padding:8px;border-radius:6px;cursor:pointer;font-weight:500}
+  .tabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .app[data-view="deck"] .formpane,.app[data-view="form"] .deckpane{display:none}
+  .deckpane{position:static}
+}
+@media (max-width:640px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .grid>*{grid-column:1/-1!important}
+  .roi-live{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ready .bar{width:80px}
+  .check{padding-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="brand">
+    <h1>Demo Deck Generator</h1>
+    <p>Capture the use case, ROI and account research. Get a call-ready deck and an internal prep brief.</p>
+  </div>
+  <div class="ready" title="Share of key fields filled across all sections">Prep readiness <span class="bar"><i id="readyBar"></i></span><b id="readyPct">0%</b></div>
+  <div class="tools">
+    <button class="btn" id="btnSample" type="button">Load sample</button>
+    <button class="btn" id="btnJson" type="button">Save / load inputs</button>
+    <button class="btn" id="btnOutline" type="button">Copy outline</button>
+    <button class="btn" id="btnClear" type="button">Clear all</button>
+    <button class="btn primary" id="btnPresent" type="button">Present</button>
+  </div>
+</header>
+<div class="banner" id="banner" hidden>Showing sample data for a fictional account. <button type="button" id="bannerClear">Clear it and start your own</button></div>
+<div class="tabs" role="tablist"><button type="button" data-view="form" class="on">Inputs</button><button type="button" data-view="deck" id="tabDeck">Deck</button></div>
+
+<main class="app" id="app" data-view="form">
+  <section class="formpane">
+    <nav class="secnav" id="secnav" aria-label="Form sections"></nav>
+    <form id="form" autocomplete="off"></form>
+  </section>
+  <aside class="deckpane" id="deckpane" aria-label="Deck preview">
+    <div class="deck-h">
+      <h2>Deck preview<small id="deckCount"></small></h2>
+      <div class="nav">
+        <button class="btn sm" id="prev" type="button" aria-label="Previous slide">←</button>
+        <span class="pos" id="pos"></span>
+        <button class="btn sm" id="next" type="button" aria-label="Next slide">→</button>
+        <button class="btn sm primary" id="btnPresent2" type="button">Present</button>
+      </div>
+    </div>
+    <div class="viewer" id="viewer"></div>
+    <div class="thumbs" id="thumbs"></div>
+    <p class="deck-note">Slides marked <b>Internal</b> are your prep appendix. Turn them off under Deck options before sharing. Empty sections drop out of the deck.</p>
+  </aside>
+</main>
+
+<div class="modal" id="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle"></h3>
+    <p id="modalText"></p>
+    <textarea id="modalArea" spellcheck="false" aria-label="Content"></textarea>
+    <div class="row" id="modalRow"></div>
+  </div>
+</div>
+<div class="present" id="present" hidden><div class="stage" id="stage"></div><button class="px" id="presentClose" type="button">Exit · Esc</button><div class="pc" id="presentPos"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+const INDUSTRIES=['Retail & e-commerce','Financial services','Insurance','Healthcare','Life sciences','Manufacturing','Logistics & transportation','Technology / SaaS','Telecommunications','Energy & utilities','Media & entertainment','Professional services','Education','Public sector','Hospitality & travel','Other'];
+const ROLES=['Economic buyer','Champion','Technical evaluator','Business user','Coach','Procurement / legal','Blocker'];
+
+const SECTIONS=[
+ {id:'account',name:'Account & deal',blurb:'Who you are meeting, what is being sold, and what the deal is worth.',
+  req:['sellerName','productName','company','industry','stage','dealSize','callType','callDate','se'],fields:[
+  {k:'sellerName',label:'Your company',w:3,ph:'Your company name'},
+  {k:'productName',label:'Product / solution',w:3,ph:'Product or platform'},
+  {k:'company',label:'Prospect company',w:3},
+  {k:'website',label:'Prospect website',w:3,ph:'example.com'},
+  {k:'industry',label:'Industry',type:'select',options:INDUSTRIES,w:2},
+  {k:'segment',label:'Segment',type:'select',options:['SMB','Mid-market','Enterprise','Strategic'],w:2},
+  {k:'ownership',label:'Ownership',type:'select',options:['Private','Public','PE-backed','Nonprofit','Government'],w:2},
+  {k:'hq',label:'HQ / region',w:2},
+  {k:'employees',label:'Employees',type:'number',w:2},
+  {k:'revenue',label:'Annual revenue',w:2,ph:'e.g. $610M'},
+  {k:'h1',type:'heading',label:'Opportunity'},
+  {k:'oppName',label:'Opportunity name',w:3},
+  {k:'stage',label:'Deal stage',type:'select',options:['Prospecting','Discovery','Solution validation','Technical evaluation','Business case','Negotiation'],w:3},
+  {k:'dealSize',label:'Est. deal size (annual)',type:'number',w:2},
+  {k:'closeDate',label:'Target close',type:'date',w:2},
+  {k:'forecast',label:'Forecast',type:'select',options:['Pipeline','Best case','Commit'],w:2},
+  {k:'h2',type:'heading',label:'This call'},
+  {k:'callType',label:'Call type',type:'select',options:['Discovery','Tailored demo','Technical deep dive','Executive briefing','Business case review','POC readout'],w:2},
+  {k:'callDate',label:'Call date',type:'date',w:2},
+  {k:'callLength',label:'Length (minutes)',type:'number',w:2},
+  {k:'ae',label:'Account executive',w:3},
+  {k:'se',label:'Solution engineer',w:3},
+ ]},
+ {id:'people',name:'Stakeholders',blurb:'Map the buying group so the story lands with each person in the room.',req:['stakeholders'],fields:[
+  {k:'stakeholders',type:'repeat',label:'Buying group',add:'Add stakeholder',item:'Stakeholder',sub:[
+   {k:'name',label:'Name',w:2},{k:'title',label:'Title',w:2},
+   {k:'role',label:'Buying role',type:'select',options:ROLES,w:2},
+   {k:'stance',label:'Stance',type:'select',options:['Supporter','Neutral','Skeptic','Unknown'],w:2},
+   {k:'attending',label:'On this call',type:'select',options:['Yes','No','Maybe'],w:2},
+   {k:'influence',label:'Influence',type:'select',options:['High','Medium','Low'],w:2},
+   {k:'priorities',label:'What they care about',type:'textarea',rows:2,w:6}]}
+ ]},
+ {id:'research',name:'Research',blurb:'What you learned before the call: strategy, triggers, landscape and sources.',req:['overview','initiatives','triggers','techStack','competitors'],fields:[
+  {k:'overview',label:'Company overview',type:'textarea',rows:3,w:6,ph:'What they do, how they make money, scale and footprint'},
+  {k:'initiatives',label:'Strategic initiatives',type:'list',w:3,hint:'From earnings calls, annual reports, exec interviews'},
+  {k:'triggers',label:'Recent news & trigger events',type:'list',w:3,hint:'Funding, leadership changes, M&A, expansion'},
+  {k:'techStack',label:'Current tech stack',type:'textarea',rows:2,w:6,hint:'Comma separated',ph:'ERP, CRM, data, identity, collaboration…'},
+  {k:'incumbent',label:'Incumbent / current approach',w:3},
+  {k:'competitors',label:'Competitors in the deal',w:3,ph:'Include "status quo" if relevant'},
+  {k:'trends',label:'Industry trends & benchmarks',type:'textarea',rows:2,w:6},
+  {k:'sources',label:'Sources',type:'list',rows:3,w:6,hint:'Links or document names'},
+ ]},
+ {id:'usecase',name:'Use case',blurb:'The problem worth solving, in the customer\'s own terms.',req:['ucTitle','currentState','pains','impact','futureState','success','capabilities'],fields:[
+  {k:'ucTitle',label:'Use case name',w:4,ph:'e.g. Touchless invoice processing'},
+  {k:'ucPriority',label:'Priority to them',type:'select',options:['Critical','High','Medium','Exploratory'],w:2},
+  {k:'dept',label:'Business function / team',w:3},
+  {k:'compelling',label:'Compelling event / deadline',w:3,ph:'Why now?'},
+  {k:'currentState',label:'Current state',type:'textarea',rows:3,w:6,ph:'How the process works today, who does it, which tools'},
+  {k:'pains',label:'Pain points',type:'list',w:3},
+  {k:'impact',label:'Business impact / cost of inaction',type:'textarea',rows:5,w:3},
+  {k:'futureState',label:'Desired future state',type:'textarea',rows:3,w:6},
+  {k:'success',label:'Success criteria & KPIs',type:'list',w:3},
+  {k:'capabilities',label:'Required capabilities',type:'list',w:3},
+  {k:'constraints',label:'Requirements & constraints',type:'textarea',rows:2,w:6,ph:'Security, compliance, data residency, integration must-haves'},
+ ]},
+ {id:'solution',name:'Solution & demo',blurb:'The storyline you will show and the proof behind it.',req:['products','demoSteps','differentiators','proofs','objections'],fields:[
+  {k:'products',label:'Products / modules in scope',w:6},
+  {k:'demoSteps',type:'repeat',label:'Demo storyline',add:'Add demo step',item:'Step',sub:[
+   {k:'scene',label:'Moment in their day',w:2},{k:'feature',label:'What you show',w:2},{k:'value',label:'Value to land',w:2}]},
+  {k:'integrations',label:'Integrations to show',w:6,hint:'Comma separated'},
+  {k:'differentiators',label:'Differentiators vs. alternatives',type:'list',w:6},
+  {k:'proofs',type:'repeat',label:'Proof points & references',add:'Add proof point',item:'Reference',sub:[
+   {k:'customer',label:'Customer',w:2},{k:'industry',label:'Industry / size',w:2},{k:'result',label:'Result or metric',w:2}]},
+  {k:'objections',type:'repeat',label:'Expected objections',add:'Add objection',item:'Objection',sub:[
+   {k:'objection',label:'Objection',w:6},{k:'response',label:'Response',type:'textarea',rows:2,w:6}]},
+  {k:'demoEnv',label:'Demo environment & data to prep',w:3},
+  {k:'demoRisks',label:'Demo risks / fallback plan',w:3},
+ ]},
+ {id:'roi',name:'ROI',blurb:'A defensible value model. Benefits ramp up linearly and are risk-adjusted by your confidence level.',req:['roiUsers','roiRate','roiHours','roiSub','roiAssumptions'],fields:[
+  {k:'currency',label:'Currency',type:'select',options:['USD','EUR','GBP','CAD','AUD','JPY','INR'],w:2,noblank:true},
+  {k:'roiYears',label:'Analysis period (years)',type:'select',options:['1','2','3','4','5'],w:2,noblank:true},
+  {k:'roiConfidence',label:'Confidence (%)',type:'number',w:2,hint:'Risk adjustment on benefits'},
+  {k:'h3',type:'heading',label:'Productivity'},
+  {k:'roiUsers',label:'People affected',type:'number',w:2},
+  {k:'roiHours',label:'Hours saved / person / week',type:'number',w:2},
+  {k:'roiWeeks',label:'Working weeks / year',type:'number',w:2},
+  {k:'roiRate',label:'Fully loaded hourly cost',type:'number',w:3},
+  {k:'roiRevenue',label:'Annual revenue gain',type:'number',w:3},
+  {k:'h4',type:'heading',label:'Other value'},
+  {k:'roiAvoid',label:'Annual cost avoided',type:'number',w:2,hint:'Retired tools, errors, penalties'},
+  {k:'roiOtherLabel',label:'Other value label',w:2,ph:'e.g. Discounts captured'},
+  {k:'roiOther',label:'Other annual value',type:'number',w:2},
+  {k:'h5',type:'heading',label:'Investment'},
+  {k:'roiSub',label:'Annual solution cost',type:'number',w:2},
+  {k:'roiImpl',label:'One-time implementation',type:'number',w:2},
+  {k:'roiRamp',label:'Months to full value',type:'number',w:2},
+  {k:'roiDiscount',label:'Discount rate for NPV (%)',type:'number',w:2},
+  {k:'roiLive',type:'roilive'},
+  {k:'roiAssumptions',label:'Assumptions & sources',type:'list',rows:3,w:6,hint:'Where each input came from'},
+ ]},
+ {id:'plan',name:'Call plan',blurb:'What you want out of the meeting and what happens after it.',req:['objectives','agenda','questions','nextSteps'],fields:[
+  {k:'objectives',label:'Call objectives',type:'list',w:3},
+  {k:'agenda',label:'Agenda',type:'list',w:3,hint:'Leave blank to build it from the deck'},
+  {k:'questions',label:'Discovery questions to ask',type:'list',rows:5,w:6},
+  {k:'risks',label:'Deal risks / red flags',type:'list',w:3},
+  {k:'nextSteps',label:'Proposed next steps',type:'list',w:3},
+  {k:'plan',type:'repeat',label:'Mutual action plan',add:'Add milestone',item:'Milestone',sub:[
+   {k:'date',label:'Date',type:'date',w:2},{k:'milestone',label:'Milestone',w:2},{k:'owner',label:'Owner',w:2}]},
+ ]},
+ {id:'deck',name:'Deck options',blurb:'Look and contents of the generated deck.',req:[],fields:[
+  {k:'deckStyle',label:'Slide style',type:'select',options:['Light','Dark'],w:2,noblank:true},
+  {k:'accent',label:'Accent color',type:'color',w:2,hint:'Use the prospect\'s or your brand color'},
+  {k:'includeInternal',label:'Include internal prep appendix',type:'check',w:2},
+  {k:'footer',label:'Footer note',w:6},
+ ]},
+];
+
+const DEFAULTS={currency:'USD',roiYears:'3',roiConfidence:'80',roiWeeks:'48',roiDiscount:'8',roiRamp:'3',deckStyle:'Light',accent:'#0E6B5C',includeInternal:true,footer:'Confidential',stakeholders:[],demoSteps:[],proofs:[],objections:[],plan:[]};
+
+const SAMPLE={...DEFAULTS,
+ sellerName:'Ledgerline',productName:'Ledgerline AP Automation',company:'Harbor & Pine Outfitters',website:'harborpine.example',
+ industry:'Retail & e-commerce',segment:'Mid-market',ownership:'Private',hq:'Portland, OR · Western US',employees:'2400',revenue:'$610M',
+ oppName:'Harbor & Pine – AP modernization',stage:'Solution validation',dealSize:'96000',closeDate:'2027-02-26',forecast:'Best case',
+ callType:'Tailored demo',callDate:'2026-11-19',callLength:'60',ae:'Dana Ruiz',se:'Sam Okafor',
+ stakeholders:[
+  {name:'Priya Natarajan',title:'CFO',role:'Economic buyer',stance:'Neutral',attending:'Yes',influence:'High',priorities:'Joined in March from a public retailer. Wants month-end close cut from 9 to 5 days ahead of the FY27 audit.'},
+  {name:'Marcus Hale',title:'Corporate Controller',role:'Champion',stance:'Supporter',attending:'Yes',influence:'High',priorities:'Owns the 14-person AP team. Losing staff to burnout from manual matching.'},
+  {name:'Jen Ito',title:'Director, Business Applications',role:'Technical evaluator',stance:'Skeptic',attending:'Yes',influence:'Medium',priorities:'NetSuite consolidation is her top project. Wary of adding another vendor to support.'},
+  {name:'Tom Brecken',title:'AP Manager',role:'Business user',stance:'Supporter',attending:'Maybe',influence:'Low',priorities:'Exception handling and vendor inquiries eat most of his week.'}],
+ overview:'Outdoor apparel and gear retailer with 86 stores across the Western US and an e-commerce channel that drives about 38% of sales. Two acquisitions since 2024 left finance on separate systems.',
+ initiatives:'Cut SG&A by 4% in FY27\nConsolidate finance onto NetSuite by Q2 2027\nIPO readiness by 2028: audit-grade controls',
+ triggers:'New CFO hired March 2026\nOpened 12 stores in FY26, entering Colorado and Utah\nAP Supervisor role posted twice in six months',
+ techStack:'NetSuite, Coupa (procurement, partial), Bill.com (one subsidiary), Excel, Box, Okta, Slack',
+ incumbent:'Manual keying into NetSuite; Bill.com at one subsidiary',competitors:'Tipalti, Stampli, status quo',
+ trends:'Mid-market retail finance teams face margin pressure; peers report 60–80% touchless invoice rates after automating AP.',
+ sources:'Harbor & Pine FY26 letter to employees\nCFO hire announcement (LinkedIn, Mar 2026)\nDiscovery call notes, Oct 30',
+ ucTitle:'Touchless invoice processing',ucPriority:'High',dept:'Finance – Accounts Payable',compelling:'NetSuite consolidation go-live and FY27 audit, April 2027',
+ currentState:'14 AP clerks key about 22,000 invoices a month from email and paper into NetSuite. Three-way match happens in spreadsheets, and approvals are chased over email.',
+ pains:'Invoice cycle time averages 11 days\n1.8% duplicate or erroneous payments\nEarly-pay discounts missed on most eligible invoices\nMonth-end close takes 9 business days\nNo view of liabilities until invoices are keyed',
+ impact:'About $400K a year in missed early-pay discounts and roughly $110K in duplicate payments and late fees. Slow close puts the IPO-readiness timeline at risk, and AP turnover is 30% a year.',
+ futureState:'Most invoices flow from receipt to payment without anyone touching them. Approvers act from Slack or mobile, and the CFO sees real-time liabilities in NetSuite.',
+ success:'Touchless rate of 70% or more within 6 months\nMonth-end close of 5 days or less by Q3 FY27\nCapture 75% of available early-pay discounts\nLive on NetSuite in under 10 weeks',
+ capabilities:'AI invoice capture from inbox and paper\n2- and 3-way PO matching\nRules-based approval routing\nNative NetSuite sync, multi-entity\nDuplicate payment detection\nDiscount-aware payment scheduling',
+ constraints:'SSO through Okta, SOC 2 Type II, data stays in US region, no custom code in NetSuite.',
+ products:'Capture, Match, Approve, Pay',
+ demoSteps:[
+  {scene:'An invoice hits the AP inbox',feature:'AI capture with line-item extraction',value:'No manual keying'},
+  {scene:'Matching against the PO',feature:'Auto 3-way match to NetSuite POs and receipts',value:'Clerks handle exceptions only'},
+  {scene:'Getting approval',feature:'Routing rules and approve-from-Slack',value:'Cycle time from 11 days to 3'},
+  {scene:'Scheduling payment',feature:'Discount-aware payment runs',value:'Recover early-pay discounts'},
+  {scene:'The CFO\'s close view',feature:'Real-time liabilities dashboard',value:'Close in 5 days'}],
+ integrations:'NetSuite, Okta, Slack, Box, Coupa',
+ differentiators:'Native NetSuite multi-entity sync with no middleware\nMatching tuned on retail PO and receipt patterns\nTypical go-live in 6–8 weeks with fixed-fee onboarding',
+ proofs:[
+  {customer:'Summit Ridge Sporting Goods',industry:'Specialty retail, 1,900 employees',result:'78% touchless in 5 months; close cut from 8 days to 4'},
+  {customer:'Coastline Home',industry:'Home goods, 3,100 employees',result:'$520K in early-pay discounts captured in year one'}],
+ objections:[
+  {objection:'We just bought NetSuite. Why not use its native AP features?',response:'Native AP still needs manual capture and has no 3-way match across entities. We sit on top of NetSuite as the system of record and add the automation it lacks.'},
+  {objection:'IT does not want another vendor to manage.',response:'Okta SSO, SOC 2 Type II, admin from the finance team, and a managed NetSuite connector. Offer a 30-minute security review with Jen.'}],
+ demoEnv:'Retail tenant with NetSuite sandbox; load 3 entities and sample POs for outdoor gear SKUs',
+ demoRisks:'Sandbox sync can lag. Have a recorded approve-from-Slack clip ready.',
+ roiUsers:'14',roiHours:'12',roiWeeks:'48',roiRate:'38',roiRevenue:'0',roiAvoid:'110000',roiOtherLabel:'Early-pay discounts captured',roiOther:'300000',
+ roiSub:'96000',roiImpl:'35000',roiRamp:'3',roiDiscount:'8',roiConfidence:'80',roiYears:'3',
+ roiAssumptions:'Invoice volume and headcount from Marcus Hale, Oct 30 call\nHours saved based on Summit Ridge benchmark (14 hrs/wk), discounted\nDiscount and duplicate-payment figures from the FY26 AP aging report',
+ objectives:'Confirm the 3-way match exceptions are the main time sink\nGet Jen comfortable with NetSuite integration and security\nAgree on ROI inputs with Priya',
+ agenda:'Intros and goals (5 min)\nWhat we heard (10 min)\nTailored demo (25 min)\nBusiness value (10 min)\nNext steps (10 min)',
+ questions:'How many invoices come in without a PO today?\nWho approves above $25K, and how long does that take?\nWhat would a 5-day close let you do that you can\'t today?\nHow will the NetSuite consolidation change entity structure?\nWhat did you see in other AP tools you evaluated?',
+ risks:'Jen may push to wait until after the NetSuite go-live\nBudget sits in IT, not finance\nPriya has not confirmed the discount figure',
+ nextSteps:'Security review with Jen Ito\nValidate ROI inputs with Priya and Marcus\nScope a 2-week pilot on one entity',
+ plan:[
+  {date:'2026-11-26',milestone:'Security & integration review',owner:'Jen Ito / Sam Okafor'},
+  {date:'2026-12-08',milestone:'Business case sign-off',owner:'Priya Natarajan'},
+  {date:'2027-01-12',milestone:'Pilot kickoff on one entity',owner:'Marcus Hale'},
+  {date:'2027-02-26',milestone:'Contract signed',owner:'Dana Ruiz'}],
+};
+
+/* ---------- state ---------- */
+const KEY='demo-deck-generator.v1';
+let state, isSample=false, cur=0, slides=[], R=null;
+function load(){
+  try{const raw=localStorage.getItem(KEY); if(raw){const o=JSON.parse(raw); state={...DEFAULTS,...o.state}; isSample=!!o.sample; return;}}catch(e){}
+  state=clone(SAMPLE); isSample=true;
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({state,sample:isSample}))}catch(e){}}
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const lines=v=>String(v||'').split('\n').map(x=>x.trim()).filter(Boolean);
+const csv=v=>String(v||'').split(/[,\n]/).map(x=>x.trim()).filter(Boolean);
+const filled=v=>Array.isArray(v)?v.some(o=>Object.values(o).some(x=>String(x).trim())):String(v??'').trim()!=='';
+const rows=k=>(state[k]||[]).filter(o=>Object.values(o).some(x=>String(x).trim()));
+function num(k){const x=parseFloat(String(state[k]??'').replace(/[^0-9.\-]/g,''));return isFinite(x)?x:0}
+function money(v,compact=true){
+  try{return new Intl.NumberFormat('en-US',{style:'currency',currency:state.currency||'USD',notation:compact&&Math.abs(v)>=10000?'compact':'standard',maximumFractionDigits:compact&&Math.abs(v)>=10000?1:0}).format(v)}
+  catch(e){return Math.round(v).toLocaleString()}
+}
+function fmtDate(d,short){if(!d)return'';const t=new Date(d+'T00:00:00');if(isNaN(t))return d;return t.toLocaleDateString('en-US',short?{month:'short',day:'numeric'}:{month:'short',day:'numeric',year:'numeric'})}
+function hexRgb(h){const m=/^#?([0-9a-f]{6})$/i.exec(h||'');if(!m)return null;const n=parseInt(m[1],16);return[n>>16&255,n>>8&255,n&255]}
+function lum([r,g,b]){const f=c=>{c/=255;return c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4)};return .2126*f(r)+.7152*f(g)+.0722*f(b)}
+function mix(a,b,t){return '#'+a.map((c,i)=>Math.round(c+(b[i]-c)*t).toString(16).padStart(2,'0')).join('')}
+
+/* ---------- ROI ---------- */
+function calcROI(){
+  const conf=String(state.roiConfidence??'').trim()===''?1:Math.max(0,Math.min(100,num('roiConfidence')))/100;
+  const labor=num('roiUsers')*num('roiHours')*num('roiWeeks')*num('roiRate');
+  const parts=[
+    {label:'Time saved',v:labor},
+    {label:'Revenue gain',v:num('roiRevenue')},
+    {label:'Cost avoided',v:num('roiAvoid')},
+    {label:state.roiOtherLabel||'Other value',v:num('roiOther')}].filter(p=>p.v>0).map(p=>({...p,adj:p.v*conf}));
+  const annual=parts.reduce((a,p)=>a+p.adj,0);
+  const years=Math.max(1,Math.min(5,parseInt(state.roiYears)||3));
+  const ramp=Math.max(0,num('roiRamp')), sub=num('roiSub'), impl=num('roiImpl'), r=num('roiDiscount')/100;
+  let cb=0,cc=0,npv=0,payback=null;const yearly=[];
+  for(let m=1;m<=years*12;m++){
+    const b=annual/12*(ramp>0?Math.min(1,m/ramp):1);
+    const c=sub/12+(m===1?impl:0);
+    cb+=b;cc+=c;npv+=(b-c)/Math.pow(1+r,m/12);
+    if(payback===null&&cb>0&&cb>=cc)payback=m;
+    const y=Math.ceil(m/12)-1;(yearly[y]??={b:0,c:0});yearly[y].b+=b;yearly[y].c+=c;
+  }
+  return{parts,annual,years,yearly,totalB:cb,totalC:cc,net:cb-cc,roi:cc>0?(cb-cc)/cc:null,payback,npv,conf,has:annual>0};
+}
+const pct=v=>v==null?'–':(Math.round(v*100)).toLocaleString('en-US')+'%';
+const pb=m=>m==null?'Not in period':m<=1?'< 1 month':m+' months';
+
+/* ---------- form rendering ---------- */
+function ctrl(f,val,id,data){
+  const ph=f.ph?` placeholder="${esc(f.ph)}"`:'';
+  switch(f.type){
+    case 'select':return `<select id="${id}" ${data}>${f.noblank?'':'<option value="">Select…</option>'}${f.options.map(o=>`<option${o===val?' selected':''}>${esc(o)}</option>`).join('')}</select>`;
+    case 'textarea':case 'list':return `<textarea id="${id}" ${data} rows="${f.rows||(f.type==='list'?4:3)}"${ph}>${esc(val)}</textarea>`;
+    case 'number':return `<input id="${id}" ${data} type="number" inputmode="decimal" step="any" value="${esc(val)}"${ph}>`;
+    default:return `<input id="${id}" ${data} type="${f.type||'text'}" value="${esc(val)}"${ph}>`;
+  }
+}
+function fieldHTML(f){
+  if(f.type==='heading')return `<div class="subh">${esc(f.label)}</div>`;
+  if(f.type==='roilive')return `<div class="roi-live" id="roiLive" aria-live="polite"></div>`;
+  if(f.type==='repeat')return `<div class="rep" id="rep-${f.k}">${repHTML(f)}</div>`;
+  const id='f-'+f.k, v=state[f.k]??'';
+  if(f.type==='check')return `<div class="f w${f.w||6}"><label class="check"><input type="checkbox" id="${id}" data-k="${f.k}"${v?' checked':''}> ${esc(f.label)}</label></div>`;
+  const hint=f.type==='list'?(f.hint?f.hint+'. ':'')+'One per line':f.hint;
+  return `<div class="f w${f.w||6}"><label for="${id}">${esc(f.label)}${hint?` <span class="hint">· ${esc(hint)}</span>`:''}</label>${ctrl(f,v,id,`data-k="${f.k}"`)}</div>`;
+}
+function repHTML(f){
+  const arr=state[f.k]||[];
+  return `<label>${esc(f.label)}</label>`+arr.map((o,i)=>`<div class="rep-item"><div class="rep-head"><span>${esc(f.item)} ${i+1}</span><button type="button" data-remove="${f.k}" data-i="${i}">Remove</button></div><div class="grid">${
+    f.sub.map(s=>{const id=`f-${f.k}-${i}-${s.k}`;return `<div class="f w${s.w||6}"><label for="${id}">${esc(s.label)}</label>${ctrl(s,o[s.k]??'',id,`data-k="${f.k}" data-i="${i}" data-sub="${s.k}"`)}</div>`}).join('')
+  }</div></div>`).join('')+`<button type="button" class="btn sm addbtn" data-add="${f.k}">+ ${esc(f.add)}</button>`;
+}
+function renderForm(){
+  $('#form').innerHTML=SECTIONS.map(s=>`<fieldset class="sec" id="sec-${s.id}"><div class="sec-h"><div><h2>${esc(s.name)}</h2><p>${esc(s.blurb)}</p></div><span class="n" id="n-${s.id}"></span></div><div class="grid">${s.fields.map(fieldHTML).join('')}</div></fieldset>`).join('');
+  $('#secnav').innerHTML=SECTIONS.map(s=>`<button type="button" class="chip" data-jump="${s.id}" id="c-${s.id}">${esc(s.name)} <span class="n"></span></button>`).join('');
+}
+const findRepeat=k=>SECTIONS.flatMap(s=>s.fields).find(f=>f.k===k);
+
+/* ---------- slides ---------- */
+const ul=(items,cls='b',max=7)=>items.length?`<ul class="${cls}">${items.slice(0,max).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'';
+const mdl=items=>items.map(x=>'- '+x).join('\n');
+
+function roiChart(){
+  const W=600,H=290,pl=58,pr=8,pt=22,pb=46,ys=R.yearly;
+  const max=Math.max(1,...ys.flatMap(y=>[y.b,y.c]));
+  const raw=max/4,p=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p,step=(f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p,top=Math.ceil(max/step)*step;
+  const Y=v=>pt+(H-pt-pb)*(1-v/top), gw=(W-pl-pr)/ys.length, bw=Math.min(54,gw*.32);
+  let g='';
+  for(let v=0;v<=top+1e-6;v+=step)g+=`<line class="ch-grid" x1="${pl}" x2="${W-pr}" y1="${Y(v)}" y2="${Y(v)}"/><text class="ch-lab" x="${pl-8}" y="${Y(v)+4}" text-anchor="end">${esc(money(v))}</text>`;
+  ys.forEach((y,i)=>{const cx=pl+gw*i+gw/2;
+    g+=`<rect class="ch-b" x="${cx-bw-3}" y="${Y(y.b)}" width="${bw}" height="${Math.max(0,Y(0)-Y(y.b))}"/><rect class="ch-c" x="${cx+3}" y="${Y(y.c)}" width="${bw}" height="${Math.max(0,Y(0)-Y(y.c))}"/>`;
+    g+=`<text class="ch-val" x="${cx-bw/2-3}" y="${Y(y.b)-6}" text-anchor="middle">${esc(money(y.b))}</text><text class="ch-val" x="${cx+bw/2+3}" y="${Y(y.c)-6}" text-anchor="middle">${esc(money(y.c))}</text>`;
+    g+=`<text class="ch-lab" x="${cx}" y="${H-pb+18}" text-anchor="middle">Year ${i+1}</text>`;});
+  g+=`<rect class="ch-b" x="${pl}" y="${H-14}" width="10" height="10"/><text class="ch-leg" x="${pl+16}" y="${H-5}">Value (risk-adjusted)</text><rect class="ch-c" x="${pl+170}" y="${H-14}" width="10" height="10"/><text class="ch-leg" x="${pl+186}" y="${H-5}">Investment</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Value versus investment by year">${g}</svg>`;
+}
+
+function buildSlides(){
+  const s=state, co=s.company||'Prospect', sel=s.sellerName||'Your company', prod=s.productName||sel;
+  const out=[], add=o=>o&&out.push(o);
+  const people=[s.ae&&[s.ae,'Account Executive'],s.se&&[s.se,'Solution Engineer']].filter(Boolean);
+  // cover
+  add({title:'Cover',cover:true,html:`<div class="sl cover">
+    <div class="pair"><span>${esc(sel)}</span><i>×</i><span>${esc(co)}</span></div>
+    <div><div class="eb">${esc([s.callType,fmtDate(s.callDate)].filter(Boolean).join(' · ')||'Working session')}</div>
+    <h1>${esc(s.ucTitle||`${prod} for ${co}`)}</h1><p class="lead">${esc(s.ucTitle?`How ${prod} can help ${co}`:(s.oppName||''))}</p></div>
+    <div class="who">${people.map(([n,r])=>`<div><b>${esc(n)}</b><span>${esc(r)}, ${esc(sel)}</span></div>`).join('')}</div></div>`,
+    md:`${s.ucTitle||prod+' for '+co}\n${[s.callType,fmtDate(s.callDate)].filter(Boolean).join(' · ')}\n${people.map(p=>p.join(', ')).join('\n')}`});
+  const agendaAt=out.length;
+  // context
+  const ini=lines(s.initiatives),trg=lines(s.triggers);
+  if(ini.length||trg.length||s.overview)add({title:'What we heard',html:`<div class="sl"><div class="eb">Context</div><h2>Where ${esc(co)} is headed</h2>${s.overview?`<p class="lead">${esc(s.overview)}</p>`:''}
+    <div class="cols">${ini.length?`<div class="col"><div class="colh">Strategic priorities</div>${ul(ini,'b',5)}</div>`:''}${trg.length?`<div class="col"><div class="colh">Recent developments</div>${ul(trg,'b',5)}</div>`:''}</div></div>`,
+    md:`${s.overview||''}\n**Strategic priorities**\n${mdl(ini)}\n**Recent developments**\n${mdl(trg)}`});
+  // current state
+  const pains=lines(s.pains);
+  if(pains.length||s.currentState||s.impact)add({title:'The challenge today',html:`<div class="sl"><div class="eb">Current state${s.dept?' · '+esc(s.dept):''}</div><h2>The challenge today</h2>
+    <div class="cols w"><div class="col">${s.currentState?`<p class="lead" style="max-width:none">${esc(s.currentState)}</p>`:''}${s.impact?`<div class="panel"><div class="k">Cost of standing still</div><p>${esc(s.impact)}</p></div>`:''}</div>
+    <div class="col"><div class="colh">What gets in the way</div>${ul(pains,'b',6)}</div></div></div>`,
+    md:`${s.currentState||''}\n${mdl(pains)}\n**Cost of standing still:** ${s.impact||''}`});
+  // future state
+  const succ=lines(s.success);
+  if(succ.length||s.futureState)add({title:'What success looks like',html:`<div class="sl"><div class="eb">Future state</div><h2>What success looks like</h2>
+    <div class="cols"><div class="col">${s.futureState?`<p class="lead" style="max-width:none">${esc(s.futureState)}</p>`:''}${s.compelling?`<div class="panel"><div class="k">Why now</div><p>${esc(s.compelling)}</p></div>`:''}</div>
+    <div class="col"><div class="colh">How we will measure it</div>${ul(succ,'chk',6)}</div></div></div>`,
+    md:`${s.futureState||''}\n${mdl(succ)}\n**Why now:** ${s.compelling||''}`});
+  // approach
+  const caps=lines(s.capabilities),ints=csv(s.integrations);
+  if(caps.length)add({title:'Our approach',html:`<div class="sl"><div class="eb">Approach${s.products?' · '+esc(s.products):''}</div><h2>How ${esc(prod)} gets you there</h2>
+    <div class="cards" style="--n:${Math.min(3,caps.length)}">${caps.slice(0,6).map(c=>`<div class="card"><h3>${esc(c)}</h3></div>`).join('')}</div>
+    ${ints.length?`<div class="col" style="margin-top:auto"><div class="colh">Connects with</div><div class="chips">${ints.map(i=>`<span>${esc(i)}</span>`).join('')}</div></div>`:''}</div>`,
+    md:`${mdl(caps)}\n**Connects with:** ${ints.join(', ')}`});
+  // demo
+  const steps=rows('demoSteps');
+  if(steps.length)add({title:'Demo flow',html:`<div class="sl"><div class="eb">Today's demo</div><h2>What you'll see</h2>
+    <div class="cards" style="--n:${steps.length<=4?steps.length:3}">${steps.slice(0,6).map((d,i)=>`<div class="card"><span class="num">Step ${i+1}</span><h3>${esc(d.scene)}</h3><p class="muted">${esc(d.feature)}</p>${d.value?`<p class="val">→ ${esc(d.value)}</p>`:''}</div>`).join('')}</div></div>`,
+    md:steps.map((d,i)=>`${i+1}. ${d.scene}: ${d.feature} → ${d.value}`).join('\n')});
+  // ROI
+  if(R.has){const a=lines(s.roiAssumptions);
+    add({title:'Business value',html:`<div class="sl"><div class="eb">Business value · ${R.years}-year view</div><h2>${esc(money(R.annual))} in annual value at full run rate</h2>
+    <div class="cols"><div class="col"><div class="kpis">
+      <div class="kpi"><div class="v">${esc(money(R.net))}</div><div class="l">${R.years}-year net value</div></div>
+      <div class="kpi"><div class="v">${pct(R.roi)}</div><div class="l">Return on investment</div></div>
+      <div class="kpi"><div class="v">${esc(pb(R.payback))}</div><div class="l">Payback period</div></div>
+      <div class="kpi"><div class="v">${esc(money(R.npv))}</div><div class="l">NPV at ${num('roiDiscount')}%</div></div></div>
+      <table><tr><th>Value driver</th><th style="text-align:right">Annual</th></tr>${R.parts.map(p=>`<tr><td>${esc(p.label)}</td><td style="text-align:right">${esc(money(p.adj))}</td></tr>`).join('')}</table></div>
+    <div class="col">${roiChart()}<p class="fine">Benefits risk-adjusted to ${Math.round(R.conf*100)}% and ramped over ${num('roiRamp')||0} months.${a.length?' '+esc(a.slice(0,3).join('. '))+'.':''}</p></div></div></div>`,
+    md:`Annual value: ${money(R.annual)}\n- ${R.years}-year net value: ${money(R.net)}\n- ROI: ${pct(R.roi)}\n- Payback: ${pb(R.payback)}\n- NPV: ${money(R.npv)}\n${R.parts.map(p=>`- ${p.label}: ${money(p.adj)}/yr`).join('\n')}\nAssumptions:\n${mdl(a)}`});}
+  // proof
+  const proofs=rows('proofs'),diff=lines(s.differentiators);
+  if(proofs.length||diff.length)add({title:'Why '+sel,html:`<div class="sl"><div class="eb">Proof</div><h2>Why teams like yours choose ${esc(sel)}</h2>
+    <div class="cols"><div class="col"><div class="colh">Customer results</div>${proofs.slice(0,3).map(p=>`<div class="panel"><div class="k">${esc(p.customer)}${p.industry?' · '+esc(p.industry):''}</div><p>${esc(p.result)}</p></div>`).join('')}</div>
+    <div class="col"><div class="colh">What sets us apart</div>${ul(diff,'b',5)}</div></div></div>`,
+    md:proofs.map(p=>`- ${p.customer} (${p.industry}): ${p.result}`).join('\n')+'\n'+mdl(diff)});
+  // next steps
+  const ns=lines(s.nextSteps),plan=rows('plan');
+  add({title:'Next steps',html:`<div class="sl"><div class="eb">Next steps</div><h2>Proposed path forward</h2>
+    <div class="cols"><div class="col"><div class="colh">Next steps</div>${ns.length?ul(ns,'chk',6):'<p class="muted">Add next steps under Call plan.</p>'}</div>
+    ${plan.length?`<div class="col"><div class="colh">Mutual plan</div><table><tr><th>Date</th><th>Milestone</th><th>Owner</th></tr>${plan.slice(0,6).map(p=>`<tr><td style="white-space:nowrap">${esc(fmtDate(p.date,true))}</td><td>${esc(p.milestone)}</td><td>${esc(p.owner)}</td></tr>`).join('')}</table></div>`:''}</div></div>`,
+    md:mdl(ns)+'\n'+plan.map(p=>`- ${fmtDate(p.date)}: ${p.milestone} (${p.owner})`).join('\n')});
+  // agenda (inserted after cover)
+  const ag=lines(s.agenda).length?lines(s.agenda):out.slice(1).map(o=>o.title), obj=lines(s.objectives);
+  out.splice(agendaAt,0,{title:'Agenda',html:`<div class="sl"><div class="eb">${esc(s.callLength?s.callLength+' minutes':'Agenda')}</div><h2>Today's agenda</h2>
+    <div class="cols"><div class="col"><div class="colh">Agenda</div>${ul(ag,'b',8)}</div>${obj.length?`<div class="col"><div class="colh">Goals for today</div>${ul(obj,'chk',5)}</div>`:''}</div></div>`,
+    md:mdl(ag)+(obj.length?'\n**Goals for today**\n'+mdl(obj):'')});
+  // internal appendix
+  if(s.includeInternal){
+    const st=rows('stakeholders');
+    const stanceCls=x=>x==='Supporter'?'good':x==='Skeptic'?'bad':'';
+    if(st.length)add({internal:true,title:'Stakeholder map',html:`<div class="sl"><div class="eb">Prep · ${esc(co)}</div><h2>Who's in the room</h2>
+      <table><tr><th>Name</th><th>Role</th><th>Stance</th><th>On call</th><th>What they care about</th></tr>${st.slice(0,7).map(p=>`<tr><td><b>${esc(p.name)}</b><br><span class="muted">${esc(p.title)}</span></td><td>${esc(p.role)}${p.influence?`<br><span class="muted">${esc(p.influence)} influence</span>`:''}</td><td>${p.stance?`<span class="pill ${stanceCls(p.stance)}">${esc(p.stance)}</span>`:''}</td><td>${esc(p.attending)}</td><td>${esc(p.priorities)}</td></tr>`).join('')}</table></div>`,
+      md:st.map(p=>`- ${p.name}, ${p.title}: ${p.role}, ${p.stance}, on call: ${p.attending}. ${p.priorities}`).join('\n')});
+    const q=lines(s.questions),rk=lines(s.risks);
+    if(q.length||rk.length||s.competitors)add({internal:true,title:'Call strategy',html:`<div class="sl"><div class="eb">Prep · Call strategy</div><h2>Questions, risks and competition</h2>
+      <div class="cols w"><div class="col"><div class="colh">Discovery questions</div>${ul(q,'b',7)}</div>
+      <div class="col">${rk.length?`<div class="colh">Deal risks</div>${ul(rk,'b',4)}`:''}${s.competitors||s.incumbent?`<div class="panel"><div class="k">Competitive landscape</div>${s.competitors?`<p><b>In the deal:</b> ${esc(s.competitors)}</p>`:''}${s.incumbent?`<p><b>Today:</b> ${esc(s.incumbent)}</p>`:''}</div>`:''}</div></div></div>`,
+      md:'**Discovery questions**\n'+mdl(q)+'\n**Risks**\n'+mdl(rk)+`\nCompetitors: ${s.competitors||''}\nIncumbent: ${s.incumbent||''}`});
+    const ob=rows('objections');
+    if(ob.length)add({internal:true,title:'Objection handling',html:`<div class="sl"><div class="eb">Prep · Objections</div><h2>If they say… we say…</h2>
+      <table><tr><th style="width:38%">Objection</th><th>Response</th></tr>${ob.slice(0,5).map(o=>`<tr><td><b>${esc(o.objection)}</b></td><td>${esc(o.response)}</td></tr>`).join('')}</table></div>`,
+      md:ob.map(o=>`- **${o.objection}** ${o.response}`).join('\n')});
+    const facts=[['Industry',s.industry],['Segment',s.segment],['HQ',s.hq],['Employees',s.employees&&Number(s.employees).toLocaleString('en-US')],['Revenue',s.revenue],['Ownership',s.ownership],['Stage',s.stage],['Deal size',s.dealSize&&money(num('dealSize'))],['Target close',fmtDate(s.closeDate)],['Forecast',s.forecast]].filter(f=>f[1]);
+    const tech=csv(s.techStack),src=lines(s.sources);
+    if(facts.length||tech.length)add({internal:true,title:'Account brief',html:`<div class="sl"><div class="eb">Prep · Account brief</div><h2>${esc(co)} at a glance</h2>
+      <div class="cols"><div class="col"><table>${facts.map(f=>`<tr><th style="width:36%">${esc(f[0])}</th><td>${esc(f[1])}</td></tr>`).join('')}</table></div>
+      <div class="col">${tech.length?`<div class="colh">Tech stack</div><div class="chips">${tech.map(t=>`<span>${esc(t)}</span>`).join('')}</div>`:''}
+      ${s.demoEnv||s.demoRisks?`<div class="panel"><div class="k">Demo prep</div>${s.demoEnv?`<p>${esc(s.demoEnv)}</p>`:''}${s.demoRisks?`<p class="muted">Fallback: ${esc(s.demoRisks)}</p>`:''}</div>`:''}
+      ${src.length?`<div class="colh">Sources</div><p class="fine">${src.slice(0,5).map(esc).join('<br>')}</p>`:''}</div></div></div>`,
+      md:facts.map(f=>`- ${f[0]}: ${f[1]}`).join('\n')+`\nTech stack: ${tech.join(', ')}\nDemo prep: ${s.demoEnv||''}\nFallback: ${s.demoRisks||''}\nSources:\n${mdl(src)}`});
+  }
+  return out;
+}
+function slideHTML(sl,i){
+  const foot=[state.sellerName,state.company].filter(Boolean).join(' × ')+(state.footer?' · '+state.footer:'');
+  return `<div class="slide">${sl.html}${sl.cover?'':`<div class="foot"><span>${esc(foot)}</span><span>${i+1}</span></div>`}${sl.internal?'<div class="int">Internal · prep only</div>':''}</div>`;
+}
+
+/* ---------- render loop ---------- */
+function applyTheme(){
+  const rgb=hexRgb(state.accent)||[14,107,92], dark=state.deckStyle==='Dark', L=lum(rgb), root=document.documentElement.style;
+  const v=dark?{bg:'#0F1720',fg:'#EEF2F6',muted:'#9AA6B5',panel:'#18232F',line:'#2A3846',warn:'#F2B37A',warnbg:'#3B2A1A'}
+              :{bg:'#FFFFFF',fg:'#15181D',muted:'#5B616E',panel:'#F1F3F5',line:'#E0E4E9',warn:'#8A4A0E',warnbg:'#FBE9D4'};
+  const accent=mix(rgb,rgb,0);
+  const ink=dark?(L<.18?mix(rgb,[255,255,255],.5):accent):(L>.45?mix(rgb,[0,0,0],.45):accent);
+  Object.entries({bg:v.bg,fg:v.fg,muted:v.muted,panel:v.panel,line:v.line,accent,'accent-ink':ink,'on-accent':L>.42?'#111418':'#FFFFFF',warn:v.warn,'warn-bg':v.warnbg}).forEach(([k,x])=>root.setProperty('--s-'+k,x));
+}
+function renderStatus(){
+  let tot=0,got=0;
+  SECTIONS.forEach(s=>{const n=s.req.filter(k=>filled(state[k])).length;tot+=s.req.length;got+=n;
+    const chip=$('#c-'+s.id);chip.querySelector('.n').textContent=s.req.length?`${n}/${s.req.length}`:'';chip.classList.toggle('done',s.req.length>0&&n===s.req.length);
+    $('#n-'+s.id).textContent=s.req.length?`${n} of ${s.req.length} key fields`:'';});
+  const p=tot?Math.round(got/tot*100):0;$('#readyBar').style.width=p+'%';$('#readyPct').textContent=p+'%';
+  $('#roiLive').innerHTML=[['Annual value',money(R.annual)],[`${R.years}-yr net value`,money(R.net)],['ROI',pct(R.roi)],['Payback',pb(R.payback)]].map(([l,v])=>`<div><span>${l}</span><b>${esc(v)}</b></div>`).join('');
+  $('#banner').hidden=!isSample;
+}
+function renderDeck(){
+  slides=buildSlides();cur=Math.max(0,Math.min(cur,slides.length-1));
+  $('#deckCount').textContent=`${slides.length} slides`;$('#tabDeck').textContent=`Deck · ${slides.length}`;
+  $('#thumbs').innerHTML=slides.map((sl,i)=>`<button type="button" class="thumb" data-go="${i}" aria-label="Slide ${i+1}: ${esc(sl.title)}">${slideHTML(sl,i)}<span>${i+1}. ${esc(sl.title)}${sl.internal?' · internal':''}</span></button>`).join('');
+  show(cur,false);
+}
+function show(i,scroll=true){
+  cur=Math.max(0,Math.min(i,slides.length-1));
+  $('#viewer').innerHTML=slideHTML(slides[cur],cur);
+  $('#pos').textContent=`${cur+1} / ${slides.length}`;
+  $('#prev').disabled=cur===0;$('#next').disabled=cur===slides.length-1;
+  document.querySelectorAll('.thumb').forEach((t,j)=>t.classList.toggle('on',j===cur));
+  if(scroll){const t=document.querySelectorAll('.thumb')[cur];t&&t.scrollIntoView({block:'nearest',inline:'nearest'})}
+  if(!$('#present').hidden)renderPresent();
+}
+let timer;
+function update(now){clearTimeout(timer);const run=()=>{R=calcROI();applyTheme();renderStatus();renderDeck();save()};now?run():timer=setTimeout(run,140)}
+
+/* ---------- events ---------- */
+$('#form').addEventListener('input',e=>{
+  const t=e.target,k=t.dataset.k;if(!k)return;
+  const v=t.type==='checkbox'?t.checked:t.value;
+  if(t.dataset.sub!==undefined)state[k][+t.dataset.i][t.dataset.sub]=v;else state[k]=v;
+  update();
+});
+$('#form').addEventListener('click',e=>{
+  const a=e.target.closest('[data-add]'),r=e.target.closest('[data-remove]');
+  if(a){const k=a.dataset.add,f=findRepeat(k);(state[k]||(state[k]=[])).push(Object.fromEntries(f.sub.map(s=>[s.k,''])));$('#rep-'+k).innerHTML=repHTML(f);
+    const items=$('#rep-'+k).querySelectorAll('.rep-item');items[items.length-1].querySelector('input,select,textarea').focus();update();}
+  if(r){const k=r.dataset.remove;state[k].splice(+r.dataset.i,1);$('#rep-'+k).innerHTML=repHTML(findRepeat(k));update();}
+});
+$('#secnav').addEventListener('click',e=>{const c=e.target.closest('[data-jump]');if(c){setView('form');$('#sec-'+c.dataset.jump).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}});
+$('#thumbs').addEventListener('click',e=>{const t=e.target.closest('[data-go]');if(t)show(+t.dataset.go)});
+$('#prev').onclick=()=>show(cur-1);$('#next').onclick=()=>show(cur+1);
+$('#viewer').addEventListener('click',()=>{});
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+function setView(v){$('#app').dataset.view=v;document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.view===v))}
+
+function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2200)}
+function resetTo(obj,sample){state=clone(obj);isSample=sample;cur=0;renderForm();update(true)}
+$('#btnSample').onclick=()=>{resetTo(SAMPLE,true);toast('Sample account loaded')};
+let clearArm=0;
+function clearAll(btn){
+  if(Date.now()-clearArm<3000){resetTo(DEFAULTS,false);$('#btnClear').textContent='Clear all';clearArm=0;toast('Cleared. Start with Account & deal.');window.scrollTo(0,0);return}
+  clearArm=Date.now();$('#btnClear').textContent='Click again to clear';setTimeout(()=>{$('#btnClear').textContent='Clear all'},3000);
+  if(btn!=='#btnClear')resetTo(DEFAULTS,false),toast('Cleared. Start with Account & deal.');
+}
+$('#btnClear').onclick=()=>clearAll('#btnClear');
+$('#bannerClear').onclick=()=>{clearArm=0;resetTo(DEFAULTS,false);toast('Cleared. Start with Account & deal.')};
+
+/* modal */
+function modal(title,text,content,buttons){
+  $('#modalTitle').textContent=title;$('#modalText').textContent=text;$('#modalArea').value=content;
+  $('#modalRow').innerHTML='';buttons.concat([['Close',closeModal]]).forEach(([l,fn,primary])=>{const b=document.createElement('button');b.type='button';b.className='btn'+(primary?' primary':'');b.textContent=l;b.onclick=fn;$('#modalRow').appendChild(b)});
+  $('#modal').hidden=false;$('#modalArea').focus();
+}
+function closeModal(){$('#modal').hidden=true}
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+function copyArea(){const a=$('#modalArea');const done=()=>toast('Copied to clipboard');
+  try{navigator.clipboard.writeText(a.value).then(done,()=>{a.select();toast('Press Ctrl/⌘+C to copy')})}catch(e){a.select();toast('Press Ctrl/⌘+C to copy')}}
+$('#btnOutline').onclick=()=>{
+  const md=`# ${state.ucTitle||state.productName||'Deck'}: ${state.company||''}\n\n`+slides.map((s,i)=>`## ${i+1}. ${s.title}${s.internal?' (internal)':''}\n${(s.md||'').split('\n').filter(l=>l.trim()&&!/:\s*$/.test(l)).join('\n')}`).join('\n\n');
+  modal('Deck outline','Markdown outline of every slide. Paste it into Google Slides, PowerPoint speaker notes, or a doc.',md,[['Copy outline',copyArea,true]]);
+};
+$('#btnJson').onclick=()=>{
+  modal('Save or load inputs','Copy this text to keep a call\'s inputs, or paste saved text here and select Load. Your work also stays in this browser automatically.',JSON.stringify(state,null,2),[
+    ['Copy',copyArea],
+    ['Load pasted inputs',()=>{try{const o=JSON.parse($('#modalArea').value);if(typeof o!=='object'||!o)throw 0;resetTo({...DEFAULTS,...o},false);closeModal();toast('Inputs loaded')}catch(e){toast('That text is not valid saved inputs. Paste the full block, including the braces.')}},true]]);
+};
+
+/* present */
+function renderPresent(){$('#stage').innerHTML=slideHTML(slides[cur],cur);$('#presentPos').textContent=`${cur+1} / ${slides.length}`}
+function present(){$('#present').hidden=false;renderPresent();try{const p=$('#present').requestFullscreen?.();p&&p.catch(()=>{})}catch(e){}}
+function exitPresent(){$('#present').hidden=true;try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}}
+$('#btnPresent').onclick=present;$('#btnPresent2').onclick=present;
+$('#presentClose').onclick=e=>{e.stopPropagation();exitPresent()};
+$('#present').addEventListener('click',e=>{const x=e.clientX/window.innerWidth;show(x<.3?cur-1:cur+1,false)});
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&!$('#present').hidden){/* stay in overlay */}});
+document.addEventListener('keydown',e=>{
+  const inField=/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName);
+  if(!$('#modal').hidden){if(e.key==='Escape')closeModal();return}
+  if(!$('#present').hidden){
+    if(['ArrowRight','PageDown',' ','Enter'].includes(e.key)){e.preventDefault();show(cur+1,false)}
+    else if(['ArrowLeft','PageUp','Backspace'].includes(e.key)){e.preventDefault();show(cur-1,false)}
+    else if(e.key==='Escape')exitPresent();
+    return;
+  }
+  if(inField)return;
+  if(e.key==='ArrowRight')show(cur+1);if(e.key==='ArrowLeft')show(cur-1);
+});
+
+load();renderForm();update(true);
+})();
+</script>

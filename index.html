@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Built with Claude</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#f6f5f1;--surface:#fff;--ink:#1a1a18;--muted:#5d5c56;--line:#dddbd3;--accent:#b4532a;--chip:#f1e6de}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141413;--surface:#1e1e1c;--ink:#ecebe6;--muted:#a3a29b;--line:#33332f;--accent:#e08a5f;--chip:#3a2a21}}
+:root[data-theme="dark"]{--bg:#141413;--surface:#1e1e1c;--ink:#ecebe6;--muted:#a3a29b;--line:#33332f;--accent:#e08a5f;--chip:#3a2a21}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:56px 16px 80px}
+h1,h2,h3{font-family:"Space Grotesk",system-ui,sans-serif;margin:0;line-height:1.15}
+h1{font-size:clamp(2rem,6vw,3.2rem)}
+h2{font-size:1.3rem;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.lede{color:var(--muted);max-width:62ch;margin:12px 0 0;font-size:1.08rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+a.card{display:flex;flex-direction:column;gap:8px;padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:inherit;text-decoration:none;transition:border-color .15s,transform .15s}
+a.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+a.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card h3{font-size:1.1rem}
+.card p{margin:0;color:var(--muted);font-size:.94rem}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:6px}
+.tags span{font-size:.75rem;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--chip);color:var(--accent)}
+.kind{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+footer{margin-top:64px;color:var(--muted);font-size:.9rem}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){a.card{transition:none}a.card:hover{transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Built with Claude</h1>
+    <p class="lede">AI security agents, an iOS app, sales-engineering tools, interactive explainers and games, all designed and built in conversation with Claude.</p>
+  </header>
+
+  <h2>Security &amp; identity</h2>
+  <div class="grid">
+    <a class="card" href="security/okta-ai-sentinel/"><span class="kind">Agent · Source</span><h3>Okta AI Sentinel</h3><p>Watches an Okta org's System Log and flags when an AI system (an LLM agent, MCP server or headless browser) is calling the Okta API. Heuristics first, then Claude triage, then Slack alerts.</p><div class="tags"><span>Python</span><span>Claude API</span><span>Okta</span></div></a>
+    <a class="card" href="security/auth0-ai-sentinel/"><span class="kind">Agent · Source</span><h3>Auth0 AI Sentinel</h3><p>The same detection for Auth0 tenant logs, including Token Vault and token-exchange grants, with Claude giving a verdict and the reason for it.</p><div class="tags"><span>Python</span><span>Claude API</span><span>Auth0</span></div></a>
+    <a class="card" href="web/oauth-field-course.html"><span class="kind">Interactive course</span><h3>OAuth 2.0 Field Course</h3><p>Step through the auth code + PKCE flow, decode a JWT, run a scopes lab, and compare OAuth, OIDC and SAML, with quizzes along the way.</p><div class="tags"><span>HTML/JS</span><span>Education</span></div></a>
+    <a class="card" href="decks/"><span class="kind">Slide deck</span><h3>Auth0 AI Sentinel deck</h3><p>A presentation built from the project README, generated in code.</p><div class="tags"><span>PptxGenJS</span></div></a>
+  </div>
+
+  <h2>Apps</h2>
+  <div class="grid">
+    <a class="card" href="apps/fineprint/"><span class="kind">iOS app · Source</span><h3>FinePrint</h3><p>Reads terms &amp; conditions and privacy policies and surfaces the 5–10 things that matter, ranked by risk, each backed by the exact quote.</p><div class="tags"><span>SwiftUI</span><span>Claude API</span></div></a>
+  </div>
+
+  <h2>Sales-engineering tools</h2>
+  <div class="grid">
+    <a class="card" href="web/contract-desk.html"><span class="kind">Demo app</span><h3>Contract Desk</h3><p>A contract-management demo: a searchable repository, redlines checked against a legal playbook, and approval routing.</p><div class="tags"><span>HTML/JS</span></div></a>
+    <a class="card" href="web/demo-deck-generator.html"><span class="kind">Tool</span><h3>Demo Deck Generator</h3><p>Enter the use case, ROI and account research, and get a call-ready demo deck plus an internal prep brief.</p><div class="tags"><span>HTML/JS</span></div></a>
+    <a class="card" href="web/intro-card.html"><span class="kind">Motion</span><h3>Intro Title Card</h3><p>An animated personal title card.</p><div class="tags"><span>HTML/CSS</span></div></a>
+  </div>
+
+  <h2>Games</h2>
+  <div class="grid">
+    <a class="card" href="games/clash-of-eleven.html"><span class="kind">Play in browser</span><h3>Clash of Eleven</h3><p>An auto-battler with eleven fighters. Take control with timed dodges, blocks and specials, and beat ten rivals in Arcade mode.</p><div class="tags"><span>HTML/JS</span></div></a>
+    <a class="card" href="games/void-warrant.html"><span class="kind">Play in browser</span><h3>Void Warrant</h3><p>A bounty-hunter card game: work the job board across three sectors and bring in the most wanted being in the universe.</p><div class="tags"><span>HTML/SVG</span></div></a>
+    <a class="card" href="games/alphabit-pocket-pet.html"><span class="kind">Play in browser</span><h3>AlphaBit Pocket Pet</h3><p>Hatch a forest slime and raise it from egg to elder over about five days of play.</p><div class="tags"><span>SVG</span><span>Web Audio</span></div></a>
+  </div>
+
+  <footer>Built with <a href="https://claude.ai">Claude</a>. Source for everything is in this repository.</footer>
+</div>
+</body>
+</html>

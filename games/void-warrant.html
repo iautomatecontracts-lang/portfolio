@@ -1,0 +1,1373 @@
+<title>Void Warrant</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Jost:wght@400;500;600;700&family=Special+Elite&family=Yellowtail&display=swap">
+<style>
+/* Layout: a pulp-magazine desk in deep space. Dark console panels hold the fight; cards, warrants and dossiers are printed matter in cream paper and black ink. */
+:root{
+  --ink:#17132c; --void:#0c0d2b; --hull:#14163f; --panel:#1b1e52; --panel2:#272b6b; --line:#434c9c;
+  --text:#f6ecd2; --dim:#aeabd0;
+  --paper:#f4e7c3; --paperdim:#5b5470;
+  --red:#e8472e; --amber:#f8c33c; --teal:#3cc0b0; --violet:#b39df0; --green:#8fd16a;
+  --kinetic:#e3b27a; --energy:#f8d648; --plasma:#f2693f; --shock:#63c5ea;
+  --w:#c2331c; --g:#0b6f65; --i:#553ab3;
+  --f-display:'Bowlby One','Arial Black',Impact,sans-serif;
+  --f-script:'Yellowtail','Brush Script MT',cursive;
+  --f-body:'Jost','Century Gothic',Futura,'Trebuchet MS',sans-serif;
+  --f-mono:'Special Elite','Courier New',monospace;
+  --hard:4px 4px 0 rgba(0,0,0,.45);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--text);font-family:var(--f-body);font-size:15.5px;line-height:1.42}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+h1,h2{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance;line-height:1.06;letter-spacing:.01em}
+h3{font-family:var(--f-body);font-weight:700;margin:0;text-transform:uppercase;letter-spacing:.04em;line-height:1.1;text-wrap:balance}
+p{margin:0}
+#stars{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#app{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding-block:16px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.script{font-family:var(--f-script);font-weight:400;letter-spacing:0;text-transform:none}
+.script.big{font-size:36px;color:var(--amber);transform:rotate(-2deg);transform-origin:left;display:inline-block;line-height:1;text-shadow:2px 2px 0 var(--ink)}
+.amber{color:var(--amber)} .dimtx{color:var(--dim)}
+.kw{color:var(--amber);font-weight:700}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.paper{background-color:var(--paper);background-image:radial-gradient(rgba(23,19,44,.1) 1px,transparent 1.3px);background-size:5px 5px;color:var(--ink);border:2px solid var(--ink)}
+.paper .eyebrow,.paper .dimtx{color:var(--paperdim)}
+.paper .kw{color:var(--w)}
+
+.btn{border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:9px 18px;border-radius:6px;font-family:var(--f-body);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:13px;cursor:pointer;box-shadow:3px 3px 0 rgba(0,0,0,.55);transition:transform .1s,box-shadow .1s,background .15s}
+.btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 rgba(0,0,0,.55);background:#fff7de}
+.btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(0,0,0,.55)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--amber)}
+.btn.primary:hover:not(:disabled){background:#ffd562}
+.btn.ghost{background:transparent;color:var(--text);border-color:var(--line);box-shadow:none}
+.btn.ghost:hover:not(:disabled){background:var(--panel2);border-color:var(--amber);box-shadow:none;transform:none}
+.btn.sm{padding:6px 12px;font-size:12px}
+
+.panel{background:linear-gradient(180deg,var(--panel),var(--hull));border:2px solid var(--line);border-radius:10px;padding:18px;box-shadow:var(--hard)}
+.bar{position:relative;height:12px;background:var(--ink);border:2px solid var(--text);border-radius:8px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--red);transition:width .3s}
+.bar.rep{border-color:var(--ink);background:#fff7de}
+.bar.rep>i{background:var(--red)}
+.bar .cap{position:absolute;top:0;bottom:0;width:3px;background:var(--teal)}
+.pt{flex:0 0 auto;display:block;border:2px solid var(--ink);border-radius:10px;background:var(--paper)}
+.dtp{display:inline-block;font-family:var(--f-body);font-weight:700;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;border:1.5px solid var(--ink);border-radius:3px;color:var(--ink);line-height:1.35;white-space:nowrap}
+
+/* ---------- title: magazine cover + guild ledger ---------- */
+.title{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:30px;align-items:start;padding-block:10px 20px}
+.cover{border:3px solid var(--ink);outline:3px solid var(--paper);border-radius:3px;overflow:hidden;display:flex;flex-direction:column;box-shadow:9px 9px 0 rgba(0,0,0,.45);min-width:0;background:var(--hull);margin:3px}
+.mast{position:relative;background-color:var(--red);background-image:radial-gradient(rgba(23,19,44,.2) 1px,transparent 1.3px);background-size:5px 5px;padding:18px 22px 26px;border-bottom:3px solid var(--ink)}
+.mast .script{font-size:clamp(20px,2.8vw,28px);color:var(--paper);display:block;transform:rotate(-3deg);transform-origin:left;text-shadow:2px 2px 0 var(--ink)}
+.mast h1{font-size:clamp(46px,8.4vw,96px);line-height:.92;text-transform:uppercase;color:var(--amber);transform:rotate(-3deg);transform-origin:left center;margin-top:6px;text-shadow:-2px -2px 0 var(--ink),2px -2px 0 var(--ink),-2px 2px 0 var(--ink),2px 2px 0 var(--ink),4px 4px 0 var(--ink),6px 6px 0 var(--ink),8px 8px 0 var(--ink)}
+.mast .burst{position:absolute;right:12px;top:10px;width:108px;height:108px;transform:rotate(12deg)}
+.cover .scene{display:block;width:100%;height:clamp(170px,24vw,260px);border-bottom:3px solid var(--ink)}
+.cover .strip{padding:16px 22px 22px;display:flex;flex-direction:column;gap:14px}
+.lede{max-width:56ch;font-size:16.5px}
+.ledger{padding:20px;border-radius:3px;display:flex;flex-direction:column;gap:10px;font-family:var(--f-mono);box-shadow:7px 7px 0 rgba(0,0,0,.45);transform:rotate(.7deg);margin-top:10px}
+.ledger h2{font-size:30px;color:var(--w)}
+.repline span{color:var(--paperdim)}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:6px}
+.facts div{display:flex;flex-direction:column}
+.facts b{font-family:var(--f-display);font-weight:400;font-size:22px}
+.facts span{font-size:12px;color:var(--paperdim);line-height:1.25}
+.ranks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.ranks li{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:8px;padding:6px 8px 4px;border-top:1px dashed currentColor;align-items:baseline}
+.ranks li.me{background:var(--amber);color:var(--ink)}
+.panel .ranks li.me{border-radius:3px}
+
+/* ---------- hunter select ---------- */
+.shead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.shead h2{font-size:32px;color:var(--amber);text-shadow:3px 3px 0 var(--ink)}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.hcard{display:flex;flex-direction:column;gap:10px;min-width:0}
+.hcard.locked{opacity:.6}
+.hcard .pt,.fhead .pt{box-shadow:0 0 0 2px var(--paper)}
+.hcard h3{font-size:20px}
+.alias{font-family:var(--f-script);font-size:20px;color:var(--amber);line-height:1.05}
+.hcard p{color:var(--dim);font-size:14.5px}
+.kv{display:flex;gap:18px;margin:0}
+.kv div{display:flex;flex-direction:column}
+.kv dt{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.kv dd{margin:0;font-weight:600}
+.gearbox{border:2px dashed var(--line);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;font-size:14px}
+.gearbox b{color:var(--teal);text-transform:uppercase;letter-spacing:.04em;font-size:13px}
+.deckline{font-size:13px;color:var(--dim);flex:1}
+
+/* ---------- HUD ---------- */
+.hud{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:10px 14px;background:var(--hull);border:2px solid var(--line);border-radius:10px;margin-bottom:18px;box-shadow:var(--hard)}
+.hud .who{display:flex;gap:10px;align-items:center;min-width:0}
+.hud .who .pt{border-radius:50%;box-shadow:0 0 0 2px var(--paper)}
+.hud .hn{font-weight:700;text-transform:uppercase;letter-spacing:.04em;line-height:1.1}
+.hud .hs{font-family:var(--f-script);font-size:16px;color:var(--amber);line-height:1}
+.hud .hpbox{display:flex;flex-direction:column;gap:3px;min-width:120px;flex:1 1 120px;max-width:220px}
+.hud .hpbox .t{display:flex;justify-content:space-between;align-items:baseline;font-size:12px}
+.hud .stat{display:flex;flex-direction:column;line-height:1.15}
+.hud .stat b,.hud .hpbox b{font-family:var(--f-mono);font-weight:400;font-size:16px}
+.hud .lbl{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.hud .gear{display:flex;flex-wrap:wrap;gap:6px;flex:1 1 160px;min-width:0}
+.hud .acts{display:flex;gap:8px;margin-left:auto}
+.chip{border:2px solid var(--line);background:var(--panel);border-radius:20px;padding:1px 10px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chip.g{border-color:var(--teal);color:var(--teal)}
+.chip.s-exposed,.chip.s-burn{border-color:var(--plasma);color:var(--plasma)}
+.chip.s-jammed{border-color:var(--shock);color:var(--shock)}
+.chip.s-marked{border-color:var(--violet);color:var(--violet)}
+.chip.s-rage{border-color:var(--red);color:#ff8a76}
+.chip.s-cloaked,.chip.s-stun{border-color:var(--dim);color:var(--text)}
+.chip.inst{border-color:var(--teal);color:var(--teal)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-height:26px}
+
+/* ---------- bounty board ---------- */
+.sector{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.sector h2{font-size:32px;color:var(--amber);text-shadow:3px 3px 0 var(--ink)}
+.sector p{color:var(--dim);max-width:65ch}
+.track{display:flex;gap:6px;align-items:center;margin-top:6px}
+.track i{width:34px;height:8px;background:var(--line);border-radius:4px}
+.track i.done{background:var(--amber)} .track i.now{background:var(--text)} .track i.boss{width:46px;background:rgba(232,71,46,.45)} .track i.boss.now{background:var(--red)}
+.notice{border-left:4px solid var(--teal);background:rgba(60,192,176,.1);padding:8px 12px;margin-bottom:14px;font-size:14.5px;border-radius:0 6px 6px 0}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:26px 20px;padding:10px 4px 4px}
+.poster{position:relative;display:flex;flex-direction:column;text-align:left;padding:0;cursor:pointer;border-radius:3px;box-shadow:5px 5px 0 rgba(0,0,0,.45);transition:transform .15s,box-shadow .15s;min-width:0;font-family:var(--f-body)}
+.poster span{display:block}
+.poster:nth-child(3n+1){transform:rotate(-1.2deg)} .poster:nth-child(3n+2){transform:rotate(.8deg)} .poster:nth-child(3n){transform:rotate(-.5deg)}
+.poster:hover{transform:rotate(0deg) translateY(-5px);box-shadow:8px 9px 0 rgba(0,0,0,.45)}
+.poster::before{content:"";position:absolute;left:50%;top:-8px;width:15px;height:15px;margin-left:-7px;border-radius:50%;background:var(--red);border:2px solid var(--ink);box-shadow:inset -2px -2px 0 rgba(0,0,0,.25)}
+.poster .ph{text-align:center;padding:16px 10px 2px;font-family:var(--f-display);font-size:36px;line-height:1;color:var(--w);text-transform:uppercase;letter-spacing:.04em}
+.poster .terms{text-align:center;font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;border-block:2px solid var(--ink);margin:6px 14px 0;padding:4px 0 1px}
+.poster .pb{display:flex;flex-direction:column;gap:8px;padding:12px 14px 14px;flex:1}
+.poster .mug{align-self:center}
+.poster .pn{font-family:var(--f-display);font-size:19px;line-height:1.08;text-align:center}
+.poster .pa{font-family:var(--f-script);font-size:20px;text-align:center;color:var(--w);line-height:1}
+.poster .pc{font-family:var(--f-mono);font-size:12.5px;line-height:1.35;flex:1;text-align:center}
+.poster .rew{font-family:var(--f-display);font-size:21px;text-align:center;background:var(--amber);border:2px solid var(--ink);padding:5px 6px 3px;transform:rotate(-1.5deg);line-height:1.1}
+.poster .prow{display:flex;justify-content:space-between;border-top:1px dashed rgba(23,19,44,.55);padding-top:5px;font-size:13px;gap:8px;font-family:var(--f-mono)}
+.poster .prow b{font-weight:400}
+.poster.k-elite{background-color:#f5c9b4} .poster.k-elite .ph{font-size:24px;color:var(--ink)}
+.poster.k-boss{background-color:#f8d774;grid-column:1/-1;max-width:420px;justify-self:center;width:100%} .poster.k-boss .ph{font-size:30px}
+.poster.k-shop,.poster.k-dock,.poster.k-contact{background-color:#cfece4}
+.poster.k-shop .ph,.poster.k-dock .ph,.poster.k-contact .ph{font-size:24px;color:var(--g)}
+.nart svg,.card .art svg{display:block;width:100%;height:auto}
+.nart{border:2px solid var(--ink);border-radius:3px;overflow:hidden}
+
+/* ---------- combat ---------- */
+.arena{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:16px;align-items:start}
+.me,.foe{display:flex;flex-direction:column;gap:10px;min-width:0}
+.foe{border-color:var(--amber)}
+.foe.elite{border-color:var(--red)} .foe.boss{border-color:var(--text)}
+.fhead{display:flex;gap:14px;align-items:center;min-width:0}
+.fhead h2{font-size:25px} .fhead h3{font-size:19px}
+.hpw{display:flex;flex-direction:column;gap:4px}
+.hpn{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;font-family:var(--f-mono);font-size:14px}
+.hpn b{font-size:19px;font-weight:400}
+.shv{display:inline-flex;gap:4px;align-items:center;color:var(--teal);font-size:17px}
+.shv svg,.ic svg,.intent>svg{width:16px;height:16px}
+.bar.big{height:16px}
+.intent{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;padding:7px 11px;border:2px solid var(--ink);border-radius:4px;background:var(--amber);color:var(--ink);box-shadow:3px 3px 0 rgba(0,0,0,.4)}
+.intent .ilbl{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;opacity:.75}
+.intent b{font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.intent .dimtx{color:var(--ink);opacity:.75}
+.ics{display:flex;flex-wrap:wrap;gap:10px;margin-left:auto}
+.ic{display:inline-flex;gap:4px;align-items:center;font-family:var(--f-mono);font-size:16px;line-height:1}
+.ic.atk{color:#a31d0e} .ic.sh{color:#07564e} .ic.bf{color:var(--ink)} .ic.db{color:#45309a} .ic.hl{color:#1b6a2e} .ic.ck{color:var(--ink)}
+.dossier{margin:0;display:grid;gap:6px;padding:10px 12px 8px;font-family:var(--f-mono);font-size:13px;border-radius:3px;line-height:1.35}
+.dossier div{display:grid;grid-template-columns:82px minmax(0,1fr);gap:8px}
+.dossier dt{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--paperdim);padding-top:1px}
+.dossier dd{margin:0}
+.unk{color:var(--paperdim)}
+.log{font-size:13px;color:var(--dim);display:flex;flex-direction:column;gap:1px;border-top:2px dashed var(--line);padding-top:8px;min-height:60px;font-family:var(--f-mono)}
+.log span:last-child{color:var(--text)}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.energy{display:flex;align-items:baseline;gap:2px;border:2px solid var(--ink);border-radius:50px;padding:3px 16px 2px;background:var(--amber);color:var(--ink);box-shadow:3px 3px 0 rgba(0,0,0,.5);font-family:var(--f-mono)}
+.energy b{font-family:var(--f-display);font-weight:400;font-size:24px} .energy small{margin-left:8px;font-family:var(--f-body);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.ctrl .turn{color:var(--dim);font-size:13px;margin-left:auto;font-family:var(--f-mono)}
+.hand{display:flex;gap:14px;justify-content:safe center;overflow-x:auto;padding:18px 12px 12px;margin-top:2px;min-height:262px}
+.hint{font-size:12.5px;color:var(--dim);text-align:center;margin-top:4px}
+
+/* ---------- cards ---------- */
+.card{--tc:var(--w);position:relative;flex:0 0 auto;width:152px;min-height:226px;border-radius:8px;background-color:var(--paper);background-image:radial-gradient(rgba(23,19,44,.09) 1px,transparent 1.3px);background-size:5px 5px;border:2px solid var(--ink);box-shadow:3px 3px 0 rgba(0,0,0,.5);display:flex;flex-direction:column;gap:6px;padding:9px 9px 10px;text-align:left;color:var(--ink);font:inherit;transition:transform .15s,box-shadow .15s}
+.card span{display:block}
+button.card{cursor:pointer}
+.card.t-gadget{--tc:var(--g)} .card.t-intel{--tc:var(--i)}
+button.card:hover:not(:disabled){transform:translateY(-10px) rotate(-1deg);box-shadow:6px 8px 0 rgba(0,0,0,.5)}
+button.card:disabled{filter:grayscale(.75) brightness(.72);cursor:not-allowed}
+.card .cost{position:absolute;top:-11px;left:-9px;width:32px;height:32px;border-radius:50%;background:var(--amber);border:2px solid var(--ink);display:grid;place-items:center;font-family:var(--f-display);font-size:16px;line-height:1;box-shadow:2px 2px 0 rgba(0,0,0,.4)}
+.card .nm{font-weight:700;text-transform:uppercase;letter-spacing:.03em;font-size:12.5px;line-height:1.12;padding-left:22px;min-height:28px;display:flex;align-items:center}
+.card.up .nm{color:#1b6a2e}
+.card .art{border:2px solid var(--ink);border-radius:4px;overflow:hidden;background:var(--ink)}
+.card .tp{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--tc);font-weight:700;border-bottom:2px solid var(--tc);padding-bottom:4px}
+.card .ds{font-size:13px;line-height:1.28;flex:1}
+.card .kw{color:var(--w)}
+.card .foot{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:11px;min-height:12px}
+.card .foot .dimtx{color:var(--paperdim)}
+.card .rar{width:8px;height:8px;border-radius:50%;background:rgba(23,19,44,.25);margin-left:auto}
+.card .rar.r-uncommon{background:var(--teal);box-shadow:0 0 0 1.5px var(--ink)} .card .rar.r-rare{background:var(--red);box-shadow:0 0 0 1.5px var(--ink)}
+.card .price{font-family:var(--f-display);color:var(--w);font-size:14px}
+.card .wk{background:var(--green);border:1.5px solid var(--ink);padding:0 6px;border-radius:3px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:10px}
+.card.ready{box-shadow:0 0 0 3px var(--teal),0 0 22px rgba(60,192,176,.7)}
+.card.sold{opacity:.35}
+.cgrid{display:flex;flex-wrap:wrap;gap:20px 16px;padding-top:12px}
+
+/* ---------- centered screens ---------- */
+.mid{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.mid h2{font-size:28px}
+.mid p{max-width:65ch}
+.earn{display:flex;gap:28px;flex-wrap:wrap}
+.earn div{display:flex;flex-direction:column}
+.earn b{font-family:var(--f-display);font-weight:400;font-size:30px;line-height:1.1}
+.earn span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.notes{margin:0;padding-left:18px;color:var(--dim);font-size:14.5px}
+.choices{display:grid;gap:10px}
+.choice{display:flex;flex-direction:column;gap:2px;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:8px;padding:12px 14px;cursor:pointer;transition:border-color .15s,transform .1s}
+.choice:hover:not(:disabled){border-color:var(--amber);transform:translate(-1px,-1px)}
+.choice:disabled{opacity:.45;cursor:not-allowed}
+.choice b{font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:15px}
+.choice b .amber{font-family:var(--f-mono);font-weight:400;letter-spacing:0}
+.choice span{font-size:14px;color:var(--dim)}
+.shopsec{display:flex;flex-direction:column;gap:6px}
+.glist{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.shopwrap{max-width:920px}
+.gal{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 26px}
+.gal figure{margin:0;display:flex;flex-direction:column;gap:4px;align-items:center;font-size:12px}
+
+/* ---------- modal / fx ---------- */
+#modal{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:16px}
+.mback{position:absolute;inset:0;background:rgba(6,6,24,.8)}
+.mbox{position:relative;max-width:880px;width:100%;max-height:86vh;overflow:auto;display:flex;flex-direction:column;gap:12px}
+.mbox h2{font-size:24px;color:var(--amber)}
+.mbox ul{margin:0;padding-left:18px;display:grid;gap:6px}
+#fx{position:fixed;inset:0;z-index:50;pointer-events:none;overflow:hidden}
+.float{position:fixed;transform:translate(-50%,0);font-family:var(--f-display);font-size:24px;text-shadow:-1.5px -1.5px 0 var(--ink),1.5px -1.5px 0 var(--ink),-1.5px 1.5px 0 var(--ink),1.5px 1.5px 0 var(--ink),3px 3px 0 var(--ink);animation:rise 1.1s ease-out both;white-space:nowrap}
+.f-kinetic{color:var(--kinetic)} .f-energy{color:var(--energy)} .f-plasma,.f-burn{color:var(--plasma)} .f-shock{color:var(--shock)}
+.f-shield,.f-intel,.f-dim,.f-heal{font-family:var(--f-body);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.04em}
+.f-shield{color:var(--teal)} .f-intel{color:var(--violet)} .f-hurt{color:#ff7a66;font-size:26px} .f-dim{color:var(--text)} .f-heal{color:var(--green)}
+@keyframes rise{0%{opacity:0;transform:translate(-50%,8px)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-46px)}}
+.hit{animation:shake .28s}
+@keyframes shake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+.pow{position:fixed;width:150px;height:100px;display:grid;place-items:center;transform:translate(-50%,-35%) rotate(var(--rot,0deg));animation:pow .8s cubic-bezier(.2,1.4,.4,1) both}
+.pow svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.pow b{position:relative;font-family:var(--f-display);font-weight:400;font-size:20px;color:var(--ink);letter-spacing:.02em}
+@keyframes pow{0%{opacity:0;scale:.3}18%{opacity:1;scale:1.12}30%{scale:1}80%{opacity:1}100%{opacity:0;scale:1.05}}
+.banner{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) rotate(-3deg);font-family:var(--f-display);font-size:clamp(22px,5vw,44px);letter-spacing:.03em;text-transform:uppercase;text-align:center;padding:12px 28px 8px;background:var(--red);border:3px solid var(--ink);box-shadow:7px 7px 0 rgba(0,0,0,.55);color:var(--amber);text-shadow:2px 2px 0 var(--ink);width:max-content;max-width:92vw;animation:ban 1.5s ease both}
+.banner.good{background:var(--amber);color:var(--ink);text-shadow:none} .banner.bad{background:var(--ink);color:var(--red);border-color:var(--red);text-shadow:none}
+@keyframes ban{0%{opacity:0;scale:.6}14%{opacity:1;scale:1.06}22%{scale:1}80%{opacity:1}100%{opacity:0}}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:6px;box-shadow:var(--hard);padding:10px 16px;max-width:min(520px,92vw);font-size:14.5px;font-weight:500;animation:toast 3.2s ease both}
+@keyframes toast{0%{opacity:0}8%{opacity:1}85%{opacity:1}100%{opacity:0}}
+
+@media (max-width:760px){
+  .title{grid-template-columns:1fr;padding-block:4px}
+  .mast .burst{width:84px;height:84px;top:6px;right:6px}
+  .ledger{transform:none}
+  .arena{grid-template-columns:1fr}
+  .arena .foe{order:0} .arena .me{order:1}
+  .log{display:none}
+  .card{width:134px;min-height:214px}
+  .hand{justify-content:flex-start;min-height:246px}
+  .hud .acts{margin-left:0}
+  .fhead h2{font-size:20px}
+  .me .fhead{display:none}
+  .me,.foe{padding:12px;gap:8px}
+  .foe .fhead .pt{width:60px;height:60px}
+  .chips:empty{display:none}
+  .hud{padding:8px 10px;gap:8px 14px;margin-bottom:12px}
+  .hud .hs,.hud .who .pt{display:none}
+  .hud .gear{flex-basis:100%}
+  .ctrl{margin-top:10px}
+  .hint{display:none}
+  .poster:nth-child(n){transform:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01s!important;transition:none!important}
+}
+</style>
+
+<canvas id="stars" aria-hidden="true"></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<pattern id="ht" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="2" cy="2" r="1.1" fill="#17132c"/></pattern>
+<pattern id="htw" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="2" cy="2" r="1.15" fill="#f6ecd2"/></pattern>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#151858"/><stop offset=".5" stop-color="#4b2e94"/><stop offset=".82" stop-color="#d9532f"/><stop offset="1" stop-color="#f8c33c"/></linearGradient>
+</defs></svg>
+<div id="app"></div>
+<div id="modal" hidden></div>
+<div id="fx" aria-live="polite"></div>
+
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s);
+const rnd=n=>Math.floor(Math.random()*n);
+const pick=a=>a[rnd(a.length)];
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const mk=(id,up=false)=>({id,up,uid:uid()});
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+const kw=s=>s.replace(/\b(Shield|Marked|Exposed|Jammed|Burn|Stun|Reveal|Install|Exhaust|Capture|Cloak|Rage)\b/g,'<b class="kw">$1</b>');
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+
+/* ================= DATA ================= */
+const DT={kinetic:'Kinetic',energy:'Energy',plasma:'Plasma',shock:'Shock'};
+const TYPEN={weapon:'Weapon',gadget:'Gadget',intel:'Intel'};
+const STATUS={
+  rage:{n:'Rage',d:'Rage: attacks deal that much more damage.'},
+  exposed:{n:'Exposed',d:'Exposed: takes 50% more attack damage. Fades by 1 each turn.'},
+  jammed:{n:'Jammed',d:'Jammed: deals 25% less attack damage. Fades by 1 each turn.'},
+  burn:{n:'Burn',d:'Burn: loses that much Hull at the start of its turn, ignoring Shield. Then Burn drops by 1.'},
+  marked:{n:'Marked',d:'Marked: every hit against it deals that much extra damage. Fades by 1 each turn.'},
+  cloaked:{n:'Cloaked',d:'Cloaked: takes half damage from attacks. Thermal Scope strips it.'},
+  stun:{n:'Stunned',d:'Stunned: skips its next action.'},
+};
+const INSTALLS={
+  overclock:{n:'Overclock',d:v=>`Overclock: your attacks deal +${v} damage this fight.`},
+  swarm:{n:'Nano-Swarm',d:v=>`Nano-Swarm: gain ${v} Shield at the start of each turn.`},
+  drone:{n:'Combat Drone',d:v=>`Combat Drone: deals ${v} Energy damage at the end of your turn.`},
+  biolock:{n:'Bio-Lock',d:()=>'Bio-Lock: every weapon hit applies 1 Marked.'},
+};
+const svg=p=>`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const ICON={
+  atk:svg('<circle cx="8" cy="8" r="4.5"/><path d="M8 1v4M8 11v4M1 8h4M11 8h4"/>'),
+  shield:svg('<path d="M8 1.5l5.5 2v4.2c0 3.3-2.4 5.7-5.5 6.8-3.1-1.1-5.5-3.5-5.5-6.8V3.5z"/>'),
+  buff:svg('<path d="M3 8l5-5 5 5M3 13l5-5 5 5"/>'),
+  debuff:svg('<path d="M3 3l5 5 5-5M3 8l5 5 5-5"/>'),
+  cloak:svg('<path d="M1.5 8s2.5-4.5 6.5-4.5S14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z"/><path d="M2.5 13.5l11-11"/>'),
+  heal:svg('<path d="M8 3v10M3 8h10"/>'),
+  stun:svg('<path d="M9 1L3 9h5l-1 6 6-8H8z"/>'),
+};
+
+const GEAR={
+  holster:{n:'Quickdraw Holster',d:'Your first Weapon each turn deals +3 damage.',start:1},
+  plating:{n:'Reactive Plating',d:'Gain 3 Shield at the start of each turn.',start:1},
+  uplink:{n:'Neural Uplink',d:'Whenever you play an Intel card, apply 2 Marked.',start:1},
+  shackles:{n:'Warden Shackles',d:'Capture threshold +15%. Live captures pay 25% more credits.',start:1},
+  scanner:{n:'Bounty Scanner',d:"Every bounty's weakness is revealed at the start of the fight."},
+  coil:{n:'Plasma Coil',d:'Plasma hits apply 1 Burn.'},
+  cell1:{n:'Spare Power Cell',d:'Gain 1 extra Energy on your first turn.'},
+  boots:{n:'Mag Boots',d:'Start each fight with 8 Shield.'},
+  chip:{n:'Credit Chip Implant',d:'Earn 25% more credits from bounties.'},
+  badge:{n:'Infamy Badge',d:'Earn 25% more reputation from bounties.'},
+  medkit:{n:'Nano-Med Kit',d:'Heal 6 Hull after each fight.'},
+  vi:{n:'Targeting VI',d:'Hits on a revealed weakness deal double damage instead of +50%.'},
+  restraint:{n:'Restraint Field',d:'Capture threshold +10%.'},
+  stims:{n:'Combat Stims',d:'Your attacks deal +1 damage.'},
+  ablative:{n:'Ablative Coating',d:'Take 1 less damage from each enemy hit.'},
+  extmag:{n:'Extended Mag',d:'Draw 2 extra cards on your first turn.'},
+};
+
+const CARDS={
+  /* weapons */
+  blaster:{n:'Blaster Shot',t:'weapon',dt:'energy',c:1,r:'starter',d:u=>`Deal ${u?9:6} damage.`,p:u=>atk(u?9:6,'energy')},
+  slug:{n:'Slug Thrower',t:'weapon',dt:'kinetic',c:1,r:'starter',d:u=>`Deal ${u?10:7} damage.`,p:u=>atk(u?10:7,'kinetic')},
+  baton:{n:'Shock Baton',t:'weapon',dt:'shock',c:1,r:'starter',d:u=>`Deal ${u?7:5} damage. Apply ${u?2:1} Jammed.`,p:u=>{atk(u?7:5,'shock');addE('jammed',u?2:1)}},
+  twin:{n:'Twin Pistols',t:'weapon',dt:'kinetic',c:1,r:'common',d:u=>`Deal ${u?5:4} damage twice.`,p:u=>atk(u?5:4,'kinetic',{n:2})},
+  scatter:{n:'Scatter Blaster',t:'weapon',dt:'energy',c:1,r:'common',d:u=>`Deal ${u?4:3} damage 3 times.`,p:u=>atk(u?4:3,'energy',{n:3})},
+  arc:{n:'Arc Repeater',t:'weapon',dt:'shock',c:0,r:'common',d:u=>`Deal ${u?5:3} damage.`,p:u=>atk(u?5:3,'shock')},
+  hip:{n:'Hip Fire',t:'weapon',dt:'kinetic',c:0,r:'common',d:u=>`Deal ${u?5:3} damage. Draw 1.`,p:u=>{atk(u?5:3,'kinetic');draw(1)}},
+  saber:{n:'Plasma Saber',t:'weapon',dt:'plasma',c:1,r:'common',d:u=>`Deal ${u?10:8} damage. Gain ${u?4:3} Shield.`,p:u=>{atk(u?10:8,'plasma');gainShield(u?4:3)}},
+  cutter:{n:'Plasma Cutter',t:'weapon',dt:'plasma',c:2,r:'common',d:u=>`Deal ${u?14:11} damage. Apply ${u?3:2} Burn.`,p:u=>{atk(u?14:11,'plasma');addE('burn',u?3:2)}},
+  thermite:{n:'Thermite Charge',t:'weapon',dt:'plasma',c:1,r:'common',d:u=>`Apply ${u?7:5} Burn.`,p:u=>addE('burn',u?7:5)},
+  lance:{n:'Ion Lance',t:'weapon',dt:'shock',c:2,r:'uncommon',d:u=>`Destroy the bounty's Shield, then deal ${u?14:10} damage.`,p:u=>{const e=C().enemy;if(e.shield){e.shield=0;fl('foe','SHIELD DOWN','f-shield')}atk(u?14:10,'shock')}},
+  marks:{n:'Marksman Rifle',t:'weapon',dt:'kinetic',c:2,r:'uncommon',d:u=>`Deal ${u?16:12} damage. Double if the bounty is Marked.`,p:u=>atk(u?16:12,'kinetic',{mult:C().enemy.st.marked>0?2:1})},
+  overch:{n:'Overcharged Shot',t:'weapon',dt:'energy',c:2,r:'uncommon',d:u=>`Deal ${u?10:8} damage, +${u?4:3} per Intel played this fight${C()?` (${C().intelPlayed})`:''}.`,p:u=>atk((u?10:8)+(u?4:3)*C().intelPlayed,'energy')},
+  chain:{n:'Chain Lightning',t:'weapon',dt:'shock',c:2,r:'uncommon',d:u=>`Deal ${u?7:6} damage twice. Apply ${u?2:1} Jammed.`,p:u=>{atk(u?7:6,'shock',{n:2});addE('jammed',u?2:1)}},
+  neutron:{n:'Neutron Cannon',t:'weapon',dt:'energy',c:3,r:'rare',d:u=>`Deal ${u?26:20} damage. Apply ${u?3:2} Exposed.`,p:u=>{atk(u?26:20,'energy');addE('exposed',u?3:2)}},
+  rail:{n:'Railgun',t:'weapon',dt:'kinetic',c:3,r:'rare',d:u=>`Deal ${u?32:24} damage. Ignores Shield.`,p:u=>atk(u?32:24,'kinetic',{pierce:true})},
+  disint:{n:'Disintegrator',t:'weapon',dt:'plasma',c:2,r:'rare',ex:1,d:u=>`Deal ${u?24:18} damage. Apply ${u?5:4} Burn. Exhaust.`,p:u=>{atk(u?24:18,'plasma');addE('burn',u?5:4)}},
+  /* gadgets */
+  deflector:{n:'Deflector',t:'gadget',c:1,r:'starter',d:u=>`Gain ${u?8:5} Shield.`,p:u=>gainShield(u?8:5)},
+  cuffs:{n:'Stasis Cuffs',t:'gadget',c:1,r:'starter',
+    d:u=>{const p=capPct(u);return C()?`Capture the bounty if its Hull is ${Math.floor(C().enemy.max*p/100)} or less (${p}%). Otherwise deal 4 damage.`:`Capture the bounty at ${p}% Hull or less, +10% once its weakness is revealed. Otherwise deal 4.`},
+    p:u=>{const e=C().enemy;if(e.hp<=Math.floor(e.max*capPct(u)/100))win('capture');else{fl('foe','BREAKS FREE','f-dim');atk(4,'kinetic')}}},
+  barrier:{n:'Hardlight Barrier',t:'gadget',c:2,r:'common',d:u=>`Gain ${u?16:12} Shield.`,p:u=>gainShield(u?16:12)},
+  jet:{n:'Jetpack Burst',t:'gadget',c:1,r:'common',d:u=>`Gain ${u?6:4} Shield. Draw 2.`,p:u=>{gainShield(u?6:4);draw(2)}},
+  smoke:{n:'Smoke Canister',t:'gadget',c:1,r:'common',d:u=>`Apply ${u?3:2} Jammed. Gain ${u?5:3} Shield.`,p:u=>{addE('jammed',u?3:2);gainShield(u?5:3)}},
+  grav:{n:'Grav Mine',t:'gadget',c:1,r:'common',d:u=>`Apply ${u?3:2} Exposed.`,p:u=>addE('exposed',u?3:2)},
+  cell:{n:'Energy Cell',t:'gadget',c:0,r:'common',ex:1,d:u=>`Gain ${u?2:1} Energy. Draw 1. Exhaust.`,p:u=>{C().energy+=u?2:1;draw(1)}},
+  flash:{n:'Flashbang',t:'gadget',c:u=>u?0:1,r:'uncommon',ex:1,d:()=>`Stun the bounty: it skips its next action. Exhaust.`,p:()=>{C().enemy.st.stun=1;fl('foe','STUNNED','f-dim')}},
+  stim:{n:'Med-Stim',t:'gadget',c:1,r:'uncommon',ex:1,d:u=>`Heal ${u?9:6} Hull. Exhaust.`,p:u=>healP(u?9:6)},
+  decoy:{n:'Holo-Decoy',t:'gadget',c:u=>u?0:1,r:'uncommon',d:()=>`Gain Shield equal to the damage the bounty intends to deal${C()?` (${intentDmg()})`:''}.`,p:()=>gainShield(intentDmg())},
+  overclock:{n:'Overclock',t:'gadget',c:1,r:'uncommon',ex:1,d:u=>`Install: your attacks deal +${u?3:2} damage this fight.`,p:u=>install('overclock',u?3:2)},
+  swarm:{n:'Nano-Repair Swarm',t:'gadget',c:2,r:'uncommon',ex:1,d:u=>`Install: gain ${u?6:4} Shield at the start of each turn.`,p:u=>install('swarm',u?6:4)},
+  drone:{n:'Combat Drone',t:'gadget',c:2,r:'rare',ex:1,d:u=>`Install: at the end of your turn, deal ${u?8:5} Energy damage.`,p:u=>install('drone',u?8:5)},
+  /* intel */
+  scan:{n:'Scan Pulse',t:'intel',c:0,r:'starter',d:u=>`Reveal the bounty's weakness. Draw ${u?2:1}.`,p:u=>{reveal();draw(u?2:1)}},
+  dossier:{n:'Dossier Leak',t:'intel',c:1,r:'common',d:u=>`Reveal the bounty's weakness. Apply ${u?5:3} Marked.`,p:u=>{reveal();addE('marked',u?5:3)}},
+  thermal:{n:'Thermal Scope',t:'intel',c:1,r:'common',d:u=>`Strip Cloak. Apply ${u?3:2} Marked. Draw 1.`,p:u=>{const e=C().enemy;if(e.st.cloaked){e.st.cloaked=0;fl('foe','CLOAK STRIPPED','f-intel')}addE('marked',u?3:2);draw(1)}},
+  predict:{n:'Pattern Read',t:'intel',c:1,r:'common',d:u=>`Apply ${u?3:2} Exposed. Draw 1.`,p:u=>{addE('exposed',u?3:2);draw(1)}},
+  tip:{n:'Informant Tip',t:'intel',c:0,r:'uncommon',ex:1,d:u=>`Reveal the bounty's weakness. Gain ${u?2:1} Energy. Exhaust.`,p:u=>{reveal();C().energy+=u?2:1}},
+  analysis:{n:'Tactical Analysis',t:'intel',c:1,r:'uncommon',d:u=>`Draw ${u?4:3}.`,p:u=>draw(u?4:3)},
+  exploit:{n:'Weak Point Exploit',t:'intel',dt:'adaptive',c:1,r:'uncommon',d:u=>`Deal ${u?8:5} damage, +3 per Marked on the bounty. Always hits a revealed weakness.`,p:u=>{const e=C().enemy;atk((u?8:5)+3*(e.st.marked||0),e.revealed?e.weak:'kinetic')}},
+  profile:{n:'Psych Profile',t:'intel',c:1,r:'uncommon',d:u=>`The bounty loses ${u?3:2} Rage. Apply ${u?3:2} Jammed.`,p:u=>{const e=C().enemy;e.st.rage=(e.st.rage||0)-(u?3:2);addE('jammed',u?3:2)}},
+  biolock:{n:'Bio-Signature Lock',t:'intel',c:u=>u?0:1,r:'rare',ex:1,d:()=>`Install: every weapon hit applies 1 Marked.`,p:()=>{C().installs.biolock=1}},
+  killorder:{n:'Kill Order',t:'intel',c:u=>u?1:2,r:'rare',ex:1,d:()=>`Reveal the bounty's weakness. Apply 2 Exposed and 4 Marked. Exhaust.`,p:()=>{reveal();addE('exposed',2);addE('marked',4)}},
+};
+
+const HUNTERS={
+  kessa:{n:'Kessa Vane',alias:'The Quickdraw',mono:'KV',hue:32,hp:72,gear:'holster',style:'Fast, weapon-heavy',flavor:'Belt-born gunslinger. Fastest trigger this side of the Rim, and she will tell you so.',deck:['blaster','blaster','blaster','twin','slug','deflector','deflector','deflector','deflector','scan','cuffs']},
+  brakk:{n:'Brakk-9',alias:'The Juggernaut',mono:'B9',hue:205,hp:88,gear:'plating',style:'Durable, shock and shields',flavor:'Decommissioned enforcer cyborg. Walks through gunfire on purpose.',deck:['slug','slug','slug','baton','baton','deflector','deflector','deflector','deflector','scan','cuffs']},
+  nyx:{n:'Nyx Orrin',alias:'The Ghostwire',mono:'NO',hue:272,hp:64,gear:'uplink',style:'Intel and Marked targets',flavor:'Data thief turned tracker. Reads a mark’s file before the mark has finished writing it.',deck:['blaster','blaster','blaster','arc','deflector','deflector','deflector','scan','dossier','predict','cuffs']},
+  seraph:{n:'Seraph Ix',alias:'The Warden',mono:'SI',hue:160,hp:70,gear:'shackles',style:'Live captures',flavor:'Former prison-moon jailer. Brings them back breathing, every time.',unlock:900,deck:['slug','slug','baton','saber','deflector','deflector','deflector','smoke','scan','cuffs','cuffs']},
+};
+
+const M=(n,...fx)=>({n,fx});
+const BOUNTIES={
+  /* Sector 1 */
+  grubb:{n:'Grubb Malloy',alias:'Nebula-salt smuggler',crime:'Ran contraband through Customs Ring 4.',mono:'GM',hue:38,hp:40,weak:'shock',terms:'DOA',reward:30,rep:12,trait:{},tt:'None on file. Grubb is mostly talk.',
+    pat:[M('Shiv',['atk',7]),M('Duck Behind Crates',['shield',7],['atk',3]),M('Pocket Sand',['atk',5],['apply','jammed',2])]},
+  vex:{n:'Vex Tallow',alias:'Scrapyard raider',crime:'Stripped colony relays for copper.',mono:'VT',hue:14,hp:44,weak:'plasma',terms:'DOA',reward:32,rep:13,trait:{shield:8},tt:'Scrap Armor: starts with 8 Shield.',
+    pat:[M('Rivet Gun',['atk',4,2]),M('Scrap Hammer',['atk',10]),M('Weld Plating',['shield',8],['rage',1])]},
+  k77:{n:'Unit K-77',alias:'Rogue mining droid',crime:'Fled Helix Mining with a stolen ore core.',mono:'K7',hue:190,hp:50,weak:'shock',terms:'ALIVE',reward:38,rep:15,trait:{mech:1},tt:'Mechanical: immune to Burn. Helix wants it intact.',
+    pat:[M('Spin Up',['shield',10]),M('Drill Slam',['atk',13]),M('Ore Spray',['atk',3,3])]},
+  mirelle:{n:'Sister Mirelle',alias:'Cult recruiter',crime:'Psionic coercion on three mining moons.',mono:'SM',hue:305,hp:38,weak:'kinetic',terms:'DOA',reward:34,rep:14,trait:{},tt:'Psionic: leaves you Exposed.',
+    pat:[M('Whisper',['atk',4],['apply','exposed',2]),M('Psi Lash',['atk',9]),M('Commune',['heal',6],['rage',1])]},
+  dex:{n:'Dex "Two-Tongues" Barro',alias:'Con artist',crime:'Sold the same moon to four buyers.',mono:'DB',hue:56,hp:42,weak:'energy',terms:'ALIVE',reward:36,rep:14,trait:{},tt:'Slippery: jams your aim. His buyers want him talking.',
+    pat:[M('Hold-out Pistol',['atk',6]),M('Feint',['shield',5],['apply','jammed',2]),M('Double Tap',['atk',5,2])]},
+  okk:{n:'The Okk Brothers',alias:'Twin-hulled brawlers',crime:'Wrecked six cantinas and one police cruiser.',mono:'OK',hue:95,hp:80,weak:'energy',terms:'DOA',reward:70,rep:30,trait:{thorns:2},tt:'Spiked Hide: you take 2 damage for every hit you land.',
+    pat:[M('Double Haymaker',['atk',6,2]),M('Headbutt',['atk',13]),M('Brotherly Roar',['shield',10],['rage',2])]},
+  rook:{n:'Mama Rook',alias:'Queen of the Rust Belt',crime:'Runs every chop-shop from here to the Rim.',mono:'MR',hue:22,hp:130,weak:'plasma',terms:'DOA',reward:130,rep:80,trait:{},tt:'At half Hull she overloads her reactor: +3 Rage and 20 Shield.',
+    pat:[M('Scrap Cannon',['atk',14]),M('Rust Grenade',['atk',4],['apply','burn',4]),M('Call the Boys',['atk',4,3]),M('Junk Wall',['shield',14])],
+    p2:{at:.5,msg:'Mama Rook overloads her reactor',fx:[['rage',3],['shield',20]]}},
+  /* Sector 2 */
+  silk:{n:'Silk Arrandi',alias:'Identity thief',crime:'Wore eleven faces through the Core exchange.',mono:'SA',hue:325,hp:60,weak:'energy',terms:'DOA',reward:55,rep:26,trait:{},tt:'Holo-cloak: vanishes every few turns and takes half damage.',
+    pat:[M('Vanish',['cloak'],['shield',6]),M('Stiletto',['atk',7,2]),M('Poisoned Kiss',['atk',10],['apply','jammed',2])]},
+  gorr:{n:'Gorr the Hollow',alias:'Mercenary',crime:'Broke a siege contract and kept the deposit.',mono:'GH',hue:8,hp:76,weak:'shock',terms:'ALIVE',reward:60,rep:28,trait:{},tt:'Hired muscle: hits hard, then digs in.',
+    pat:[M('Gauss Rifle',['atk',16]),M('Hunker Down',['shield',12]),M('Suppressing Fire',['atk',4,3],['apply','exposed',2])]},
+  echo:{n:'SYNTH-Echo',alias:'Rogue AI',crime:'Copied itself into a bank and declared sovereignty.',mono:'SE',hue:180,hp:64,weak:'kinetic',terms:'DOA',reward:58,rep:27,trait:{mech:1,regen:4},tt:'Self-repairing: heals 4 Hull each turn. Mechanical: immune to Burn.',
+    pat:[M('Laser Grid',['atk',6,2]),M('Recompile',['shield',10],['rage',2]),M('Overload',['atk',15])]},
+  plume:{n:'Doctor Plume',alias:'Black-market biohacker',crime:'Sold unlicensed organs. Some were his patients’.',mono:'DP',hue:120,hp:62,weak:'plasma',terms:'ALIVE',reward:62,rep:28,trait:{},tt:'Toxins: coats you in Burn and patches himself up.',
+    pat:[M('Toxin Dart',['atk',3],['apply','burn',5]),M('Bone Saw',['atk',12]),M('Self-Graft',['heal',8],['shield',6])]},
+  rhea:{n:'Rhea Kestrel',alias:'Getaway pilot',crime:'Forty-one jobs, zero arrests.',mono:'RK',hue:215,hp:58,weak:'kinetic',terms:'DOA',reward:54,rep:25,trait:{},tt:'Evasive: cloaks after a strafing run.',
+    pat:[M('Strafing Run',['atk',5,3]),M('Evasive Roll',['cloak'],['shield',4]),M('Ramming Speed',['atk',15])]},
+  draeg:{n:'Captain Ilsa Draeg',alias:'Pirate admiral',crime:'Took a whole convoy and ransomed it by the crate.',mono:'ID',hue:350,hp:120,weak:'kinetic',terms:'DOA',reward:100,rep:50,trait:{shield:15},tt:'Deflector Grid: starts with 15 Shield and keeps rebuilding it.',
+    pat:[M('Broadside',['atk',8,2]),M('Deflector Grid',['shield',18]),M('Boarding Axe',['atk',18]),M('Rally the Crew',['rage',3])]},
+  vorhees:{n:'Kaal Vorhees',alias:'Velvet Syndicate enforcer',crime:'Collects debts for the Syndicate. Nobody stays in debt.',mono:'KV',hue:285,hp:200,weak:'energy',terms:'DOA',reward:200,rep:150,trait:{},tt:'Cloaks often. At half Hull he sheds his coat: +4 Rage.',
+    pat:[M('Shadow Step',['cloak'],['atk',8]),M('Velvet Hammer',['atk',21]),M('Syndicate Debt',['atk',4],['apply','exposed',2],['apply','jammed',2]),M('Bodyguards',['shield',16],['atk',6])],
+    p2:{at:.5,msg:'Vorhees sheds his coat',fx:[['rage',4]]}},
+  /* Sector 3 */
+  xith:{n:'Xith Swarm-Mind',alias:'Hive intelligence',crime:'Ate a research station. Kept the research.',mono:'XS',hue:75,hp:88,weak:'plasma',terms:'ALIVE',reward:85,rep:42,trait:{regen:3},tt:'Regrowth: heals 3 Hull each turn. The xenobiologists want it alive.',
+    pat:[M('Swarm',['atk',3,5]),M('Chitin Shell',['shield',14]),M('Neural Shriek',['apply','jammed',2],['apply','exposed',2])]},
+  nullw:{n:'Warden Null',alias:'Escaped prison AI',crime:'Locked its own guards in and walked out.',mono:'WN',hue:200,hp:96,weak:'shock',terms:'ALIVE',reward:90,rep:44,trait:{mech:1,shield:12},tt:'Mechanical: immune to Burn. Starts with 12 Shield.',
+    pat:[M('Lockdown',['shield',20]),M('Correction Beam',['atk',20]),M('Taser Net',['atk',8],['apply','jammed',2])]},
+  rider:{n:'The Pale Rider',alias:'Ghost-ship assassin',crime:'Nineteen confirmed contracts. No witnesses.',mono:'PR',hue:230,hp:82,weak:'kinetic',terms:'DOA',reward:88,rep:45,trait:{},tt:'Fades from sight, then strikes harder each time.',
+    pat:[M('Fade',['cloak'],['rage',2]),M('Void Blade',['atk',9,2]),M('Execution',['atk',22])]},
+  kade:{n:'Oberon Kade',alias:'Warlord in exile',crime:'Lost a war and is recruiting for another.',mono:'OK',hue:0,hp:92,weak:'energy',terms:'DOA',reward:86,rep:43,trait:{},tt:'Builds Rage quickly. End it fast.',
+    pat:[M('War Cry',['rage',3],['shield',8]),M('Cleave',['atk',14]),M('Grenade Belt',['atk',6],['apply','burn',6])]},
+  vesk:{n:'Lady Vesk',alias:'Psionic duelist',crime:'Killed a senator in a duel he did not agree to.',mono:'LV',hue:310,hp:84,weak:'kinetic',terms:'ALIVE',reward:92,rep:46,trait:{thorns:3},tt:'Mirror Mind: you take 3 damage for every hit you land.',
+    pat:[M('Mind Spike',['atk',11],['apply','exposed',2]),M('Mirror Guard',['shield',16]),M('Psi Storm',['atk',5,4])]},
+  hydra:{n:'Mother Hydra',alias:'Escaped bio-weapon',crime:'Classified. The reward is not.',mono:'MH',hue:140,hp:160,weak:'plasma',terms:'DOA',reward:140,rep:80,trait:{regen:6},tt:'Regrowth: heals 6 Hull each turn.',
+    pat:[M('Tendril Whip',['atk',7,3]),M('Spore Cloud',['apply','burn',6],['apply','jammed',2]),M('Maw',['atk',25]),M('Regrow',['shield',15],['heal',10])]},
+  eclipse:{n:'The Eclipse',alias:'Most wanted being in the known universe',crime:'Extinguished the star Ossa-9 and everything orbiting it.',mono:'EC',hue:262,hp:300,weak:'shock',terms:'DOA',reward:400,rep:500,trait:{},tt:'At half Hull its weakness shifts and must be revealed again.',
+    pat:[M('Event Horizon',['atk',10,2]),M('Collapse Star',['shield',24],['rage',2]),M('Gravity Lance',['atk',26]),M('Dark Bloom',['atk',6],['apply','exposed',2],['apply','jammed',2])],
+    p2:{at:.5,weak:'plasma',msg:'The Eclipse folds inward. Its weakness has shifted',fx:[['rage',2],['shield',25]],
+      pat:[M('Supernova',['atk',30]),M('Null Field',['cloak'],['shield',20]),M('Starfall',['atk',7,4]),M('Entropy',['atk',10],['apply','burn',8])]}},
+};
+const SECTORS=[
+  {n:'The Rim Outposts',d:'Dust towns, ore haulers and low-grade crooks. A good place to earn a license.',pool:['grubb','vex','k77','mirelle','dex'],elite:'okk',boss:'rook'},
+  {n:'Neon Core',d:'Corporate arcologies where the criminals wear suits and carry cloaks.',pool:['silk','gorr','echo','plume','rhea'],elite:'draeg',boss:'vorhees'},
+  {n:'The Deep Void',d:'Past the last beacon. The marks out here are the reason the guild exists.',pool:['xith','nullw','rider','kade','vesk'],elite:'hydra',boss:'eclipse'},
+];
+const NODEINFO={
+  shop:{n:'Black Market',tag:'Trade',d:'Buy weapons, gadgets, intel and gear. Purge a card you no longer want.'},
+  dock:{n:'Repair Dock',tag:'Rest',d:'Patch your Hull, or mod one card permanently.'},
+  contact:{n:'Unknown Contact',tag:'Encounter',d:'Someone wants a word. Could be a lead, could be trouble.'},
+};
+const RANKS=[[0,'Rookie'],[150,'Licensed Tracker'],[400,'Bounty Hunter'],[900,'Veteran Hunter'],[1800,'Elite Hunter'],[3500,'Legend of the Lanes'],[6001,'Greatest in the Universe']];
+const RIVALS=[['Zar the Undying',6000],['Mags Okonkwo',3800],['The Brass Saint',2200],['Juno Fairweather',1200],['Pell "Lucky" Dram',600],['Krix of Nowhere',250]];
+
+const EVENTS=[
+  {id:'informant',t:'The Informant',x:'A jittery Vyrrian slides into your booth at the Last Light cantina. "I know things about your marks. Things that make them bleed easier."',o:[
+    {l:'Pay 35 credits',s:'Gain Informant Tip+.',ok:()=>S.run.credits>=35,f:()=>{S.run.credits-=35;addCard('tip',true);return 'He whispers three names and a comm frequency. Informant Tip+ added to your deck.'}},
+    {l:'Lean on him',s:'Gain Dossier Leak. Take 7 damage.',f:()=>{hurt(7);addCard('dossier');return 'His friends object. You walk out bruised, holding his datapad. Dossier Leak added to your deck.'}},
+    {l:'Leave',s:'Nothing happens.',f:()=>'You finish your drink and go.'}]},
+  {id:'derelict',t:'Derelict Freighter',x:'A cargo hauler drifts dark off the shipping lane, hull scorched by someone else’s argument.',o:[
+    {l:'Search the hold',s:'Take 10 damage. Gain a random piece of gear.',f:()=>{hurt(10);const g=rollGear();if(!g){S.run.credits+=60;return 'The defense turrets sting, and the hold is empty except for 60 credits in loose chips.'}S.run.gear.push(g);return `Automated turrets sting you on the way in, but you pry loose a ${GEAR[g].n}. ${GEAR[g].d}`}},
+    {l:'Strip it for parts',s:'Gain 45 credits.',f:()=>{S.run.credits+=45;return 'An hour with a cutting torch nets 45 credits of salvage.'}},
+    {l:'Leave it',s:'Nothing happens.',f:()=>'You log the coordinates and move on.'}]},
+  {id:'rival',t:'A Rival Hunter',x:'Pell "Lucky" Dram leans on your boarding ramp. "Split the next job? You do the work, I take the bow. Generous of me, really."',o:[
+    {l:'Take the deal',s:'Gain 60 credits. Lose 10 reputation.',f:()=>{S.run.credits+=60;S.run.rep-=10;return 'Pell pays up front and tells everyone the collar was his.'}},
+    {l:'Tell him off in front of the guild',s:'Gain 20 reputation. Take 8 damage.',f:()=>{S.run.rep+=20;hurt(8);return 'It becomes a bar fight. You win it, mostly. People are talking.'}},
+    {l:'Ignore him',s:'Nothing happens.',f:()=>'You close the ramp on his speech.'}]},
+  {id:'surgeon',t:'Back-Alley Chromesmith',x:'A surgeon with six hands and no license offers to reinforce your frame. The table looks mostly clean.',o:[
+    {l:'Full refit for 60 credits',s:'+10 max Hull and heal 10.',ok:()=>S.run.credits>=60,f:()=>{S.run.credits-=60;S.run.maxHp+=10;healP(10);return 'You wake up heavier and harder to kill.'}},
+    {l:'Patch job for 25 credits',s:'+4 max Hull and heal 4.',ok:()=>S.run.credits>=25,f:()=>{S.run.credits-=25;S.run.maxHp+=4;healP(4);return 'A few plates bolted on. It will hold.'}},
+    {l:'Decline',s:'Nothing happens.',f:()=>'You keep your original parts.'}]},
+  {id:'terminal',t:'Guild Terminal',x:'An old Hunters’ Guild terminal still accepts your access code. It offers to rework your loadout.',o:[
+    {l:'Purge a card',s:'Remove one card from your deck.',f:()=>{S.pick={mode:'remove',from:'event'};return null}},
+    {l:'Download combat mods',s:'Upgrade 2 random cards.',f:()=>{const c=shuffle(S.run.deck.filter(c=>!c.up)).slice(0,2);c.forEach(x=>x.up=true);return c.length?`Modded: ${c.map(x=>CARDS[x.id].n+'+').join(' and ')}.`:'Everything you carry is already modded.'}},
+    {l:'Log off',s:'Nothing happens.',f:()=>'You wipe your access trail and leave.'}]},
+  {id:'beacon',t:'Distress Beacon',x:'A family transport is venting atmosphere. The pirates who did it are still circling.',o:[
+    {l:'Run off the pirates',s:'Take 12 damage. Gain 35 reputation.',f:()=>{hurt(12);S.run.rep+=35;return 'You take a few hits driving them off. The family tells the story at every port they reach.'}},
+    {l:'Wait, then loot the wreck',s:'Gain 55 credits. Lose 15 reputation.',f:()=>{S.run.credits+=55;S.run.rep-=15;return 'The cargo was worth 55 credits. Word of what you did travels too.'}},
+    {l:'Fly past',s:'Nothing happens.',f:()=>'Not your contract.'}]},
+  {id:'crate',t:'Prototype Crate',x:'A defense contractor’s crate fell off a transport. The lock is still blinking.',o:[
+    {l:'Force it open',s:'Take 6 damage. Gain a random rare card.',f:()=>{hurt(6);const id=pick(Object.keys(CARDS).filter(k=>CARDS[k].r==='rare'));addCard(id);return `The lock bites back. Inside: ${CARDS[id].n}. Added to your deck.`}},
+    {l:'Sell it unopened',s:'Gain 40 credits.',f:()=>{S.run.credits+=40;return 'A fence takes it for 40 credits, no questions.'}}]},
+];
+
+/* ================= STATE ================= */
+let S=null, busy=false, modal=null;
+const fxQ=[];
+const KEY='voidwarrant.v1';
+function fresh(){return {screen:'title',career:{rep:0,runs:0,wins:0,best:0},run:null,combat:null,reward:null,shop:null,event:null,pick:null,end:null,resume:null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||'null');return s&&s.career?s:null}catch(e){return null}}
+const C=()=>S&&S.combat;
+const hasGear=id=>!!(S.run&&S.run.gear.includes(id));
+function rankOf(rep){let i=0;for(let k=0;k<RANKS.length;k++)if(rep>=RANKS[k][0])i=k;return {i,name:RANKS[i][1],floor:RANKS[i][0],next:RANKS[i+1]||null}}
+
+/* ================= RUN ================= */
+function newRun(hid){
+  const h=HUNTERS[hid];
+  S.run={hunter:hid,hp:h.hp,maxHp:h.hp,credits:50,rep:0,deck:h.deck.map(id=>mk(id)),gear:[h.gear],sector:0,floor:0,nodes:[],caught:[],seen:[],notice:null};
+  S.combat=S.reward=S.shop=S.event=S.pick=S.end=null;
+  genFloor();S.screen='board';render();
+}
+function wpick(w){const tot=w.reduce((a,x)=>a+x[1],0);let r=Math.random()*tot;for(const [k,v] of w){if((r-=v)<0)return k}return w[0][0]}
+function genFloor(){
+  const r=S.run,sec=SECTORS[r.sector];
+  if(r.floor===5){r.nodes=[{type:'boss',bid:sec.boss}];return}
+  const used=[];
+  const nb=()=>{let o=sec.pool.filter(b=>!r.caught.includes(b)&&!used.includes(b));if(!o.length)o=sec.pool.filter(b=>!used.includes(b));const b=pick(o);used.push(b);return b};
+  let types;
+  if(r.floor===0)types=['bounty','bounty','bounty'];
+  else{
+    types=[];const eliteOk=r.floor>=2&&!r.caught.includes(sec.elite);
+    const w=[['bounty',44],['elite',eliteOk?17:0],['shop',13],['dock',13],['contact',14]];
+    while(types.length<3){const t=wpick(w);if(t!=='bounty'&&types.includes(t))continue;types.push(t)}
+    if(r.floor===4&&!types.includes('dock'))types[2]='dock';
+    if(!types.some(t=>t==='bounty'||t==='elite'))types[0]='bounty';
+  }
+  r.nodes=types.map(t=>t==='bounty'?{type:t,bid:nb()}:t==='elite'?{type:t,bid:sec.elite}:{type:t});
+}
+function enterNode(i){
+  const n=S.run.nodes[i];if(!n)return;
+  S.run.notice=null;
+  if(n.bid){startCombat(n.bid,n.type);return}
+  if(n.type==='shop'){genShop();S.screen='shop'}
+  else if(n.type==='dock')S.screen='dock';
+  else{
+    let o=EVENTS.filter(e=>!S.run.seen.includes(e.id));if(!o.length){S.run.seen=[];o=EVENTS}
+    const e=pick(o);S.run.seen.push(e.id);S.event={id:e.id,result:null};S.screen='event';
+  }
+  render();
+}
+function afterNode(){
+  const r=S.run;S.reward=S.shop=S.event=S.pick=null;
+  r.floor++;r.notice=null;
+  if(r.floor>5){
+    r.sector++;r.floor=0;
+    if(r.sector>2){endRun(true);return}
+    const heal=Math.round((r.maxHp-r.hp)*.6);r.hp+=heal;
+    r.notice=`Jumped to ${SECTORS[r.sector].n}. Your ship's medbay restored ${heal} Hull on the way.`;
+  }
+  genFloor();S.screen='board';render();
+}
+function addCard(id,up=false){S.run.deck.push(mk(id,up))}
+function hurt(n){S.run.hp=Math.max(1,S.run.hp-n)}
+function healP(n){const r=S.run,b=r.hp;r.hp=Math.min(r.maxHp,r.hp+n);if(C()&&r.hp>b)fl('me','+'+(r.hp-b),'f-heal')}
+function rollCards(kind,n=3){
+  const pool=Object.keys(CARDS).filter(k=>CARDS[k].r!=='starter');
+  const w=kind==='bounty'?[60,32]:[35,40];const out=[];let g=0;
+  while(out.length<n&&g++<300){const x=Math.random()*100;const r=x<w[0]?'common':x<w[0]+w[1]?'uncommon':'rare';const o=pool.filter(k=>CARDS[k].r===r&&!out.includes(k));if(o.length)out.push(pick(o))}
+  return out;
+}
+function rollGear(){const o=Object.keys(GEAR).filter(g=>!GEAR[g].start&&!S.run.gear.includes(g));return o.length?pick(o):null}
+function genShop(){
+  const ids=[];
+  for(const t of ['weapon','weapon','gadget','intel',null]){const o=Object.keys(CARDS).filter(k=>CARDS[k].r!=='starter'&&(!t||CARDS[k].t===t)&&!ids.includes(k));ids.push(pick(o))}
+  const price=id=>({common:48,uncommon:76,rare:130}[CARDS[id].r])+rnd(13)-6;
+  const gear=shuffle(Object.keys(GEAR).filter(g=>!GEAR[g].start&&!S.run.gear.includes(g))).slice(0,2);
+  S.shop={cards:ids.map(id=>({id,price:price(id),sold:false})),gear:gear.map(id=>({id,price:140+rnd(40),sold:false})),removed:false,repaired:false};
+}
+function endRun(won){
+  const r=S.run,c=S.career;const rep=Math.max(0,r.rep);const before=c.rep;
+  c.rep+=rep;c.runs++;if(won)c.wins++;c.best=Math.max(c.best,rep);
+  S.end={won,hunter:r.hunter,rep,before,after:c.rep,credits:r.credits,caught:r.caught.slice(),sector:r.sector,killer:S.combat?S.combat.enemy.id:null};
+  S.run=S.combat=S.reward=S.shop=S.event=S.pick=S.resume=null;
+  S.screen='end';busy=false;modal=null;render();
+}
+
+/* ================= COMBAT ================= */
+function log(s){const c=C();if(!c)return;c.log.push(s);if(c.log.length>5)c.log.shift()}
+function startCombat(bid,kind){
+  const b=BOUNTIES[bid];
+  S.combat={kind,enemy:{id:bid,hp:b.hp,max:b.hp,shield:b.trait.shield||0,st:{},weak:b.weak,revealed:hasGear('scanner'),idx:0,phase:1},
+    p:{shield:0,st:{}},draw:shuffle(S.run.deck.map(c=>({...c}))),hand:[],discard:[],exhaust:[],energy:0,maxE:3,turn:0,wpnTurn:0,intelPlayed:0,installs:{},over:false,result:null,log:[],ctx:{},startHp:S.run.hp,step:'player'};
+  S.screen='combat';busy=false;
+  startTurn();render();
+}
+function curMove(){const e=C().enemy,b=BOUNTIES[e.id];const pat=e.phase===2&&b.p2.pat?b.p2.pat:b.pat;return pat[e.idx%pat.length]}
+function enemyHit(v){const c=C(),e=c.enemy;let d=v+(e.st.rage||0);if(e.st.jammed)d=Math.floor(d*.75);if(c.p.st.exposed)d=Math.floor(d*1.5);if(hasGear('ablative'))d-=1;return Math.max(0,d)}
+function intentDmg(){const c=C();if(!c||c.enemy.st.stun)return 0;let t=0;for(const [k,a,n] of curMove().fx)if(k==='atk')t+=enemyHit(a)*(n||1);return t}
+function capPct(up){let p=25+(up?10:0);if(hasGear('restraint'))p+=10;if(hasGear('shackles'))p+=15;if(C()&&C().enemy.revealed)p+=10;return p}
+function gainShield(n){const c=C();if(!c||c.over||n<=0)return;c.p.shield+=n;fl('me','+'+n+' Shield','f-shield')}
+function install(k,v){const c=C();c.installs[k]=(c.installs[k]||0)+v;fl('me',INSTALLS[k].n+' online','f-shield')}
+function reveal(){const e=C().enemy;if(!e.revealed){e.revealed=true;fl('foe','WEAK TO '+DT[e.weak].toUpperCase(),'f-intel')}}
+function addE(k,v){const c=C();if(!c||c.over)return;const e=c.enemy;if(k==='burn'&&BOUNTIES[e.id].trait.mech){fl('foe','IMMUNE','f-dim');return}e.st[k]=(e.st[k]||0)+v}
+function addP(k,v){const c=C();c.p.st[k]=(c.p.st[k]||0)+v;fl('me',STATUS[k].n+' '+v,'f-dim')}
+function decay(st,keys){for(const k of keys)if(st[k]>0)st[k]--}
+function draw(n){const c=C();if(!c||c.over)return;for(let i=0;i<n;i++){if(c.hand.length>=10)break;if(!c.draw.length){if(!c.discard.length)break;c.draw=shuffle(c.discard);c.discard=[]}c.hand.push(c.draw.pop())}}
+function weaponBonus(){return (C().installs.overclock||0)+(hasGear('stims')?1:0)}
+function atk(base,dt,o={}){
+  const c=C();if(!c||c.over)return;const e=c.enemy;const n=o.n||1;
+  for(let i=0;i<n;i++){
+    if(c.over)return;
+    let d=base+(o.noBonus?0:weaponBonus());
+    if(i===0&&c.ctx.first&&hasGear('holster'))d+=3;
+    if(i===0&&!o.noBonus&&!c.ctx.pow){c.ctx.pow=1;const w=POW[dt]||POW.kinetic;pow(w[0],w[1])}
+    d+=(e.st.marked||0);
+    if(o.mult)d*=o.mult;
+    if(c.p.st.jammed)d=Math.floor(d*.75);
+    const weak=e.revealed&&dt===e.weak;
+    if(weak)d=Math.floor(d*(hasGear('vi')?2:1.5));
+    if(e.st.exposed)d=Math.floor(d*1.5);
+    if(e.st.cloaked)d=Math.floor(d*.5);
+    dmgEnemy(Math.max(0,d),{pierce:o.pierce,weak,dt});
+    if(c.over)return;
+    if(c.installs.biolock&&!o.noBonus)addE('marked',1);
+    if(hasGear('coil')&&dt==='plasma')addE('burn',1);
+    const th=BOUNTIES[e.id].trait.thorns;if(th)dmgPlayer(th);
+  }
+}
+function dmgEnemy(d,o={}){
+  const c=C(),e=c.enemy;
+  if(!o.pierce&&!o.raw&&e.shield>0){const ab=Math.min(e.shield,d);e.shield-=ab;d-=ab;if(ab)fl('foe','blocked '+ab,'f-shield')}
+  if(d>0){e.hp-=d;fl('foe','-'+d+(o.weak?' WEAK POINT':''),o.raw?'f-burn':'f-'+(o.dt||'kinetic'));shake('foe')}
+  if(e.hp<=0){e.hp=0;win('kill');return}
+  const b=BOUNTIES[e.id];
+  if(b.p2&&e.phase===1&&e.hp<=e.max*b.p2.at){
+    e.phase=2;e.idx=0;
+    if(b.p2.weak){e.weak=b.p2.weak;e.revealed=hasGear('scanner')}
+    doMove({fx:b.p2.fx||[]});banner(b.p2.msg);log(b.p2.msg+'.');
+  }
+}
+function dmgPlayer(d,o={}){
+  const c=C();if(c.over)return;
+  if(!o.raw&&c.p.shield>0){const ab=Math.min(c.p.shield,d);c.p.shield-=ab;d-=ab;if(ab)fl('me','blocked '+ab,'f-shield')}
+  if(d>0){S.run.hp-=d;fl('me','-'+d,o.raw?'f-burn':'f-hurt');shake('me')}
+  if(S.run.hp<=0){S.run.hp=0;lose()}
+}
+function doMove(m){
+  const c=C(),e=c.enemy;
+  for(const [k,a,b] of m.fx){
+    if(c.over)return;
+    if(k==='atk'){for(let i=0;i<(b||1);i++){if(c.over)return;const d=enemyHit(a);if(d>0||c.p.shield>0)dmgPlayer(d);else fl('me','0','f-dim')}}
+    else if(k==='shield'){e.shield+=a;fl('foe','+'+a+' Shield','f-shield')}
+    else if(k==='rage'){e.st.rage=(e.st.rage||0)+a;fl('foe','Rage +'+a,'f-hurt')}
+    else if(k==='apply')addP(a,b);
+    else if(k==='heal'){const h=Math.min(a,e.max-e.hp);e.hp+=h;if(h)fl('foe','+'+h,'f-heal')}
+    else if(k==='cloak'){e.st.cloaked=2;fl('foe','CLOAKED','f-dim')}
+  }
+}
+function startTurn(){
+  const c=C();c.turn++;c.wpnTurn=0;c.step='player';c.p.shield=0;
+  if(c.turn===1&&hasGear('boots'))c.p.shield+=8;
+  if(hasGear('plating'))c.p.shield+=3;
+  if(c.installs.swarm)c.p.shield+=c.installs.swarm;
+  if(c.p.st.burn>0){dmgPlayer(c.p.st.burn,{raw:true});c.p.st.burn--;if(c.over)return}
+  c.maxE=3+(c.turn===1&&hasGear('cell1')?1:0);c.energy=c.maxE;
+  draw(5+(c.turn===1&&hasGear('extmag')?2:0));
+}
+const costOf=inst=>{const c=CARDS[inst.id].c;return typeof c==='function'?c(inst.up):c};
+function playCard(i){
+  const c=C();if(!c||busy||c.over||modal||S.pick)return;
+  const inst=c.hand[i];if(!inst)return;const def=CARDS[inst.id],cost=costOf(inst);
+  if(cost>c.energy){toast('Not enough Energy for '+def.n+'.');return}
+  c.energy-=cost;c.hand.splice(i,1);
+  c.ctx={first:def.t==='weapon'&&c.wpnTurn===0};
+  log('You play '+def.n+(inst.up?'+':'')+'.');
+  def.p(inst.up);
+  c.ctx={};
+  if(def.t==='weapon')c.wpnTurn++;
+  if(def.t==='intel'){c.intelPlayed++;if(hasGear('uplink'))addE('marked',2)}
+  if(!c.over)(def.ex?c.exhaust:c.discard).push(inst);
+  render();
+}
+function endTurn(){
+  const c=C();if(!c||busy||c.over||modal||S.pick)return;
+  busy=true;
+  if(c.installs.drone){atk(c.installs.drone,'energy',{noBonus:true});if(c.over){render();return}}
+  c.discard.push(...c.hand);c.hand=[];
+  decay(c.p.st,['exposed','jammed']);
+  c.step='enemy';render();
+  setTimeout(enemyTurn,520);
+}
+function enemyTurn(){
+  const c=C();if(!c||c.over||c.step!=='enemy')return;
+  const e=c.enemy,b=BOUNTIES[e.id];
+  e.shield=0;
+  if(e.st.burn>0){dmgEnemy(e.st.burn,{raw:true});e.st.burn--;if(c.over){render();return}}
+  if(e.st.stun){e.st.stun=0;log(b.n+' is stunned and loses the turn.')}
+  else{const m=curMove();log(b.n+' uses '+m.n+'.');doMove(m);e.idx++}
+  if(c.over){render();return}
+  if(b.trait.regen&&e.hp<e.max){const h=Math.min(b.trait.regen,e.max-e.hp);e.hp+=h;fl('foe','+'+h,'f-heal')}
+  decay(e.st,['exposed','jammed','marked','cloaked']);
+  c.step='enemyDone';render();
+  setTimeout(()=>{const c2=C();if(!c2||c2.over||c2.step!=='enemyDone')return;startTurn();if(!c2.over)busy=false;render()},560);
+}
+function win(how){const c=C();if(c.over)return;c.over=true;c.result=how;busy=true;if(how==='capture')pow('GOTCHA!',K.teal);banner(how==='capture'?'Captured alive':'Target down','good');setTimeout(()=>{if(C()&&C().over)finishCombat()},1150)}
+function lose(){const c=C();if(c.over)return;c.over=true;c.result='dead';busy=true;banner('Hull breach','bad');setTimeout(()=>{if(C()&&C().over)endRun(false)},1400)}
+function finishCombat(){
+  const c=C(),b=BOUNTIES[c.enemy.id],r=S.run;busy=false;
+  if(c.result==='dead'){endRun(false);return}
+  const captured=c.result==='capture';let cr=b.reward,rp=b.rep;const notes=[];
+  if(b.terms==='ALIVE'){if(captured){cr*=1.5;rp*=1.5;notes.push('Delivered alive as the client asked: pay and reputation up 50%.')}else{cr*=.5;rp*=.5;notes.push('The client wanted this one alive. Half pay, half reputation.')}}
+  else if(captured){cr*=1.3;rp*=1.5;notes.push('Live capture bonus: +30% credits, +50% reputation.')}
+  if(captured&&hasGear('shackles')){cr*=1.25;notes.push('Warden Shackles: +25% credits.')}
+  if(hasGear('chip'))cr*=1.25;if(hasGear('badge'))rp*=1.25;
+  cr=Math.round(cr);rp=Math.round(rp);
+  if(r.hp>=c.startHp){rp+=5;notes.push('Clean job, no Hull lost: +5 reputation.')}
+  r.credits+=cr;r.rep+=rp;r.caught.push(c.enemy.id);
+  if(hasGear('medkit')){r.hp=Math.min(r.maxHp,r.hp+6);notes.push('Nano-Med Kit restored 6 Hull.')}
+  const kind=c.kind,bid=c.enemy.id;S.combat=null;
+  if(bid==='eclipse'){r.rep+=300;endRun(true);return}
+  let gear=null;if(kind!=='bounty'){gear=rollGear();if(gear)r.gear.push(gear)}
+  S.reward={bid,captured,cr,rp,notes,cards:rollCards(kind),taken:null,gear,kind};
+  S.screen='reward';render();
+}
+function resumeCombat(){
+  const c=C();if(!c||S.screen!=='combat')return;
+  if(c.over){finishCombat();return}
+  if(c.step==='enemy'){busy=true;setTimeout(enemyTurn,300)}
+  else if(c.step==='enemyDone'){startTurn();busy=false;render()}
+}
+
+/* ================= FX ================= */
+function fl(t,x,c){fxQ.push({t,x,c})}
+function shake(t){fxQ.push({t,k:'shake'})}
+function pow(x,c){fxQ.push({t:'foe',k:'pow',x,c})}
+function banner(x,c=''){const d=document.createElement('div');d.className='banner '+c;d.textContent=x;$('#fx').appendChild(d);setTimeout(()=>d.remove(),1600)}
+function toast(x){const fx=$('#fx');fx.querySelectorAll('.toast').forEach(t=>t.remove());const d=document.createElement('div');d.className='toast';d.textContent=x;fx.appendChild(d);setTimeout(()=>d.remove(),3300)}
+function flushFx(){
+  const q=fxQ.splice(0);const cnt={};
+  for(const f of q){
+    const el=document.getElementById(f.t);if(!el)continue;
+    if(f.k==='shake'){el.classList.remove('hit');void el.offsetWidth;el.classList.add('hit');continue}
+    const r=el.getBoundingClientRect();
+    if(f.k==='pow'){
+      const d=document.createElement('div');d.className='pow';
+      d.style.left=(r.left+r.width-64)+'px';d.style.top=Math.max(44,r.top+18)+'px';d.style.setProperty('--rot',(rnd(22)-11)+'deg');
+      const b=burst(50,50,49,33,13,.2);
+      d.innerHTML=`<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="${b}" fill="${K.ink}" transform="translate(3 4)"/><path d="${b}" fill="${f.c}" stroke="${K.ink}" stroke-width="2.4" stroke-linejoin="round"/></svg><b>${f.x}</b>`;
+      $('#fx').appendChild(d);setTimeout(()=>d.remove(),850);continue;
+    }
+    const n=cnt[f.t]=(cnt[f.t]||0)+1;
+    const s=document.createElement('div');s.className='float '+f.c;s.textContent=f.x;
+    s.style.left=(r.left+r.width/2+((n%3)-1)*70)+'px';
+    s.style.top=Math.max(20,r.top+40+((n-1)%6)*24)+'px';
+    s.style.animationDelay=(n-1)*80+'ms';
+    $('#fx').appendChild(s);setTimeout(()=>s.remove(),1300+n*80);
+  }
+}
+
+/* ================= ART ================= */
+/* Every illustration is drawn in code: flat pulp colours, black ink outlines, halftone shading. */
+const K={ink:'#17132c',cream:'#f6ecd2',paper:'#f4e7c3',red:'#e8472e',yel:'#f8c33c',teal:'#3cc0b0',blue:'#3f6fd6',navy:'#262a70',purple:'#8a72dc',pink:'#f29ab0',green:'#8fd16a',dgreen:'#4f9d5c',grey:'#bcc5d3',dgrey:'#6a7391',brown:'#7d5535',tan:'#e6c37c',orange:'#f28a3a',s1:'#f5cda6',s2:'#cf9463',s3:'#8f5e3f'};
+const SK=`stroke="${K.ink}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"`;
+const E=(cx,cy,rx,ry,f,x='')=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${f}" ${SK} ${x}/>`;
+const O=(cx,cy,r,f,x='')=>E(cx,cy,r,r,f,x);
+const P=(d,f='none',x='')=>`<path d="${d}" fill="${f}" ${SK} ${x}/>`;
+const R=(x,y,w,h,f,r=0)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${f}" ${SK}/>`;
+const N=(d,f,x='')=>`<path d="${d}" fill="${f}" ${x}/>`;
+const D=(cx,cy,r,f=K.ink)=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${f}"/>`;
+const EL=(cx,cy,rx,ry,f,x='')=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${f}" ${x}/>`;
+const LW=(d,c,w=2,x='')=>`<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${x}/>`;
+const WL=d=>LW(d,'#fff',1.8,'opacity=".85"');
+const SH=(d,op=.32)=>`<path d="${d}" fill="url(#ht)" opacity="${op}"/>`;
+const ZAP=(d,c=K.yel,w=3.4)=>LW(d,K.ink,w+3.2)+LW(d,c,w);
+const G=(t,s)=>`<g transform="${t}">${s}</g>`;
+const TX=(x,y,s,sz,f,fam='Bowlby One,Arial Black,sans-serif')=>`<text x="${x}" y="${y}" text-anchor="middle" font-family="${fam}" font-size="${sz}" fill="${f}">${s}</text>`;
+function burst(cx,cy,r1,r2,n,rot=0){let d='';for(let i=0;i<n*2;i++){const a=rot+Math.PI*i/n,r=i%2?r2:r1;d+=(i?'L':'M')+(cx+Math.cos(a)*r).toFixed(1)+' '+(cy+Math.sin(a)*r).toFixed(1)}return d+'z'}
+function rays(cx,cy,r,n,rot=0){let d='';for(let i=0;i<n;i++){const a=rot+2*Math.PI*i/n,b=a+Math.PI/n;d+=`M${cx} ${cy}L${(cx+Math.cos(a)*r).toFixed(1)} ${(cy+Math.sin(a)*r).toFixed(1)}L${(cx+Math.cos(b)*r).toFixed(1)} ${(cy+Math.sin(b)*r).toFixed(1)}z`}return d}
+function hex(x,y,r){let d='';for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/2;d+=(i?'L':'M')+(x+Math.cos(a)*r).toFixed(1)+' '+(y+Math.sin(a)*r).toFixed(1)}return d+'z'}
+const star4=(x,y,r,f=K.cream)=>N(burst(x,y,r,r*.26,4,-Math.PI/2),f);
+const star5=(x,y,r,f=K.yel)=>P(burst(x,y,r,r*.42,5,-Math.PI/2),f);
+const bolt=(x,y,sc=1,rot=0,f=K.yel)=>G(`translate(${x} ${y}) rotate(${rot}) scale(${sc})`,P('M2-12L-6 2h5l-3 10 9-14h-5z',f));
+const flame=(x,y,sc=1,down=0)=>G(`translate(${x} ${y}) scale(${sc} ${down?-sc:sc})`,P('M-8 0C-14-10-6-14-6-22C-1-18 0-14 1-10C2-16 5-20 4-26C12-18 14-8 8 0z',K.orange)+P('M-4 0C-8-6-2-9-1-14C4-9 7-5 4 0z',K.yel));
+const cloud=(cs,f)=>cs.map(c=>O(c[0],c[1],c[2],f)).join('')+cs.map(c=>D(c[0],c[1],c[2]-1.1,f)).join('');
+const gear=(x,y,r,f)=>P(burst(x,y,r,r*.74,8),f)+D(x,y,r*.32);
+const ring=(x,y,r,c)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="${K.ink}" stroke-width="8.4"/><circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="${c}" stroke-width="4"/>`;
+const hoop=(x,y,rx,ry)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="none" stroke="#fff" stroke-width="1.6" opacity=".75"/>`;
+const rocket=(x,y,rot=0,sc=1,fl=1)=>G(`translate(${x} ${y}) rotate(${rot}) scale(${sc})`,(fl?P('M-10 27Q0 86 10 27z',K.orange)+P('M-6 27Q0 62 6 27z',K.yel):'')+P('M-12 6l-15 26 15-7zM12 6l15 26-15-7z',K.red)+P('M0-46C15-30 16-6 12 22H-12C-16-6-15-30 0-46z',K.cream)+SH('M0-46C15-30 16-6 12 22H3C7-6 6-30 0-46z')+P('M0-46C8-39 11-32 12.6-25H-12.6C-11-32-8-39 0-46z',K.red)+O(0,-9,6,K.teal)+WL('M-3-11l3-2')+R(-13,9,26,5,K.red)+R(-1.8,12,3.6,15,K.red,1)+P('M-7 22h14l3 6H-10z',K.dgrey));
+const saucer=(x,y,sc=1)=>G(`translate(${x} ${y}) scale(${sc})`,P('M-16-3q0-17 16-17t16 17z',K.teal)+WL('M-9-12q3-5 8-6')+E(0,0,31,9.5,K.grey)+SH('M0-9.5A31 9.5 0 0 1 0 9.5A14 9.5 0 0 0 0-9.5z')+D(-22,1,2,K.yel)+D(-10,4.5,2,K.yel)+D(10,4.5,2,K.yel)+D(22,1,2,K.yel));
+
+/* ---- portraits (100 x 100) ---- */
+const RAYS=rays(50,58,90,12,.13);
+const bust=c=>P('M6 104C8 82 28 74 50 74S92 82 94 104z',c);
+const neck=c=>R(43,58,14,18,c);
+const ears=c=>E(31,46,3.2,5,c)+E(69,46,3.2,5,c);
+const face=(c,rx=19,ry=23,cy=44)=>E(50,cy,rx,ry,c)+SH(`M50 ${cy-ry}A${rx} ${ry} 0 0 1 50 ${cy+ry}A${rx*.45} ${ry} 0 0 0 50 ${cy-ry}z`);
+const EY={
+  mean:()=>D(42,44,2.2)+D(58,44,2.2)+P('M37 37l10 3M63 37l-10 3'),
+  lash:()=>E(42,43,4.4,3.2,'#fff')+E(58,43,4.4,3.2,'#fff')+D(42.6,43,2)+D(57.4,43,2)+P('M36 41q6-5 11 0M53 41q5-5 11 0M36 41l-2-2M64 41l2-2'),
+  glow:c=>O(42,43,3.6,c)+O(58,43,3.6,c),
+  squint:()=>P('M38 43h8M54 43h8M38 39l8 1M62 39l-8 1'),
+};
+const nose=()=>P('M50 44l-2.5 7h4.5');
+const MO={smirk:()=>P('M44 58q7 3 12-2'),grim:()=>P('M44 58h12'),smile:()=>P('M43 56q7 6 14 0'),frown:()=>P('M44 59q6-4 12 0'),lips:c=>P('M44 57q3-2.5 6-.5q3-2 6 .5q-6 6-12 0z',c||K.red),teeth:()=>P('M42 55h16v4q-8 4-16 0z','#fff')+P('M46 55v5M50 55v6M54 55v5')};
+const cowboy=(c,band)=>P('M7 31Q30 43 50 35Q70 43 93 31Q72 20 50 24Q28 20 7 31z',c)+P('M33 29C30 5 70 5 67 29Q50 22 33 29z',c)+LW('M33.6 25Q50 19 66.4 25',band,2.6);
+const PORT={
+  kessa:{bg:K.teal,d:()=>P('M31 40C27 58 24 68 18 82l18-8-2-30zM69 40c3 12 8 16 17 15c-7 5-9 13-5 21l-14-6z',K.orange)
+    +bust(K.brown)+P('M38 76l12 14 12-14',K.cream)+neck(K.s1)+P('M36 72q14 9 28 0l-14 17z',K.red)+ears(K.s1)+face(K.s1)+EY.lash()+nose()+MO.smirk()
+    +D(38,50,.9,K.brown)+D(41,52,.9,K.brown)+D(60,51,.9,K.brown)+D(63,49.5,.9,K.brown)
+    +cowboy(K.brown,K.cream)+N(burst(50,14,5.5,2.3,5,-Math.PI/2),K.yel)},
+  brakk:{bg:K.orange,d:()=>P('M4 104V88q0-12 14-14h64q14 2 14 14v16z',K.navy)+R(36,82,28,17,K.grey,3)+TX(50,96,'9',14,K.ink)
+    +R(40,60,20,16,K.s3)+R(29,20,42,48,K.s3,11)+P('M50 20h10q11 0 11 11v26q0 11-11 11H50z',K.grey)+SH('M60 20q11 0 11 11v26q0 11-11 11z')
+    +D(42,44,2.3)+P('M36 38l11 2')+O(60,43,6.5,K.ink)+O(60,43,3.2,K.red)+D(58.8,41.8,1,'#fff')
+    +P('M40 58h10')+P('M54 61v5M58 60v6M62 59v6')+D(54,26,1.2)+D(66,30,1.2)+D(66,54,1.2)
+    +P('M66 22l6-12')+O(73,8,3,K.red)+R(26,40,5,10,K.grey,2)},
+  nyx:{bg:K.pink,d:()=>P('M27 64C22 20 78 20 73 64L64 66V40H36V66z','#3b2a72')
+    +bust(K.ink)+P('M30 82l10-7 6 14zM70 82l-10-7-6 14z',K.teal)+neck(K.s2)+face(K.s2)
+    +P('M31 41C30 15 70 15 69 41Q50 31 31 41z','#3b2a72')
+    +R(30,39,40,8.5,K.teal,3)+WL('M35 41l5 4M43 41l4 4')+P('M48 52h4')+MO.smirk()
+    +O(30,48,4,K.dgrey)+LW('M30 52q2 10 13 9',K.ink,2.4)+D(44,61,2,K.red)+P('M30 30l-6-14')+D(24,15,2.4,K.teal)},
+  seraph:{bg:K.yel,d:()=>`<circle cx="50" cy="38" r="34" fill="none" stroke="${K.ink}" stroke-width="7"/><circle cx="50" cy="38" r="34" fill="none" stroke="${K.cream}" stroke-width="3.6"/>`
+    +bust(K.navy)+E(16,85,10,5,K.yel)+E(84,85,10,5,K.yel)+P('M50 78v26')+D(45,86,1.7,K.yel)+D(45,96,1.7,K.yel)
+    +neck(K.s3)+R(39,70,22,8,K.navy,2)+ears(K.s3)+face(K.s3)+N('M31.5 36q-1 8 1 12l3-10zM68.5 36q1 8-1 12l-3-10z',K.grey)
+    +EY.mean()+nose()+MO.grim()
+    +P('M27 30Q50 2 73 30l-2 6H29z',K.cream)+R(29,30,42,6.5,K.teal,1)+P('M30 37Q50 31 70 37Q50 45 30 37z',K.ink)
+    +P('M50 14l-12 3 6 3-3 4 9-2 9 2-3-4 6-3z',K.yel)+O(50,19,3.4,K.red)},
+  grubb:{bg:K.teal,d:()=>bust('#6d5a4a')+P('M39 76l11 13 11-13',K.cream)+neck(K.s1)+ears(K.s1)+face(K.s1)+SH('M32 52Q50 84 68 52Q50 64 32 52z',.5)+EY.squint()+nose()+MO.smirk()
+    +P('M30 38C28 9 72 9 70 38z',K.navy)+R(28,32,44,8,K.red,4)+R(55,57,15,4.6,K.brown,1.5)+D(70.5,59.3,1.5,K.red)+LW('M74 53q4-4 0-8t1-8',K.cream,1.8)},
+  vex:{bg:K.orange,d:()=>bust(K.dgrey)+P('M14 86l-5-14 12 7zM86 86l5-14-12 7z',K.grey)+neck(K.s2)+ears(K.s2)+face(K.s2)
+    +P('M44 25L43 6l6 10 2-14 4 13 6-8-3 18z',K.red)
+    +R(29,37.5,42,7,K.brown,2)+O(41,42,7.6,K.grey)+O(41,42,4.6,K.teal)+O(59,42,7.6,K.grey)+O(59,42,4.6,K.teal)+WL('M39 40l3 3M57 40l3 3')
+    +MO.teeth()+P('M34 52l5 8')},
+  k77:{bg:K.blue,d:()=>P('M8 104V86q0-9 9-9h66q9 0 9 9v18z',K.dgrey)+D(22,90,2,K.grey)+D(78,90,2,K.grey)+R(38,84,24,10,K.ink,2)+D(44,89,2,K.red)+D(50,89,2,K.yel)+D(56,89,2,K.teal)
+    +R(42,62,16,5,K.grey,1)+R(42,67,16,5,K.grey,1)+R(42,72,16,5,K.grey,1)
+    +P('M43 24L50 3l7 21z',K.grey)+P('M46 17h8M48 10h4')
+    +R(27,23,46,40,K.yel,7)+SH('M50 23h16q7 0 7 7v26q0 7-7 7H50z')+O(27,43,4,K.grey)+O(73,43,4,K.grey)
+    +O(50,40,11,'#fff')+O(50,40,6,K.red)+D(48,38,1.7,'#fff')
+    +R(38,54,24,6,K.ink,2)+N('M42 55l2.5 4h3l-2.5-4zM49 55l2.5 4h3l-2.5-4zM56 55l2.5 4h2l-2-4z',K.yel)},
+  mirelle:{bg:K.yel,d:()=>P('M16 104C6 40 28 5 50 5s44 35 34 99z',K.purple)+E(50,46,16,20,K.s1)+SH('M34 46C34 20 66 20 66 46C60 34 40 34 34 46z',.5)
+    +EY.glow(K.teal)+P('M50 31l2.6 3.5-2.6 3.5-2.6-3.5z',K.yel)+nose()+MO.smile()
+    +P('M29 52C24 14 76 14 71 52C69 22 31 22 29 52z','#5d45b5')+P('M38 80q12 11 24 0')+P(burst(50,90,6.5,2.8,6),K.yel)},
+  dex:{bg:K.purple,d:()=>bust(K.cream)+LW('M22 86v18M34 80v24M66 80v24M78 86v18',K.red,1.8)+R(44,58,12,18,K.green)+P('M50 79l-11-6v12zM50 79l11-6v12z',K.red)+O(50,79,3,K.red)
+    +E(50,44,22,22,K.green)+SH('M50 22A22 22 0 0 1 50 66A10 22 0 0 0 50 22z')+E(50,53,13,10,'#c9ee9f')
+    +E(37,37,6,7.5,K.yel)+EL(37,37,1.4,5.5,K.ink)+E(63,37,6,7.5,K.yel)+EL(63,37,1.4,5.5,K.ink)
+    +D(46.5,49,1.2)+D(53.5,49,1.2)+P('M39 57q11 7 22 0')+LW('M50 60v7l-4 5M50 67l4 5',K.red,2.6)
+    +E(50,25,28,5.5,K.cream)+R(34,9,32,15,K.cream,2)+R(34,17,32,5,K.red)},
+  okk:{bg:K.red,d:()=>P('M2 104C2 72 22 62 50 62s48 10 48 42z',K.dgreen)+LW('M20 72L78 104',K.ink,7.4)+LW('M20 72L78 104',K.brown,4.4)
+    +E(33,40,15,17,K.green)+E(67,40,15,17,K.green)+SH('M33 23A15 17 0 0 1 33 57A7 17 0 0 0 33 23z')+SH('M67 23A15 17 0 0 1 67 57A7 17 0 0 0 67 23z')
+    +D(27,38,2)+D(38,38,2)+P('M23 32l8 3M42 32l-8 3')+P('M25 49h15')+P('M27 49l1.5-5 1.5 5zM35 49l1.5-5 1.5 5z','#fff')
+    +D(62,38,2)+D(73,38,2)+P('M58 33l8 2M77 33l-8 2')+P('M60 50q7-5 14 0')+P('M62 48.5l1.5-5 1.5 4zM69 47.5l1.5-4 1.5 5z','#fff')
+    +P('M30 24l-4-13 10 9z',K.cream)+P('M61 25l2-13 3 9 4-10 2 11 5-7-2 12z',K.yel)+D(40,45,1.1,K.dgreen)+D(71,30,1.1,K.dgreen)},
+  rook:{bg:K.pink,d:()=>E(50,22,23,21,K.orange)+LW('M33 18q17-9 34 0M31 28q19-9 38 0',K.ink,1.8)
+    +bust(K.red)+P('M36 78l14 12 14-12 4 6-18 14-18-14z',K.cream)+neck(K.s1)+ears(K.s1)+face(K.s1)
+    +P('M31 42C31 24 69 24 69 42C60 31 40 31 31 42z',K.orange)
+    +P('M32 40l-3-4 18 2 .5 5q-8 6-15.5-3z',K.teal)+P('M68 40l3-4-18 2-.5 5q8 6 15.5-3z',K.teal)+P('M47.5 41h5')+D(41,42,1.6)+D(59,42,1.6)
+    +nose()+MO.lips()+D(61,55,1)+O(30,55,3,K.yel)+O(70,55,3,K.yel)},
+  silk:{bg:K.purple,d:()=>P('M27 76C18 18 82 18 73 76L64 74V40H36V74z',K.navy)
+    +bust(K.red)+P('M36 76q14 16 28 0z',K.s1)+neck(K.s1)+D(40,81,1.5,K.cream)+D(45,84,1.5,K.cream)+D(50,85,1.5,K.cream)+D(55,84,1.5,K.cream)+D(60,81,1.5,K.cream)
+    +face(K.s1)+N('M50 21A19 23 0 0 1 50 67z',K.teal,'opacity=".55"')+LW('M52 30h14M52 36h16M52 51h15M52 57h12M52 62h7','#fff',1,'opacity=".75"')
+    +P('M31 41q19-7 38 0q-1 8-9 8q-6 0-10-5q-4 5-10 5q-8 0-9-8z',K.ink)+EL(41,43,4,2.6,'#fff')+EL(59,43,4,2.6,'#fff')+D(41.5,43,1.6)+D(58.5,43,1.6)
+    +MO.lips()+D(40,56,.9)+P('M31 40C32 16 62 14 69 36C58 24 42 26 31 40z',K.navy)},
+  gorr:{bg:K.red,d:()=>P('M6 104C8 84 26 76 50 76s42 8 44 28z',K.dgrey)+LW('M38 86l12 7 12-7M38 94l12 7 12-7',K.yel,2.4)+E(50,73,21,6,K.grey)
+    +E(50,40,15,16,K.cream)+R(42,50,16,11,K.cream,3)+N('M43.2 49h13.6v4H43.2z',K.cream)
+    +EL(43.5,41,4.6,5.4,K.ink)+EL(56.5,41,4.6,5.4,K.ink)+D(43.5,41.5,1.4,K.red)+D(56.5,41.5,1.4,K.red)
+    +N('M50 46l-2.6 5h5.2z',K.ink)+P('M46 55v6M50 55v6M54 55v6M42.5 57.5h15')
+    +`<circle cx="50" cy="42" r="30" fill="#fff" fill-opacity=".2" ${SK}/>`+WL('M28 30q5-13 17-17')},
+  echo:{bg:K.yel,d:()=>bust(K.teal)+R(44,62,12,14,K.grey,1)+O(50,88,6,K.cream)+D(50,88,2.4,K.red)
+    +P('M44 22L33 5M56 22L67 5')+O(32,4.5,2.6,K.red)+O(68,4.5,2.6,K.red)
+    +R(23,21,54,43,K.grey,7)+SH('M62 21h8q7 0 7 7v29q0 7-7 7h-8z')+R(28,26,36,33,'#172a4a',7)
+    +O(40,38,3,K.teal)+O(54,38,3,K.teal)+LW('M32 50q2.5-7 5 0t5 0t5 0t5 0t5 0',K.teal,2)
+    +O(70,32,2.6,K.cream)+O(70,41,2.6,K.cream)+P('M67 50h6M67 54h6')},
+  plume:{bg:K.teal,d:()=>bust('#fff')+P('M38 76l12 16 12-16')+P('M47 78h6l1 14-4 5-4-5z',K.green)+neck(K.s1)+ears(K.s1)
+    +P('M31 36l-12-7 7 10-10 2 10 5-7 7 12-3z','#fff')+P('M69 36l12-7-7 10 10 2-10 5 7 7-12-3z','#fff')+face(K.s1)
+    +P('M31 31q19-9 38 0')+O(50,25,6,K.grey)+D(50,25,1.8)
+    +O(42,43,6.8,K.cream)+O(58,43,6.8,K.cream)+P('M48.8 43h2.4')+LW('M39 42q3-3 6 0q-3 3-6 0M55 42q3-3 6 0q-3 3-6 0',K.dgreen,1.6)+MO.teeth()},
+  rhea:{bg:K.blue,d:()=>bust(K.brown)+P('M30 79q20-10 40 0l-4 10q-16-8-32 0z',K.cream)+neck(K.s1)
+    +P('M33 72q17 10 34 0l5 8q-22 12-44 0z',K.red)+P('M62 79l10 18 6-6-8-14z',K.red)+N('M29 50l-5 12 9-4zM71 50l5 12-9-4z',K.yel)
+    +face(K.s1)+EY.lash()+nose()+MO.smile()+D(39,50,.9,K.brown)+D(61,50,.9,K.brown)+D(42,52,.9,K.brown)+D(58,52,.9,K.brown)
+    +P('M30 48C26 12 74 12 70 48L66 54V37Q50 29 34 37V54z',K.brown)
+    +R(32,23,36,10,K.dgrey,5)+E(42,28,6,4.4,K.teal)+E(58,28,6,4.4,K.teal)+WL('M39.5 27l3 2M55.5 27l3 2')},
+  draeg:{bg:K.orange,d:()=>P('M31 40C25 58 25 70 29 84l8-8-3-32zM69 40c6 18 6 30 2 44l-8-8 3-32z',K.red)
+    +bust(K.navy)+E(15,86,11,5.5,K.yel)+E(85,86,11,5.5,K.yel)+LW('M9 90v6M15 92v6M21 90v6M79 90v6M85 92v6M91 90v6',K.ink,1.6)+D(50,85,2,K.yel)+D(50,95,2,K.yel)
+    +neck(K.s2)+ears(K.s2)+face(K.s2)+D(42,44,2.2)+P('M37 38l10 2')+P('M31 35L69 47')+E(58,44,5.6,5,K.ink)+P('M37 50l5 7')+nose()+MO.frown()
+    +P('M10 32Q50-10 90 32Q50 20 10 32z',K.navy)+LW('M17 30Q50-1 83 30',K.yel,1.8)+O(50,17,4.5,K.cream)+D(48.5,16.5,1)+D(51.5,16.5,1)},
+  vorhees:{bg:K.cream,d:()=>P('M0 104C2 78 24 70 50 70s48 8 50 34z','#2b2f6e')+LW('M14 82v22M26 76v28M74 76v28M86 82v22','#7f88d6',1.2)+P('M40 72l10 14 10-14z','#fff')+P('M47 76h6l2 16-5 6-5-6z',K.purple)
+    +P('M29 42C29 20 71 20 71 42L68 62Q50 74 32 62z','#86a6d6')+SH('M50 26C71 20 71 42 71 42L68 62Q60 68 50 68z',.3)
+    +P('M32 39h36v5q-18 5-36 0z','#5d7fb5')+D(42,43,1.8,K.yel)+D(58,43,1.8,K.yel)
+    +P('M47 48q3 4 6 0')+P('M38 58h24')+P('M40 58l1.5-5 2 5zM56 58l2-5 1.5 5z','#fff')+P('M62 48l5 6')
+    +E(50,25,32,6.5,K.navy)+P('M32 25C31 2 69 2 68 25Q50 19 32 25z',K.navy)+P('M32.2 20Q50 14 67.8 20v4.5Q50 18.5 32.2 24.5z',K.purple)},
+  xith:{bg:K.purple,d:()=>bust(K.dgreen)+P('M20 86q30-10 60 0M14 96q36-10 72 0')
+    +D(14,20,1.8,K.yel)+D(22,34,1.4,K.yel)+D(86,18,1.8,K.yel)+D(80,36,1.4,K.yel)+D(10,48,1.4,K.yel)+D(90,52,1.6,K.yel)
+    +P('M45 26Q42 6 29 9')+P('M55 26Q58 6 71 9')+O(28,9.5,2.6,K.yel)+O(72,9.5,2.6,K.yel)+R(45,60,10,16,'#b9cf45')
+    +P('M50 70L27 34Q50 14 73 34z','#c9dc4c')
+    +E(36,38,8,12,K.red,'transform="rotate(-28 36 38)"')+E(64,38,8,12,K.red,'transform="rotate(28 64 38)"')
+    +EL(36,38,8,12,'url(#ht)','opacity=".4" transform="rotate(-28 36 38)"')+EL(64,38,8,12,'url(#ht)','opacity=".4" transform="rotate(28 64 38)"')
+    +P('M46 62q-7 7-1 13q1-7 3-11zM54 62q7 7 1 13q-1-7-3-11z',K.brown)},
+  nullw:{bg:K.orange,plain:1,d:()=>LW('M12 0v104M30 0v104M70 0v104M88 0v104',K.ink,3.4,'opacity=".28"')
+    +P('M4 104V88q0-12 16-13h60q16 1 16 13v16z',K.grey)+P(burst(50,91,7.5,3.2,5,-Math.PI/2),K.yel)+P('M4 92h20M76 92h20')+R(36,62,28,8,K.dgrey,2)
+    +P('M30 64V36C30 12 70 12 70 36V64z',K.grey)+SH('M50 18C70 16 70 36 70 36V64H58z')
+    +R(33,36,34,9,K.ink,4.5)+EL(50,40.5,9,2.4,K.red)+D(50,40.5,1.2,'#fff')+P('M36 54h28')+D(34,28,1.2)+D(66,28,1.2)},
+  rider:{bg:K.blue,d:()=>P('M4 104C8 80 28 72 50 72s42 8 46 32z',K.dgrey)+LW('M14 93l8-6 8 6 8-6 8 6 8-6 8 6 8-6 8 6 8-6',K.cream,2)
+    +neck('#dfe6ea')+face('#eef2f4')+EL(42,43,5,5.6,K.ink)+EL(58,43,5,5.6,K.ink)+D(42,43.5,1.5,K.teal)+D(58,43.5,1.5,K.teal)
+    +P('M31 51q19 8 38 0l-5 17q-14 9-28 0z',K.red)+D(42,60,1,K.cream)+D(50,62,1,K.cream)+D(58,60,1,K.cream)
+    +cowboy(K.ink,K.cream)},
+  kade:{bg:K.teal,d:()=>P('M18 104L24 46l16 26h20l16-26 6 58z',K.red)
+    +P('M14 104C16 86 30 78 50 78s34 8 36 26z',K.navy)+LW('M30 85l34 19',K.red,4)+O(34,93,3,K.yel)+O(42,97,3,K.yel)
+    +neck(K.s2)+ears(K.s2)+face(K.s2)+EY.mean()+nose()
+    +P('M39 57Q50 61 61 57L50 80z',K.ink)+P('M40 55q5-3.5 10 0q5-3.5 10 0')
+    +P('M46 20Q50-2 68 6Q57 9 55 20z',K.red)+P('M30 42C29 14 71 14 70 42L64 41Q50 31 36 41z',K.yel)+R(48,30,4,14,K.yel,1)},
+  vesk:{bg:K.yel,d:()=>P('M16 92Q18 42 50 38Q82 42 84 92z',K.cream)+LW('M50 40V90M38 42L26 88M62 42L74 88M30 48L18 80M70 48L82 80',K.ink,1.2,'opacity=".45"')
+    +bust(K.navy)+R(45,62,10,16,'#cdb8f6')+P(burst(50,87,5.5,2.4,4,-Math.PI/2),K.teal)
+    +E(50,40,17,27,'#cdb8f6')+SH('M50 13A17 27 0 0 1 50 67A7.6 27 0 0 0 50 13z')
+    +P('M35 30Q36 13 50 13Q64 13 65 30Q50 22 35 30z',K.pink)+LW('M40 22q3-4 6 0t6 0t6 0',K.ink,1.4)
+    +E(50,33,3.6,2.6,'#fff')+D(50,33,1.5)+G('translate(0 3)',EY.lash())+P('M48.5 52h3')+G('translate(0 3)',MO.lips(K.purple))},
+  hydra:{bg:K.red,d:()=>P('M24 80C12 62 14 48 19 38l12 5C27 54 30 64 38 74z',K.green)+P('M76 80C88 62 86 48 81 38l-12 5C73 54 70 64 62 74z',K.green)
+    +P('M42 74C40 54 43 44 41 32h18C57 44 60 54 58 74z',K.green)
+    +P('M6 104C6 80 28 68 50 68s44 12 44 36z',K.dgreen)+D(24,90,2.4,K.green)+D(38,96,2,K.green)+D(70,88,2.6,K.green)+D(58,98,2,K.green)
+    +E(22,31,12,9.5,K.green)+O(20,29,4,K.yel)+D(20,29,1.5)+P('M14 36h14')+P('M17 36l1.5 4 1.5-4zM23 36l1.5 4 1.5-4z','#fff')
+    +E(78,31,12,9.5,K.green)+O(80,29,4,K.yel)+D(80,29,1.5)+P('M72 36h14')+P('M75 36l1.5 4 1.5-4zM81 36l1.5 4 1.5-4z','#fff')
+    +P('M44 13l-2-8 6 6zM56 13l2-8-6 6z',K.dgreen)
+    +E(50,24,15,12,K.green)+SH('M50 12A15 12 0 0 1 50 36A7 12 0 0 0 50 12z')+O(44,21,4,K.yel)+O(56,21,4,K.yel)+D(44,21,1.5)+D(56,21,1.5)+P('M40 30h20')+P('M43 30l2 5 2-5zM53 30l2 5 2-5z','#fff')+LW('M50 31v8l-3 4M50 39l3 4',K.pink,2.2)},
+  eclipse:{bg:'#1a154a',plain:1,d:()=>N(burst(50,50,49,30,18,.1),K.orange)+N(burst(50,50,42,29,18,.27),K.yel)+N(burst(50,50,34,28,24),'#fff')
+    +O(50,50,25,'#0b0920')+LW('M30 38A24 24 0 0 1 62 29','#fff',1.6,'opacity=".7"')
+    +P('M34 50Q50 37 66 50Q50 63 34 50z',K.red)+EL(50,50,2.8,7.5,K.ink)+D(49,46,1.2,'#fff')
+    +D(12,16,2.2,K.cream)+D(88,84,2.6,K.cream)+star4(86,14,6)+star4(14,86,5)},
+};
+
+/* ---- card art (120 x 64) ---- */
+const ABG={kinetic:'#ecd3a2',energy:K.yel,plasma:K.navy,shock:K.blue,gadget:K.teal,intel:K.purple};
+function gun(o={}){
+  const {x=30,y=30,body=K.red,trim=K.yel,barrel=K.grey,len=30,rings=3,tip=1,fin=1,grip=K.navy}=o;
+  let s=P(`M${x+4} ${y+5}l-8 21h13l6-20z`,grip)+P(`M${x+15} ${y+9}q7 9 13 0`)+R(x+26,y-3.5,len,7,barrel,1.5);
+  for(let i=0;i<rings;i++)s+=E(x+34+i*7,y,2.4,9-i*1.7,trim);
+  s+=E(x+15,y,17,10.5,body)+SH(`M${x+15} ${y-10.5}A17 10.5 0 0 1 ${x+15} ${y+10.5}A7 10.5 0 0 0 ${x+15} ${y-10.5}z`);
+  if(fin)s+=P(`M${x+7} ${y-8.5}l-10-9 18 5z`,trim);
+  s+=O(x+13,y-1,4.2,trim)+D(x+12,y-2,1.2,'#fff');
+  if(tip)s+=O(x+26+len+3.5,y,4.5,trim);
+  return s;
+}
+const pew=(x,y,c)=>[0,1,2].map(i=>`<ellipse cx="${x+i*7}" cy="${y}" rx="${2+i}" ry="${5+i*3}" fill="none" stroke="${c}" stroke-width="2.4"/>`).join('');
+const fig=(x,y,holo)=>{const a=holo?`fill="#fff" fill-opacity=".4" stroke="${K.cream}" stroke-width="2" stroke-dasharray="3 3"`:`fill="${K.navy}" ${SK}`;return G(`translate(${x} ${y})`,`<circle cx="0" cy="-17" r="7" ${a}/><path d="M-10 20V-1q0-8 10-8t10 8v21z" ${a}/>`+(holo?LW('M-8 0h16M-8 6h16M-8 12h16','#fff',1,'opacity=".7"'):''))};
+const ATOM=[0,60,120].map(a=>LW('M16 33a6 2.5 0 1 0 12 0a6 2.5 0 1 0-12 0',K.cream,1.2,`transform="rotate(${a} 22 33)"`)).join('')+D(22,33,1.4,K.yel);
+const CART={
+  blaster:()=>gun()+pew(100,30,K.red),
+  slug:()=>gun({x:20,body:K.dgrey,trim:K.cream,rings:0,len:24,tip:0,fin:0,grip:K.brown})+P('M27 26h16M27 34h16')+R(68,24.5,7,11,K.dgrey,1.5)+P('M80 25h7M78 30h9M80 35h7')+P('M94 26h9q7 4 0 8h-9z',K.yel),
+  baton:()=>G('rotate(-24 60 32)',R(16,27,34,10,K.navy,5)+P('M24 27v10M30 27v10M36 27v10')+R(50,29,46,6,K.grey,3)+O(98,32,5.5,K.yel))+bolt(107,28,.9,20)+bolt(80,8,.7,-30)+bolt(109,8,.6,10,'#fff'),
+  twin:()=>G('translate(8 -4) scale(.66)',gun())+G('translate(112 22) scale(-.66 .66)',gun({body:K.teal})),
+  scatter:()=>gun({x:20,len:22,rings:0,tip:0})+P('M66 26l11-8v24l-11-8z',K.grey)+LW('M82 30h26M81 23l25-10M81 37l25 10',K.red,2.4,'stroke-dasharray="5 4"')+D(113,30,2.2,K.red)+D(110,11,2.2,K.red)+D(110,49,2.2,K.red),
+  arc:()=>gun({x:18,len:20,rings:2,tip:0,body:K.yel,trim:K.red})+P('M64 27l9-7M64 33l9 7')+O(74.5,19,2.8,K.grey)+O(74.5,41,2.8,K.grey)+ZAP('M76 21l7 6-5 4 8 3-6 5',K.yel,2)+bolt(102,30,1.2,90),
+  hip:()=>P('M6 20h16M2 30h18M8 40h14')+G('rotate(-14 50 40)',gun({x:28,y:34,len:18,rings:1}))+P(burst(91,24,11,5,8),K.yel)+D(91,24,3,'#fff'),
+  saber:()=>star4(104,10,6)+star4(18,52,5)+G('rotate(-22 60 32)',N('M40 22h62l14 10-14 10H40z',K.orange,'opacity=".75"')+R(10,27.5,26,9,K.grey,3)+P('M17 27.5v9M23 27.5v9')+R(36,23,5,18,K.yel,2)+P('M41 27h60l9 5-9 5H41z','#fff6d8')),
+  cutter:()=>LW('M16 38q-8 14 6 22',K.ink,3)+R(10,25,34,13,K.yel,4)+P('M20 38l-2 10h8l2-10z',K.yel)+P('M44 27h12l7 4.5-7 4.5H44z',K.grey)+P('M62 31.5q16-17 50 0q-34 17-50 0z',K.red)+P('M64 31.5q12-10 32 0q-20 10-32 0z',K.yel)+N('M66 31.5q7-5 16 0q-9 5-16 0z','#fff')+D(114,20,1.6,K.yel)+D(108,46,1.6,K.yel)+D(117,36,1.3,K.yel),
+  thermite:()=>flame(28,62,1.15)+flame(94,62,1.25)+R(48,20,24,38,K.red,4)+R(48,31,24,9,K.yel)+N('M60 32.5l4 6.5h-8z',K.ink)+R(54,13,12,8,K.grey,2)+O(73,15,4,'none')+P(burst(60,8,7,3,7),K.yel),
+  lance:()=>R(4,29,74,5.5,K.grey,2)+R(14,26.5,20,10.5,K.navy,4)+E(66,31.7,2.5,8,K.yel)+E(73,31.7,2.5,6.2,K.yel)+P(burst(84,31.7,13,6,10),K.yel)+O(84,31.7,5.5,'#fff')+P('M98 10l12 5-7 11z',K.cream)+P('M104 33l13-2-5 13z',K.cream)+P('M97 44l9 5-9 9z',K.cream),
+  marks:()=>`<circle cx="100" cy="14" r="8.5" fill="none" stroke="${K.red}" stroke-width="2.2"/>`+LW('M100 2v24M88 14h24',K.red,1.6)+P('M4 31l18-5v15l-18 5z',K.brown)+P('M30 39l-4 15h9l3-15z',K.brown)+R(22,28,32,11,K.dgrey,2)+R(54,31.5,54,4.5,K.grey,1)+R(104,29.5,7,8.5,K.dgrey,1.5)+R(28,18,34,7.5,K.navy,3.5)+P('M35 25.5v2.5M55 25.5v2.5')+O(62.5,21.7,3.6,K.teal),
+  overch:()=>gun({x:10,len:22,rings:2,tip:0})+P(burst(92,30,25,13,12),'#fff')+O(92,30,12,K.red)+O(92,30,6.5,K.yel)+D(89.5,27.5,1.8,'#fff'),
+  chain:()=>star4(34,12,5,'#fff')+star4(84,54,5,'#fff')+ZAP('M16 44l12-14 4 8 14-16 12-6 10 14 6-6 12 14 8-2 8 6')+O(16,44,6,K.grey)+O(58,16,6,K.grey)+O(102,42,6,K.grey),
+  neutron:()=>P(burst(101,33,19,9,10),'#fff')+O(101,33,6.5,K.red)+P('M44 62l8-18h10l8 18z',K.dgrey)+P('M30 23l50 5v10l-50 5z',K.red)+E(46,33,2.6,9,K.cream)+E(60,33,2.6,7.6,K.cream)+E(81,33,3,6.4,K.grey)+R(12,19,20,28,K.navy,5)+O(57,44,6,K.grey)+ATOM,
+  rail:()=>LW('M108 8q-10 24 0 48',K.teal,3,'stroke-dasharray="5 4"')+P('M12 38l-3 16h10l3-16z',K.brown)+R(6,25,28,15,K.navy,3)+R(34,24.5,56,4.5,K.grey,1)+R(34,35,56,4.5,K.grey,1)+R(44,22,5.5,20,K.yel,2)+R(58,22,5.5,20,K.yel,2)+R(72,22,5.5,20,K.yel,2)+LW('M92 32h20',K.red,2.4)+P('M110 27.5l9 4.5-9 4.5z',K.red),
+  disint:()=>R(8,25,26,13,K.red,4)+P('M14 38l-3 15h10l3-15z',K.dgrey)+P('M34 31.5h14')+P('M48 12q-13 19.5 0 39l6-4q-9-15.5 0-31z',K.grey)+O(50,31.5,2.6,K.yel)+LW('M60 23q5 8.5 0 17M67 19q7 12.5 0 25M74 15q9 16.5 0 33',K.teal,2.2)
+    +`<circle cx="96" cy="19" r="6" fill="url(#htw)"/><path d="M87 27h18l-2 27h-14z" fill="url(#htw)"/>`+D(108,22,1.6,K.orange)+D(112,30,1.3,K.orange)+D(109,40,1.6,K.orange)+D(115,46,1.1,K.orange)+D(113,14,1.1,K.orange)+D(106,52,1.2,K.orange),
+  deflector:()=>R(50,53,20,6,K.dgrey,2)+O(60,52,4,K.yel)+`<path d="M22 55a38 38 0 0 1 76 0z" fill="#fff" fill-opacity=".42" ${SK}/>`+WL('M33 36q8-13 21-16')+LW('M60 17v38M41 22q-8 16-4 33M79 22q8 16 4 33',K.ink,1,'opacity=".35"')+ZAP('M2 6l18 11-6 2 14 9',K.red,2.4)+P(burst(31,28,8,3.5,8),K.yel),
+  cuffs:()=>`<circle cx="40" cy="30" r="19" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="3 4" opacity=".85"/><circle cx="80" cy="30" r="19" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="3 4" opacity=".85"/>`
+    +LW('M53 30h14',K.ink,6.4)+LW('M53 30h14',K.grey,2.6)+ring(40,30,12,K.yel)+ring(80,30,12,K.yel)+R(34,39,12,9,K.dgrey,2)+R(74,39,12,9,K.dgrey,2)+D(40,43.5,1.5,K.yel)+D(80,43.5,1.5,K.yel)+star4(60,10,5,'#fff')+star4(108,10,4,'#fff')+star4(12,54,4,'#fff'),
+  barrier:()=>R(10,55,100,5,K.dgrey,2)+[30,60,90].map(x=>`<path d="${hex(x,31,17)}" fill="${K.cream}" fill-opacity=".82" ${SK}/>`+WL(`M${x-9} 25l5-6`)).join('')+D(30,57.5,1.5,K.yel)+D(60,57.5,1.5,K.yel)+D(90,57.5,1.5,K.yel)+star4(111,9,4,'#fff')+star4(9,11,4,'#fff'),
+  jet:()=>cloud([[18,62,9],[32,60,7],[88,60,7],[102,62,9]],K.cream)+flame(47,50,.5,1)+flame(73,50,.5,1)+LW('M52 24q-22 6-24 24M68 24q22 6 24 24',K.ink,5)+LW('M52 24q-22 6-24 24M68 24q22 6 24 24',K.brown,2.4)
+    +R(38,12,18,34,K.red,8)+R(64,12,18,34,K.red,8)+P('M40.5 15L47 3l6.5 12z',K.yel)+P('M66.5 15L73 3l6.5 12z',K.yel)+R(53,18,14,20,K.grey,3)+R(41,45,12,5,K.dgrey,1)+R(67,45,12,5,K.dgrey,1)+WL('M42.5 20v14M68.5 20v14'),
+  smoke:()=>G('rotate(-28 26 46)',R(12,39,28,14,K.dgrey,4)+R(18,39,6,14,K.yel)+R(40,43,5,6,K.grey,1))+cloud([[56,38,13],[74,26,16],[94,34,14],[70,46,12],[88,48,11],[104,48,8]],K.cream)+LW('M66 28q6-6 12 0M84 40q5-4 9 1',K.ink,1.6,'opacity=".5"'),
+  grav:()=>hoop(60,54,40,6)+hoop(60,57,26,4)+[[45,30],[75,30],[60,15],[49.4,19.4],[70.6,19.4],[49.4,40.6],[70.6,40.6],[60,45]].map(p=>O(p[0],p[1],3.2,K.grey)).join('')
+    +O(60,30,15,K.dgrey)+SH('M60 15A15 15 0 0 1 60 45A7 15 0 0 0 60 15z')+P('M45.5 31q14.5 7 29 0')+O(60,24,3.6,K.red)+D(59,23,1,'#fff')+P('M17 8h8v9h5l-9 10-9-10h5z',K.yel)+P('M95 8h8v9h5l-9 10-9-10h5z',K.yel),
+  cell:()=>N(burst(60,32,36,21,14),'#fff','opacity=".45"')+G('rotate(12 60 32)',R(54,4,12,7,K.grey,2)+R(46,10,28,46,K.yel,5)+R(46,10,28,11,K.navy,5)+N('M47.2 16h25.6v5H47.2z',K.navy)+P('M46 21h28')+bolt(60,38,1.25,0,K.red))+P('M18 30h10M23 25v10M92 30h10'),
+  flash:()=>P(burst(60,32,44,17,14,.15),'#fff')+P(burst(60,32,27,12,12,.3),K.yel)+R(52,24,16,22,K.navy,5)+R(52,31,16,5.5,K.red)+R(56,17.5,8,7.5,K.grey,2)+P('M64 19q9 2 9 13'),
+  stim:()=>G('rotate(-28 60 32)',R(12,27,4.5,11,K.grey,1.5)+R(16.5,31,20,3.4,K.grey,1)+R(36,24.5,4.5,16,K.grey,1.5)+R(40.5,26,40,13,'#fff',3)+R(52,28.5,26,8,K.red,1.5)+P('M46 26v4M52 26v3M58 26v4M64 26v3M70 26v4')+R(80.5,29.5,6,6,K.grey,1)+P('M86.5 32.5h20'))+P('M108 3q4 6 0 8q-4-2 0-8z',K.red)+O(22,48,10,'#fff')+N('M19.5 41h5v4.5H29v5h-4.5V55h-5v-4.5H15v-5h4.5z',K.red),
+  decoy:()=>N('M17 49L56 4h56l-6 58H58z','#fff','opacity=".2"')+R(8,51,18,8,K.dgrey,2)+O(17,50,3.4,K.yel)+fig(44,40)+fig(86,36,1),
+  overclock:()=>bolt(105,14,1,0)+bolt(15,16,.8,-15)+P('M24 52a36 36 0 0 1 72 0z',K.cream)+P('M60 52L91.2 34A36 36 0 0 1 96 52z',K.red)+P('M86 37l5.2-3M75 26l3-5.2M60 22v-6M45 26l-3-5.2M34 37l-5.2-3')+P('M58 49L88.5 33.5 62 55z',K.navy)+O(60,52,4.5,K.grey)+R(18,52,84,7,K.dgrey,2),
+  swarm:()=>LW('M20 20q40-22 80 0M20 46q40 22 80 0','#fff',1.4,'stroke-dasharray="2 5" opacity=".8"')+P('M54 18h12v8h8v12h-8v8H54v-8h-8V26h8z','#fff')
+    +[[22,14],[34,28],[16,36],[30,50],[44,10],[88,12],[100,26],[86,50],[104,44],[74,56],[46,56],[92,34],[76,8],[12,54]].map(p=>O(p[0],p[1],3.3,K.yel)+D(p[0]+.8,p[1]-.6,1.1)).join(''),
+  drone:()=>hoop(60,57,20,3.4)+hoop(60,61,11,2)+P('M60 14V6')+O(60,5,2.6,K.yel)+R(74,39,24,4.5,K.dgrey,1)+P(burst(105,41,7,3,8),K.yel)
+    +P('M44 31q0-17 16-17t16 17z',K.red)+E(60,34,31,9.5,K.grey)+SH('M60 24.5A31 9.5 0 0 1 60 43.5A14 9.5 0 0 0 60 24.5z')+O(60,22,5,'#fff')+D(60,22,2.4)+D(38,35,2,K.yel)+D(50,38.5,2,K.yel)+D(70,38.5,2,K.yel)+D(82,35,2,K.yel),
+  scan:()=>R(26,3,68,58,K.dgrey,7)+O(60,32,23,'#12352f')+LW('M60 32m-8 0a8 8 0 1 0 16 0a8 8 0 1 0-16 0M60 32m-15.5 0a15.5 15.5 0 1 0 31 0a15.5 15.5 0 1 0-31 0M37 32h46M60 9v46','#6fe0a0',1,'opacity=".7"')+N('M60 32V9A23 23 0 0 1 79.9 20.5z','#6fe0a0','opacity=".5"')+D(70,21,2.2,'#fff')+D(50,41,1.8,'#b6ffd0')+D(33,10,2.4,K.yel)+D(87,10,2.4,K.red)+D(33,54,2.4,K.cream)+D(87,54,2.4,K.cream),
+  dossier:()=>G('rotate(-5 60 32)',P('M20 14h26l5 6H20z',K.tan)+R(18,19,84,40,K.tan,3)+R(26,25,22,27,'#fff',1)+D(37,34,5,K.navy)+N('M29 51q0-9 8-9t8 9z',K.navy)+LW('M45 20v10',K.dgrey,2)+LW('M54 28h40M54 34h30M54 40h36',K.ink,1.4,'opacity=".55"')
+    +G('rotate(-12 76 49)',`<rect x="55" y="43" width="42" height="12" rx="2" fill="none" stroke="${K.red}" stroke-width="2"/>`+TX(76,52,'TOP SECRET',6.2,K.red,'Arial Black,Arial,sans-serif'))),
+  thermal:()=>R(84,25,12,14,K.grey,2)+O(60,32,27,K.dgrey)+O(60,32,22,'#16205e')+D(60,22,5.2,K.yel)+N('M50 49q0-19 10-19t10 19z',K.red)+N('M54.5 49q0-13 5.5-13t5.5 13z',K.yel)+LW('M60 12v40M40 32h40',K.cream,1,'opacity=".8"')+LW('M60 32m-10 0a10 10 0 1 0 20 0a10 10 0 1 0-20 0',K.cream,1,'opacity=".8"'),
+  predict:()=>R(14,7,92,50,K.cream,3)+LW('M14 20h92M14 32h92M14 44h92M37 7v50M60 7v50M83 7v50',K.ink,.8,'opacity=".2"')+LW('M21 46l12-11 10 6 12-17 10 8',K.red,3)+LW('M65 32l11-12 10 6 8-10',K.navy,2.6,'stroke-dasharray="4 4"')+N('M90 12l10-3-4 10z',K.navy)+O(65,32,3.4,K.yel),
+  tip:()=>LW('M50 9l-3-5M60 8V2M70 9l3-5',K.cream,2)+LW('M96 49q-5 5 1 8t-1 6',K.ink,2)+O(24,40,10.5,K.red)+O(96,40,10.5,K.red)+P('M20 31q40-27 80 0l-9 11q-31-19-62 0z',K.red)+D(21,41,1.1)+D(26,38,1.1)+D(26,44,1.1)+D(99,41,1.1)+D(94,38,1.1)+D(94,44,1.1)+WL('M36 23q24-12 48 0'),
+  analysis:()=>R(20,5,80,54,'#2a50a8',3)+LW('M20 19h80M20 32h80M20 45h80M40 5v54M60 5v54M80 5v54','#fff',.8,'opacity=".25"')+LW('M38 22m-5 0a5 5 0 1 0 10 0a5 5 0 1 0-10 0M50 40l8 8M58 40l-8 8M30 44l7 7M37 44l-7 7','#fff',2)+LW('M44 21q24-4 33 13','#fff',1.8,'stroke-dasharray="3 3"')+N('M73 34l7 6 2-9z','#fff')+N(burst(84,47,7,3,5,-Math.PI/2),K.yel),
+  exploit:()=>O(54,32,25,K.cream)+O(54,32,18,K.red)+O(54,32,11,K.cream)+O(54,32,4.5,K.red)+P('M67 22l-8 4 3 5-7 6M67 22l9 4')+LW('M67 22L100 7',K.ink,2.6)+P('M100 7l9-5-3 8 8 1-11 4z',K.yel)+P(burst(67,22,7.5,3.2,7),K.yel),
+  profile:()=>P('M40 60V47Q28 40 28 26Q28 6 50 6Q70 6 72 24l6 10-6 2v8q0 6-8 6h-6v10z',K.cream)+gear(48,24,10,K.yel)+gear(61,34,6.5,K.red)+`<circle cx="94" cy="38" r="10" fill="#fff" fill-opacity=".45" ${SK}/>`+LW('M101 45l10 10',K.ink,5.4)+LW('M101 45l10 10',K.brown,2.4),
+  biolock:()=>R(32,3,50,58,K.navy,7)+[4,8.5,13,17.5].map(r=>LW(`M${57-r} 40A${r} ${r*1.2} 0 0 1 ${57+r} 40`,K.teal,2)).join('')+LW('M57 40v8M52.5 40v9M61.5 40v9M48 41v7M66 41v7',K.teal,2)+LW('M36 27h42',K.red,2)+R(90,34,18,14,K.yel,2)+LW('M94 34v-5q5-8 10 0v5',K.ink,2.4)+D(99,41,1.8),
+  killorder:()=>G('rotate(5 58 32)',R(30,3,56,58,K.cream,2)+N('M31.2 4.2h53.6v8H31.2z',K.navy)+LW('M37 20h42M37 27h34M37 34h42M37 41h30M37 48h38',K.ink,1.3,'opacity=".45"')+ZAP('M42 18l32 34M74 18L42 52',K.red,4))+P('M86 52l-5 11 6-3 3 5 3-11z',K.red)+P(burst(90,47,11,8,11),K.red)+O(90,47,5,K.red)+D(90,47,1.6),
+};
+const NART={
+  shop:{bg:K.navy,d:()=>[0,1,2,3,4,5].map(i=>R(9+i*17,3,17,11,i%2?K.cream:K.red)+P(`M${9+i*17} 14a8.5 6 0 0 0 17 0z`,i%2?K.cream:K.red)).join('')
+    +G('translate(8 9) scale(.52)',gun())+P('M76 46V35q0-4 3-5v-5h4v5q3 1 3 5v11z',K.teal)+WL('M79 36v7')+E(101,44,7,2.6,K.yel)+E(101,41,7,2.6,K.yel)+E(101,38,7,2.6,K.yel)
+    +R(10,46,100,7,K.brown,1)+P('M18 53v11M102 53v11')+star4(60,26,4,K.yel)},
+  dock:{bg:K.blue,d:()=>R(-4,58,128,10,K.dgrey)+R(20,6,9,52,K.dgrey,1)+LW('M20 14l9 9M29 14l-9 9M20 30l9 9M29 30l-9 9M20 46l9 9M29 46l-9 9',K.ink,1.2)+P('M29 18h22')+P('M50 58l7-9M78 58l-7-9')
+    +rocket(64,36,0,.62,0)+G('translate(100 30) rotate(32)',P('M-2.6 20V1A7.5 7.5 0 1 1 2.6 1V20z',K.grey)+N('M-2.3-12h4.6v8h-4.6z',K.blue))+star4(86,14,5,K.yel)+star4(42,44,4,K.yel)},
+  contact:{bg:'#2a2466',d:()=>N('M44 0h32l26 64H18z',K.yel,'opacity=".9"')+EL(60,23,17,3.6,K.ink)+N('M50 23q0-13 10-13t10 13z',K.ink)+D(60,28,7)+N('M38 64l5-22q5-8 17-8t17 8l5 22z',K.ink)+N('M54 35l6 9 6-9z',K.yel,'opacity=".9"')+D(67,31,1.5,K.red)+LW('M69 29q4-4 1-8t2-8',K.cream,1.4)
+    +P(burst(100,16,13,7.5,9),K.red)+TX(100,22,'?',16,K.cream)},
+};
+function coverScene(){
+  return `<svg class="scene" viewBox="0 0 600 260" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="600" height="260" fill="url(#sky)"/><rect width="600" height="260" fill="url(#ht)" opacity=".12"/>`
+    +[[40,34,7],[150,120,5],[236,40,5],[330,96,6],[572,30,6],[560,170,5],[210,170,4],[392,24,4],[30,150,4]].map(s=>star4(s[0],s[1],s[2])).join('')
+    +[[90,60],[180,30],[300,150],[420,160],[540,110],[20,90],[270,90],[370,60]].map(p=>D(p[0],p[1],1.4,K.cream)).join('')
+    +G('rotate(-16 480 92)',LW('M384 92A96 19 0 0 1 576 92',K.ink,12)+LW('M384 92A96 19 0 0 1 576 92',K.cream,7))
+    +O(480,92,52,K.yel)+LW('M433 76q47 13 94 0M430 94q50 14 100 0M436 114q44 11 88 0',K.orange,6,'opacity=".85"')+SH('M480 40A52 52 0 0 1 480 144A24 52 0 0 0 480 40z',.4)+`<circle cx="480" cy="92" r="52" fill="none" ${SK}/>`
+    +G('rotate(-16 480 92)',LW('M384 92A96 19 0 0 0 576 92',K.ink,12)+LW('M384 92A96 19 0 0 0 576 92',K.cream,7))
+    +N('M78 86L60 150h60z',K.yel,'opacity=".35"')+saucer(90,74,.95)
+    +cloud([[122,250,24],[156,230,19],[186,213,15],[212,199,12]],K.cream)+rocket(296,140,52,1.35)
+    +P('M-10 228Q120 202 260 222T610 210V270H-10z','#d9c592')+SH('M-10 228Q120 202 260 222T610 210V270H-10z',.25)+E(330,240,40,6,'#bfa873')+E(470,232,26,4.5,'#bfa873')+E(60,244,22,4,'#bfa873')
+    +G('translate(536 218)',`<circle cx="0" cy="-36" r="10" fill="#fff" fill-opacity=".35" ${SK}/>`+D(0,-35,5.5)+N('M-8-26h16l3 27h-6l-1 20h-8l-1-20h-6z',K.ink)+LW('M-6-21l-17-9',K.ink,4.4)+N('M-22-33l-13-3v5l11 3z',K.ink)+N(burst(-40,-35,6,2.4,6),K.yel))
+    +`</svg>`;
+}
+const ACACHE={};
+function portrait(id,size){
+  const p=PORT[id];const s=p.s||(p.s=p.d());
+  return `<svg class="pt" width="${size}" height="${size}" viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="${p.bg}"/>${p.plain?'':`<path d="${RAYS}" fill="#fff" opacity=".17"/>`}<rect width="100" height="100" fill="url(#ht)" opacity=".13"/>${s}</svg>`;
+}
+function artSVG(bg,inner){return `<svg viewBox="0 0 120 64" aria-hidden="true"><rect width="120" height="64" fill="${bg}"/><path d="${ACACHE.r||(ACACHE.r=rays(60,34,90,10,.2))}" fill="#fff" opacity=".17"/><rect width="120" height="64" fill="url(#ht)" opacity=".12"/>${inner}</svg>`}
+function cardArt(id){const d=CARDS[id];return ACACHE[id]||(ACACHE[id]=artSVG(d.t==='weapon'?ABG[d.dt]:ABG[d.t],CART[id]()))}
+function nodeArt(t){return ACACHE['n'+t]||(ACACHE['n'+t]=artSVG(NART[t].bg,NART[t].d()))}
+const POW={kinetic:['BLAM!',K.yel],energy:['ZAP!','#fff'],plasma:['FWOOSH!',K.orange],shock:['KZZT!','#8ad9f5']};
+
+
+/* ================= RENDER ================= */
+const dtChip=dt=>`<span class="dtp" style="background:var(--${dt})">${DT[dt]}</span>`;
+const termsTx=t=>t==='ALIVE'?'Wanted alive':'Dead or alive';
+function cardHTML(inst,o={}){
+  const d=CARDS[inst.id];const cls=['card','t-'+d.t];if(inst.up)cls.push('up');if(o.ready)cls.push('ready');if(o.sold)cls.push('sold');
+  const dtag=d.dt?(d.dt==='adaptive'?'<span class="dtp" style="background:var(--violet)">Adaptive</span>':dtChip(d.dt)):'';
+  const tag=o.action?'button':'div';
+  const attrs=o.action?` data-a="${o.action}" ${o.data||''}${o.disabled?' disabled':''}`:'';
+  return `<${tag} class="${cls.join(' ')}"${attrs}><span class="cost">${costOf(inst)}</span><span class="nm">${d.n}${inst.up?'+':''}</span><span class="art">${cardArt(inst.id)}</span><span class="tp"><span>${TYPEN[d.t]}</span>${dtag}</span><span class="ds">${kw(d.d(inst.up))}</span><span class="foot">${o.price!=null?`<span class="price">${o.sold?'Sold':o.price+' CR'}</span>`:''}${o.weak?'<span class="wk">Weak point</span>':''}${o.key?`<span class="dimtx">Key ${o.key}</span>`:''}<span class="rar r-${d.r}"></span></span></${tag}>`;
+}
+function chips(st){return Object.keys(STATUS).filter(k=>st[k]).map(k=>`<button class="chip s-${k}" data-a="tip" data-tip="${esc(STATUS[k].d)}">${STATUS[k].n}${k==='stun'||k==='cloaked'?'':' '+st[k]}</button>`).join('')}
+function rankings(rep){
+  const rows=RIVALS.map(([n,r])=>({n,r})).concat([{n:'You',r:rep,me:1}]).sort((a,b)=>b.r-a.r||(a.me?1:-1));
+  return `<ol class="ranks">${rows.map((x,i)=>`<li class="${x.me?'me':''}"><span>#${i+1}</span><span>${x.n}</span><span>${x.r.toLocaleString()}</span></li>`).join('')}</ol>`;
+}
+function hud(){
+  const r=S.run,h=HUNTERS[r.hunter];
+  return `<header class="hud">
+    <div class="who">${portrait(r.hunter,42)}<div><div class="hn">${h.n}</div><div class="hs">${h.alias}</div></div></div>
+    <div class="hpbox"><div class="t"><span class="lbl">Hull</span><b>${r.hp}/${r.maxHp}</b></div><div class="bar"><i style="width:${r.hp/r.maxHp*100}%"></i></div></div>
+    <div class="stat"><span class="lbl">Credits</span><b class="amber">${r.credits}</b></div>
+    <div class="stat"><span class="lbl">Reputation</span><b>${r.rep}</b></div>
+    <div class="stat"><span class="lbl">Sector</span><b>${r.sector+1} · ${r.floor===5?'Boss':'Job '+(r.floor+1)}</b></div>
+    <div class="gear">${r.gear.map(g=>`<button class="chip g" data-a="tip" data-tip="${esc(GEAR[g].n+': '+GEAR[g].d)}">${GEAR[g].n}</button>`).join('')}</div>
+    <div class="acts"><button class="btn sm ghost" data-a="deck">Deck ${r.deck.length}</button><button class="btn sm ghost" data-a="menu">Guild hall</button></div>
+  </header>`;
+}
+function renderTitle(){
+  const c=S.career,rk=rankOf(c.rep);
+  const pct=rk.next?Math.min(100,(c.rep-rk.floor)/(rk.next[0]-rk.floor)*100):100;
+  return `<main class="title">
+    <section class="cover">
+      <div class="mast">
+        <span class="script">Thrilling tales of the bounty lanes!</span>
+        <h1>Void<br>Warrant</h1>
+        <svg class="burst" viewBox="0 0 100 100" aria-hidden="true"><path d="${burst(50,50,48,37,14,.1)}" fill="${K.paper}" stroke="${K.ink}" stroke-width="2.5" stroke-linejoin="round"/>${TX(50,46,'21',27,K.red)}${TX(50,59,'WARRANTS',9.5,K.ink,'Jost,Arial,sans-serif')}${TX(50,69,'INSIDE!',9.5,K.ink,'Jost,Arial,sans-serif')}</svg>
+      </div>
+      ${coverScene()}
+      <div class="strip">
+        <p class="lede">Sign on as a bounty hunter, work the board across three sectors, and bring in the most wanted being in the universe. Every job builds your name in the guild rankings.</p>
+        <div class="row">
+          ${S.run?`<button class="btn primary" data-a="continue">Continue hunt</button><button class="btn" data-a="new">New hunt</button>`:`<button class="btn primary" data-a="new">Start a hunt</button>`}
+          <button class="btn ghost" data-a="how">How to play</button>
+        </div>
+      </div>
+    </section>
+    <section class="paper ledger">
+      <div class="eyebrow">Hunters' Guild · Official ledger</div>
+      <h2>${rk.name}</h2>
+      <div class="repline"><b>${c.rep.toLocaleString()}</b> reputation${rk.next?` <span>· ${(rk.next[0]-c.rep).toLocaleString()} more to become ${rk.next[1]}</span>`:''}</div>
+      <div class="bar rep"><i style="width:${pct}%"></i></div>
+      <div class="facts"><div><b>${c.runs}</b><span>Hunts flown</span></div><div><b>${c.wins}</b><span>Eclipse warrants closed</span></div><div><b>${c.best}</b><span>Best single hunt</span></div></div>
+      <div class="eyebrow" style="margin-top:10px">Guild rankings</div>
+      ${rankings(c.rep)}
+    </section>
+  </main>`;
+}
+function renderSelect(){
+  const cards=Object.keys(HUNTERS).map(id=>{
+    const h=HUNTERS[id],locked=h.unlock&&S.career.rep<h.unlock;
+    const cnt={};h.deck.forEach(c=>cnt[c]=(cnt[c]||0)+1);
+    const sum=Object.keys(cnt).map(k=>(cnt[k]>1?cnt[k]+'× ':'')+CARDS[k].n).join(', ');
+    return `<article class="panel hcard ${locked?'locked':''}">
+      <div class="row" style="flex-wrap:nowrap;gap:14px">${portrait(id,92)}<div><h3>${h.n}</h3><div class="alias">${h.alias}</div></div></div>
+      <p>${h.flavor}</p>
+      <dl class="kv"><div><dt>Hull</dt><dd>${h.hp}</dd></div><div><dt>Style</dt><dd>${h.style}</dd></div></dl>
+      <div class="gearbox"><b>${GEAR[h.gear].n}</b><span>${GEAR[h.gear].d}</span></div>
+      <div class="deckline">Starting deck: ${sum}</div>
+      <button class="btn primary" data-a="hunter" data-id="${id}" ${locked?'disabled':''}>${locked?`Unlocks at ${h.unlock} reputation`:'Sign contract'}</button>
+    </article>`}).join('');
+  return `<main><div class="shead"><div><div class="eyebrow">New hunt</div><h2>Choose your hunter</h2></div><button class="btn ghost" data-a="title">Back</button></div><div class="hgrid">${cards}</div></main>`;
+}
+function renderBoard(){
+  const r=S.run,sec=SECTORS[r.sector];
+  const track=[0,1,2,3,4].map(i=>`<i class="${i<r.floor?'done':i===r.floor?'now':''}"></i>`).join('')+`<i class="boss ${r.floor===5?'now':''}"></i>`;
+  const posters=r.nodes.map((n,i)=>{
+    if(n.bid){
+      const b=BOUNTIES[n.bid];
+      const head=n.type==='boss'?'Most wanted':n.type==='elite'?'Elite warrant':'Wanted';
+      return `<button class="poster paper k-${n.type}" data-a="node" data-i="${i}"><span class="ph">${head}</span><span class="terms">${termsTx(b.terms)}</span><span class="pb">
+        <span class="mug">${portrait(n.bid,112)}</span>
+        <span class="pn">${b.n}</span><span class="pa">${b.alias}</span>
+        <span class="pc">${b.crime}</span>
+        <span class="rew">Reward ${b.reward} CR</span>
+        <span class="prow"><span>Reputation</span><b>${b.rep}</b></span>
+        <span class="prow"><span>Hull</span><b>${b.hp}</b></span></span></button>`;
+    }
+    const x=NODEINFO[n.type];
+    return `<button class="poster paper k-${n.type}" data-a="node" data-i="${i}"><span class="ph">${x.tag}</span><span class="pb"><span class="nart">${nodeArt(n.type)}</span><span class="pn">${x.n}</span><span class="pc">${x.d}</span></span></button>`;
+  }).join('');
+  return hud()+`<main>
+    <section class="sector"><div class="eyebrow">Sector ${r.sector+1} of 3</div><h2>${sec.n}</h2><p>${sec.d}</p><div class="track" aria-label="Progress through this sector">${track}</div></section>
+    ${r.notice?`<div class="notice">${r.notice}</div>`:''}
+    <div class="eyebrow" style="margin-bottom:6px">${r.floor===5?'The sector boss has surfaced':'Bounty board · pick your next stop'}</div>
+    <div class="board">${posters}</div>
+  </main>`;
+}
+function intentHTML(){
+  const e=C().enemy;
+  if(e.st.stun)return `<div class="intent">${ICON.stun}<b>Stunned</b><span class="dimtx">Skips its next action</span></div>`;
+  const m=curMove(),p=[];
+  for(const [k,a,b] of m.fx){
+    if(k==='atk')p.push(`<span class="ic atk">${ICON.atk}${enemyHit(a)}${b>1?'×'+b:''}</span>`);
+    else if(k==='shield')p.push(`<span class="ic sh">${ICON.shield}${a}</span>`);
+    else if(k==='rage')p.push(`<span class="ic bf">${ICON.buff}Rage ${a}</span>`);
+    else if(k==='heal')p.push(`<span class="ic hl">${ICON.heal}${a}</span>`);
+    else if(k==='cloak')p.push(`<span class="ic ck">${ICON.cloak}Cloak</span>`);
+    else if(k==='apply')p.push(`<span class="ic db">${ICON.debuff}${cap(a)} ${b}</span>`);
+  }
+  return `<div class="intent"><span class="ilbl">Next move</span><b>${m.n}</b><span class="ics">${p.join('')}</span></div>`;
+}
+function renderCombat(){
+  const c=C(),e=c.enemy,b=BOUNTIES[e.id],r=S.run,h=HUNTERS[r.hunter];
+  const kind={bounty:'Bounty',elite:'Elite warrant',boss:'Most wanted'}[c.kind];
+  const cp=capPct(false);
+  const inst=Object.keys(c.installs).map(k=>`<button class="chip inst" data-a="tip" data-tip="${esc(INSTALLS[k].d(c.installs[k]))}">${INSTALLS[k].n}</button>`).join('');
+  const lock=busy||c.over;
+  const hand=c.hand.map((x,i)=>{const d=CARDS[x.id];return cardHTML(x,{action:'play',data:`data-i="${i}"`,disabled:lock||costOf(x)>c.energy,key:i<9?i+1:null,
+    ready:x.id==='cuffs'&&e.hp<=Math.floor(e.max*capPct(x.up)/100),
+    weak:e.revealed&&d.dt&&(d.dt===e.weak||d.dt==='adaptive')&&x.id!=='thermite'})}).join('');
+  return hud()+`<main>
+    <div class="arena">
+      <section class="panel me" id="me">
+        <div class="fhead">${portrait(r.hunter,64)}<div><h3>${h.n}</h3><div class="alias">${h.alias}</div></div></div>
+        <div class="hpw"><div class="bar big"><i style="width:${r.hp/r.maxHp*100}%"></i></div><div class="hpn"><span><b>${r.hp}</b>/${r.maxHp}</span>${c.p.shield?`<span class="shv">${ICON.shield}${c.p.shield}</span>`:''}</div></div>
+        <div class="chips">${chips(c.p.st)}${inst}</div>
+        <div class="log">${c.log.map(l=>`<span>${l}</span>`).join('')}</div>
+      </section>
+      <section class="panel foe ${c.kind}" id="foe">
+        <div class="fhead">${portrait(e.id,104)}<div><div class="eyebrow">${kind} · ${termsTx(b.terms)}</div><h2>${b.n}</h2><div class="alias">${b.alias}</div></div></div>
+        ${intentHTML()}
+        <div class="hpw"><div class="bar big"><i style="width:${e.hp/e.max*100}%"></i><span class="cap" style="left:${cp}%" title="Capture threshold"></span></div>
+          <div class="hpn"><span><b>${e.hp}</b>/${e.max}</span>${e.shield?`<span class="shv">${ICON.shield}${e.shield}</span>`:''}<span class="dimtx" style="font-family:var(--f-body);font-size:13px">Cuffs work at ${Math.floor(e.max*cp/100)} or less</span></div></div>
+        <div class="chips">${chips(e.st)}</div>
+        <dl class="paper dossier">
+          <div><dt>Weakness</dt><dd>${e.revealed?`${dtChip(e.weak)} weapons deal ${hasGear('vi')?'double':'+50%'} damage`:'<span class="unk">Unknown. Play an Intel card that reveals it.</span>'}</dd></div>
+          <div><dt>On file</dt><dd>${b.tt}</dd></div>
+        </dl>
+      </section>
+    </div>
+    <div class="ctrl">
+      <div class="energy"><b>${c.energy}</b><span>/${c.maxE}</span><small>Energy</small></div>
+      <button class="btn sm ghost" data-a="pile" data-w="draw">Draw ${c.draw.length}</button>
+      <button class="btn sm ghost" data-a="pile" data-w="discard">Discard ${c.discard.length}</button>
+      ${c.exhaust.length?`<button class="btn sm ghost" data-a="pile" data-w="exhaust">Exhausted ${c.exhaust.length}</button>`:''}
+      <span class="turn">Turn ${c.turn}</span>
+      <button class="btn primary" data-a="end" ${lock?'disabled':''}>End turn</button>
+    </div>
+    <div class="hand">${hand||'<span class="dimtx" style="align-self:center">No cards in hand.</span>'}</div>
+    <div class="hint">Click a card to play it. Keys 1–9 play cards, E ends the turn.</div>
+  </main>`;
+}
+function renderReward(){
+  const w=S.reward,b=BOUNTIES[w.bid];
+  const cards=w.cards.map((id,i)=>cardHTML({id,up:false},{action:'take',data:`data-i="${i}"`,disabled:w.taken!=null&&w.taken!==i,ready:w.taken===i})).join('');
+  return hud()+`<main><section class="panel mid">
+    <div class="row" style="flex-wrap:nowrap;gap:16px;align-items:center">${portrait(w.bid,84)}<div><span class="script big">${w.captured?'Captured alive!':'Warrant closed!'}</span>
+    <h2>${b.n} ${w.captured?'is in your hold':'will not be a problem again'}</h2></div></div>
+    <div class="earn"><div><b class="amber">+${w.cr}</b><span>Credits</span></div><div><b>+${w.rp}</b><span>Reputation</span></div></div>
+    ${w.notes.length?`<ul class="notes">${w.notes.map(n=>`<li>${n}</li>`).join('')}</ul>`:''}
+    ${w.gear?`<div class="gearbox"><b>Recovered gear: ${GEAR[w.gear].n}</b><span>${GEAR[w.gear].d}</span></div>`:''}
+    <div><div class="eyebrow">Guild requisition</div><p class="dimtx">${w.taken==null?'Add one card to your deck, or skip it to keep your deck lean.':'Added to your deck.'}</p></div>
+    <div class="cgrid">${cards}</div>
+    <div class="row"><button class="btn primary" data-a="next">${w.taken==null?'Skip and continue':'Continue'}</button></div>
+  </section></main>`;
+}
+function renderShop(){
+  const s=S.shop,r=S.run;
+  const cards=s.cards.map((x,i)=>cardHTML({id:x.id,up:false},{action:'buyCard',data:`data-i="${i}"`,price:x.price,sold:x.sold,disabled:x.sold||r.credits<x.price})).join('');
+  const gear=s.gear.map((x,i)=>`<button class="choice" data-a="buyGear" data-i="${i}" ${x.sold||r.credits<x.price?'disabled':''}><b>${GEAR[x.id].n} <span class="amber">${x.sold?'Sold':x.price+' CR'}</span></b><span>${GEAR[x.id].d}</span></button>`).join('');
+  return hud()+`<main><section class="panel mid shopwrap">
+    <span class="script big">Black Market</span><h2>No questions, no refunds</h2>
+    <div class="shopsec"><div class="eyebrow">Cards</div><div class="cgrid">${cards}</div></div>
+    ${s.gear.length?`<div class="shopsec"><div class="eyebrow">Gear</div><div class="glist">${gear}</div></div>`:''}
+    <div class="shopsec"><div class="eyebrow">Services</div><div class="glist">
+      <button class="choice" data-a="buyRemove" ${s.removed||r.credits<70?'disabled':''}><b>Purge a card <span class="amber">${s.removed?'Used':'70 CR'}</span></b><span>Remove one card from your deck for good.</span></button>
+      <button class="choice" data-a="buyRepair" ${s.repaired||r.credits<40||r.hp>=r.maxHp?'disabled':''}><b>Field repair <span class="amber">${s.repaired?'Used':'40 CR'}</span></b><span>Restore 20 Hull.</span></button>
+    </div></div>
+    <div class="row"><button class="btn primary" data-a="next">Leave the market</button></div>
+  </section></main>`;
+}
+function renderDock(){
+  const r=S.run,heal=Math.min(r.maxHp-r.hp,Math.round(r.maxHp*.3));
+  return hud()+`<main><section class="panel mid">
+    <span class="script big">Repair Dock</span><h2>Orbital dry dock</h2>
+    <p class="dimtx">The dock crew has time for one job before your berth expires.</p>
+    <div class="choices">
+      <button class="choice" data-a="dockHeal"><b>Patch the hull</b><span>Restore ${heal} Hull. You are at ${r.hp} of ${r.maxHp}.</span></button>
+      <button class="choice" data-a="dockMod" ${r.deck.some(c=>!c.up)?'':'disabled'}><b>Mod a card</b><span>Permanently upgrade one card in your deck.</span></button>
+    </div>
+  </section></main>`;
+}
+function renderEvent(){
+  const ev=EVENTS.find(e=>e.id===S.event.id);
+  const body=S.event.result!=null
+    ?`<p>${S.event.result}</p><div class="row"><button class="btn primary" data-a="next">Continue</button></div>`
+    :`<div class="choices">${ev.o.map((o,i)=>`<button class="choice" data-a="evt" data-i="${i}" ${o.ok&&!o.ok()?'disabled':''}><b>${o.l}</b><span>${o.s}</span></button>`).join('')}</div>`;
+  return hud()+`<main><section class="panel mid"><span class="script big">An encounter</span><h2>${ev.t}</h2><p>${ev.x}</p>${body}</section></main>`;
+}
+function renderEnd(){
+  const e=S.end,h=HUNTERS[e.hunter],rb=rankOf(e.before),ra=rankOf(e.after);
+  const top=e.after>RIVALS[0][1];
+  return `<main style="padding-block:24px"><section class="panel mid">
+    <div class="row" style="flex-wrap:nowrap;gap:16px;align-items:center">${portrait(e.won||!e.killer?e.hunter:e.killer,84)}<div><span class="script big">${e.won?'Hunt complete!':'Hunt ended'}</span>
+    <h2>${e.won?'The Eclipse warrant is closed':e.killer?`${h.n} fell to ${BOUNTIES[e.killer].n}`:`${h.n} stood down`}</h2></div></div>
+    <p class="dimtx">${e.won?'The guild will be telling this one for a century. A 300 reputation bonus is included below.':`The hunt ended in ${SECTORS[Math.min(2,e.sector)].n}. Reputation you earned still counts toward your standing.`}</p>
+    <div class="earn"><div><b>+${e.rep}</b><span>Reputation banked</span></div><div><b>${e.caught.length}</b><span>Bounties closed</span></div><div><b class="amber">${e.credits}</b><span>Credits on hand</span></div></div>
+    ${ra.i>rb.i?`<div class="notice">Promoted: you are now ranked ${ra.name}.</div>`:''}
+    ${top?`<div class="notice">No one in the guild outranks you. You are the greatest bounty hunter in the universe.</div>`:''}
+    <div><div class="eyebrow">Guild rankings</div>${rankings(e.after)}</div>
+    <div class="row"><button class="btn primary" data-a="new">Start another hunt</button><button class="btn ghost" data-a="title">Guild hall</button></div>
+  </section></main>`;
+}
+function renderGallery(){
+  const fg=(s,l)=>`<figure>${s}<figcaption>${l}</figcaption></figure>`;
+  return `<main><h2>Portraits</h2><div class="gal">${Object.keys(PORT).map(k=>fg(portrait(k,150),k)).join('')}</div>
+    <h2>Cards</h2><div class="gal">${Object.keys(CARDS).map(k=>cardHTML({id:k,up:false})).join('')}</div>
+    <h2>Stops</h2><div class="gal">${Object.keys(NART).map(k=>fg(`<div class="nart" style="width:300px">${nodeArt(k)}</div>`,k)).join('')}</div></main>`;
+}
+function renderModal(){
+  const m=$('#modal');let h='';
+  if(S.pick){
+    const up=S.pick.mode==='upgrade';
+    const cards=S.run.deck.filter(c=>!up||!c.up).map(c=>cardHTML(up?{...c,up:true}:c,{action:'pickCard',data:`data-uid="${c.uid}"`})).join('');
+    h=`<h2>${up?'Choose a card to mod':'Choose a card to purge'}</h2><p class="dimtx">${up?'Cards are shown as they will be after the mod.':'The card is removed from your deck for the rest of the hunt.'}</p><div class="cgrid">${cards}</div><div class="row"><button class="btn ghost" data-a="cancelPick">Cancel</button></div>`;
+  }else if(modal){
+    if(modal.k==='pile'){
+      const c=C();const src=modal.w==='deck'||!c?S.run.deck:c[modal.w];
+      const list=src.slice().sort((a,b)=>CARDS[a.id].n.localeCompare(CARDS[b.id].n));
+      const ttl={deck:'Your deck',draw:'Draw pile (order hidden)',discard:'Discard pile',exhaust:'Exhausted this fight'}[modal.w];
+      h=`<h2>${ttl} · ${list.length}</h2><div class="cgrid">${list.map(x=>cardHTML(x)).join('')||'<span class="dimtx">Empty.</span>'}</div><div class="row"><button class="btn" data-a="close">Close</button></div>`;
+    }else if(modal.k==='how'){
+      h=`<h2>How to hunt</h2><ul>
+        <li>Each stop on the bounty board is a choice: a warrant to serve, a market, a repair dock or a contact. Five stops, then the sector's most wanted.</li>
+        <li>In a fight you get 3 Energy and draw 5 cards each turn. The bounty's next move is always shown, so you can decide when to shoot and when to shield.</li>
+        <li><b class="kw">Weapons</b> deal Kinetic, Energy, Plasma or Shock damage. <b class="kw">Gadgets</b> defend and set things up. <b class="kw">Intel</b> exposes the target.</li>
+        <li>Every bounty has a hidden weakness. Reveal it with Intel and matching weapons deal 50% more damage. Capturing also gets easier.</li>
+        <li>Drop a bounty to low Hull and play <b class="kw">Stasis Cuffs</b> to take it alive for bonus credits and reputation. Warrants marked "Wanted alive" pay half for a corpse.</li>
+        <li>Credits buy cards and gear at the Black Market. Reputation is banked when a hunt ends, win or lose, and moves you up the guild rankings.</li>
+      </ul><div class="row"><button class="btn primary" data-a="close">Got it</button></div>`;
+    }else if(modal.k==='confirmNew'){
+      h=`<h2>End the current hunt?</h2><p>Starting a new hunt retires the one in progress. The ${Math.max(0,S.run.rep)} reputation earned so far is banked.</p><div class="row"><button class="btn primary" data-a="abandon">End hunt and bank reputation</button><button class="btn ghost" data-a="close">Keep hunting</button></div>`;
+    }
+  }
+  if(!h){m.hidden=true;m.innerHTML='';return}
+  m.hidden=false;m.innerHTML=`<div class="mback" data-a="${S.pick?'cancelPick':'close'}"></div><div class="panel mbox" role="dialog" aria-modal="true">${h}</div>`;
+}
+let galleryMode=false;
+function render(){
+  const f={title:renderTitle,select:renderSelect,board:renderBoard,combat:renderCombat,reward:renderReward,shop:renderShop,dock:renderDock,event:renderEvent,end:renderEnd}[S.screen]||renderTitle;
+  const hand=$('.hand'),sx=hand?hand.scrollLeft:0;
+  $('#app').innerHTML=galleryMode?renderGallery():f();
+  const h2=$('.hand');if(h2&&sx)h2.scrollLeft=sx;
+  renderModal();flushFx();save();
+}
+
+/* ================= INPUT ================= */
+function act(a,d){
+  const r=S.run;
+  switch(a){
+    case 'tip':toast(d.tip);return;
+    case 'how':modal={k:'how'};break;
+    case 'close':modal=null;break;
+    case 'title':S.screen='title';break;
+    case 'menu':if(busy)return;S.resume=S.screen;S.screen='title';break;
+    case 'continue':if(!r)return;S.screen=S.resume||'board';S.resume=null;render();resumeCombat();return;
+    case 'new':if(r){modal={k:'confirmNew'}}else S.screen='select';break;
+    case 'abandon':modal=null;endRun(false);return;
+    case 'hunter':newRun(d.id);return;
+    case 'node':enterNode(+d.i);return;
+    case 'play':playCard(+d.i);return;
+    case 'end':endTurn();return;
+    case 'deck':modal={k:'pile',w:'deck'};break;
+    case 'pile':modal={k:'pile',w:d.w};break;
+    case 'take':{const w=S.reward;if(w.taken!=null)return;w.taken=+d.i;addCard(w.cards[w.taken]);break}
+    case 'next':afterNode();return;
+    case 'buyCard':{const x=S.shop.cards[+d.i];if(x.sold||r.credits<x.price)return;r.credits-=x.price;x.sold=true;addCard(x.id);toast(CARDS[x.id].n+' added to your deck.');break}
+    case 'buyGear':{const x=S.shop.gear[+d.i];if(x.sold||r.credits<x.price)return;r.credits-=x.price;x.sold=true;r.gear.push(x.id);toast(GEAR[x.id].n+' equipped.');break}
+    case 'buyRemove':if(S.shop.removed||r.credits<70)return;S.pick={mode:'remove',from:'shop'};break;
+    case 'buyRepair':if(S.shop.repaired||r.credits<40)return;r.credits-=40;S.shop.repaired=true;healP(20);toast('Hull repaired.');break;
+    case 'dockHeal':healP(Math.round(r.maxHp*.3));afterNode();return;
+    case 'dockMod':S.pick={mode:'upgrade',from:'dock'};break;
+    case 'evt':{const ev=EVENTS.find(e=>e.id===S.event.id),o=ev.o[+d.i];if(!o||(o.ok&&!o.ok()))return;const res=o.f();if(res!=null)S.event.result=res;break}
+    case 'cancelPick':S.pick=null;break;
+    case 'pickCard':{
+      const p=S.pick,i=r.deck.findIndex(c=>c.uid===d.uid);if(!p||i<0)return;
+      const nm=CARDS[r.deck[i].id].n+(r.deck[i].up?'+':'');let msg;
+      if(p.mode==='remove'){r.deck.splice(i,1);msg=nm+' purged from your deck.'}else{r.deck[i].up=true;msg=nm+' modded to '+CARDS[r.deck[i].id].n+'+.'}
+      S.pick=null;
+      if(p.from==='shop'){r.credits-=70;S.shop.removed=true;toast(msg)}
+      else if(p.from==='event')S.event.result=msg;
+      else if(p.from==='dock'){toast(msg);afterNode();return}
+      break}
+    default:return;
+  }
+  render();
+}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t||t.disabled)return;act(t.dataset.a,t.dataset)});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&(modal||S.pick)){if(S.pick)S.pick=null;else modal=null;render();return}
+  if(S.screen!=='combat'||modal||S.pick||e.metaKey||e.ctrlKey||e.altKey)return;
+  if(/^[1-9]$/.test(e.key))playCard(+e.key-1);
+  else if(e.key==='e'||e.key==='E')endTurn();
+});
+
+/* ================= BACKDROP ================= */
+function stars(){
+  const cv=$('#stars'),x=cv.getContext('2d'),dpr=Math.min(2,window.devicePixelRatio||1),w=innerWidth,h=innerHeight;
+  cv.width=w*dpr;cv.height=h*dpr;x.setTransform(dpr,0,0,dpr,0,0);
+  const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#0a0b27');g.addColorStop(.65,'#131241');g.addColorStop(1,'#2a1a55');x.fillStyle=g;x.fillRect(0,0,w,h);
+  let seed=11;const rr=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  const n=Math.floor(w*h/5200);
+  for(let i=0;i<n;i++){x.fillStyle=`rgba(246,236,210,${(.2+rr()*.5).toFixed(2)})`;x.beginPath();x.arc(rr()*w,rr()*h,.5+rr()*1.1,0,7);x.fill()}
+  const sp=(cx,cy,r,col)=>{x.fillStyle=col;x.beginPath();for(let i=0;i<8;i++){const a=Math.PI/4*i-Math.PI/2,q=i%2?r*.24:r;x.lineTo(cx+Math.cos(a)*q,cy+Math.sin(a)*q)}x.closePath();x.fill()};
+  const m=Math.floor(w*h/52000);
+  for(let i=0;i<m;i++)sp(rr()*w,rr()*h,4+rr()*6,rr()<.3?'rgba(248,195,60,.75)':'rgba(246,236,210,.6)');
+  /* ringed planet in the lower right, cratered moon in the upper left */
+  const R=Math.min(w,h)*.17,px=w-R*.5,py=h-R*.4;
+  const ringHalf=(a,b)=>{x.save();x.translate(px,py);x.rotate(-.3);x.strokeStyle='rgba(246,236,210,.22)';x.lineWidth=R*.09;x.beginPath();x.ellipse(0,0,R*1.75,R*.34,0,a,b);x.stroke();x.restore()};
+  ringHalf(Math.PI,2*Math.PI);
+  x.save();x.beginPath();x.arc(px,py,R,0,7);x.clip();
+  x.fillStyle='#3a1f4f';x.fillRect(px-R,py-R,2*R,2*R);
+  x.fillStyle='#4a2757';for(let i=-2;i<3;i++)x.fillRect(px-R,py+i*R*.42-R*.08,2*R,R*.17);
+  x.fillStyle='rgba(10,9,35,.3)';for(let yy=-R;yy<R;yy+=6)for(let xx=R*.15+((yy/6)%2?3:0);xx<R;xx+=6){x.beginPath();x.arc(px+xx,py+yy,1.6,0,7);x.fill()}
+  x.restore();
+  ringHalf(0,Math.PI);
+  const mr=Math.min(w,h)*.07,mx=mr*1.5,my=mr*1.7;
+  x.fillStyle='rgba(246,236,210,.22)';x.beginPath();x.arc(mx,my,mr,0,7);x.fill();
+  x.fillStyle='rgba(12,13,43,.3)';[[-.3,-.2,.22],[.3,.25,.16],[.1,-.45,.1]].forEach(c=>{x.beginPath();x.arc(mx+c[0]*mr,my+c[1]*mr,c[2]*mr,0,7);x.fill()});
+}
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(stars,150)});
+
+/* ================= BOOT ================= */
+function start(data){
+  if(data&&data.S&&data.S.career){S=data.S}
+  else{
+    S=load()||fresh();
+    if(S.run&&S.screen!=='title'){S.resume=S.screen;S.screen='title'}
+    else if(!S.run&&S.screen!=='end')S.screen='title';
+  }
+  busy=false;modal=null;stars();render();
+  if(S.screen==='combat')resumeCombat();
+}
+window.__vwGallery=on=>{galleryMode=on!==false;render()};
+const hot=window.claude&&window.claude.hot;
+try{if(hot&&hot.snapshot)hot.snapshot(()=>({S}))}catch(e){}
+if(hot&&hot.ready)hot.ready(start);else start((hot&&hot.data)||{});
+})();
+</script>
