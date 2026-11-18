@@ -1,6 +1,6 @@
-# Built with Claude
+# Project Portfolio
 
-Projects I've designed and built with Claude: AI security agents, an iOS app, sales-engineering tools, interactive explainers and games, from October to November 2026.
+AI security agents, an iOS app, sales-engineering tools, interactive explainers and games.
 
 **Live gallery:** https://iautomatecontracts-lang.github.io/built-with-claude/
 
@@ -41,7 +41,3 @@ Projects I've designed and built with Claude: AI security agents, an iOS app, sa
 - **Sentinels:** `pip install -r requirements.txt`, copy `.env.example` to `.env`, then `python -m okta_ai_sentinel` (or `auth0_ai_sentinel`). Run the tests with `pytest`. Each folder's README has the details.
 - **FinePrint:** open `apps/fineprint/FinePrint.xcodeproj` in Xcode 16+ and run it on a simulator. Add your own Anthropic API key in Settings.
 - **Deck:** `cd decks/deck-builder && npm install && node build.js`.
-
----
-
-Built in conversation with [Claude](https://claude.ai) (Claude Code).
