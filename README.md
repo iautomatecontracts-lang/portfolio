@@ -2,7 +2,7 @@
 
 Projects I've designed and built with Claude: AI security agents, an iOS app, sales-engineering tools, interactive explainers and games, from October to November 2026.
 
-**Live gallery:** open [`index.html`](index.html), or the GitHub Pages site once it's on.
+**Live gallery:** https://iautomatecontracts-lang.github.io/built-with-claude/
 
 ## Security & identity
 
