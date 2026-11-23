@@ -22,7 +22,7 @@ html, body { height: 100%; }
 body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--f-ui); overflow: hidden;
   padding-left: max(0px, env(safe-area-inset-left, 0px)); padding-right: max(0px, env(safe-area-inset-right, 0px)); }
 .viewport { position: fixed; inset: 0; display: grid; place-items: center; }
-.stage { width: 1920px; height: 1080px; position: relative; overflow: hidden; transform-origin: center; flex: none;
+.stage { width: 1920px; height: 1080px; position: absolute; left: 50%; top: 50%; margin: -540px 0 0 -960px; overflow: hidden; transform-origin: center; flex: none;
   background:
     radial-gradient(900px 700px at var(--gx, 28%) var(--gy, 50%), rgba(23, 87, 63, .75), transparent 70%),
     radial-gradient(700px 500px at 85% 110%, rgba(23, 87, 63, .35), transparent 70%),
